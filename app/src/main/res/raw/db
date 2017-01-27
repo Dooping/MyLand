@@ -1,0 +1,29 @@
+CREATE TABLE IF NOT EXISTS PlantTypes(
+	Name VARCHAR PRIMARY KEY,
+	Icon VARCHAR,
+	Color VARCHAR
+	);
+
+CREATE TABLE IF NOT EXISTS Lands(
+	Name VARCHAR PRIMARY KEY,
+	ImageUri VARCHAR,
+	Description TEXT
+	);
+
+CREATE TABLE IF NOT EXISTS Plants(
+	Land VARCHAR foreign key,
+	PlantType VARCHAR foreign key,
+	description TEXT
+	);
+
+CREATE TABLE IF NOT EXISTS TaskType(
+	Name VARCHAR PRIMARY KEY,
+	Description TEXT
+	);
+
+CREATE TABLE IF NOT EXISTS Tasks(
+	PlantsId INTEGER foreign key,
+	Land VARCHAR foreign key,
+	TaskType VARCHAR foreign key,
+	Observations TEXT
+	);
