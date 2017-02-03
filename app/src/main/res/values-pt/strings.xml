@@ -1,2 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<resources>
+    <string name="app_name">My Land</string>
+    <string name="action_settings">Configurações</string>
+    <string name="navigation_drawer_close">Fechar barra de navegação</string>
+    <string name="navigation_drawer_open">Abrir barra de navegação</string>
+    <string name="menu_lands">Terrenos</string>
+    <string name="menu_options">Opções</string>
+    <string name="menu_exit">Sair</string>
+</resources>
