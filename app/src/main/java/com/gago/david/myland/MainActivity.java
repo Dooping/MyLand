@@ -17,8 +17,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.gago.david.myland.dummy.DummyContent;
+
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener, LandFragment.OnListFragmentInteractionListener {
+    @Override
+    public void onListFragmentInteraction(DummyContent.DummyItem item) {
+
+    }
 
     private boolean logout = false;
 
@@ -29,14 +35,14 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        /*FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
             }
-        });
+        });*/
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -46,6 +52,13 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        LandFragment fragment = new LandFragment();
+        getSupportFragmentManager()
+                .beginTransaction()
+                .setCustomAnimations(R.anim.enter, R.anim.exit, R.anim.pop_enter, R.anim.pop_exit)
+                .add(R.id.fragment_container, fragment, LandFragment.class.getName())
+                .commit();
     }
 
     @Override
@@ -113,7 +126,7 @@ public class MainActivity extends AppCompatActivity
         String backStateName = fragment.getClass().getName();
 
         FragmentManager manager = getSupportFragmentManager();
-        if(backStateName == Home.class.getName())
+        if(backStateName == LandFragment.class.getName())
             manager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
         else {
             manager.popBackStack(backStateName, FragmentManager.POP_BACK_STACK_INCLUSIVE);
