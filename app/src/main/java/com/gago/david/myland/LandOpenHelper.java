@@ -16,7 +16,7 @@ import java.io.InputStream;
 public class LandOpenHelper extends SQLiteOpenHelper {
 
     private static final int DATABASE_VERSION = 1;
-    private static final String LAND_TABLE_NAME = "myland";
+    private static final String LAND_TABLE_NAME = "myland.db";
 
     private Context context;
 
@@ -43,7 +43,20 @@ public class LandOpenHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        InputStream inputStream = context.getResources().openRawResource(R.raw.deletedb);
 
+        String queries = "";
+        try {
+            queries = IOUtils.toString(inputStream);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        for (String query : queries.split(";")) {
+            db.execSQL(query);
+        }
+
+        onCreate(db);
     }
 
     @Override
