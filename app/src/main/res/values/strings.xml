@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">My Land</string>
+    <string name="mapbox_access_token" translatable="false">pk.eyJ1IjoiZG9waW5nIiwiYSI6ImNqMGdqNmpqYTAybXAyd3A0YmFva3l5ejcifQ.SOw47Lm8xtZxc6XTZHhOXw</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
