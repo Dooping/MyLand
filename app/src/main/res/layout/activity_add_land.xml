@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:mapbox="http://schemas.android.com/apk/lib/com.gago.david.myland"
+    xmlns:mapbox="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -12,9 +12,12 @@
         android:id="@+id/mapView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        mapbox:center_latitude="38.666205"
-        mapbox:center_longitude="-9.198379"
-        mapbox:style_url="mapbox://styles/mapbox/satellite-v9"
-        mapbox:zoom="20"/>
+        mapbox:mapbox_styleUrl="mapbox://styles/mapbox/satellite-v9"
+        mapbox:mapbox_cameraTargetLat="38.666205"
+        mapbox:mapbox_cameraTargetLng="-9.198379"
+        mapbox:mapbox_cameraZoom="16"
+        mapbox:mapbox_myLocation="true"
+        mapbox:mapbox_uiLogo="false"
+        mapbox:mapbox_uiAttribution="false"/>
 
 </RelativeLayout>

@@ -33,8 +33,6 @@ public class AddLandActivity extends AppCompatActivity {
             public void onMapReady(MapboxMap mapboxMap) {
 
                 // Customize map with markers, polylines, etc.
-                mapboxMap.setStyle(Style.SATELLITE_STREETS);
-                mapboxMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(38.666205,-9.198379),16), 7000);
 
             }
         });

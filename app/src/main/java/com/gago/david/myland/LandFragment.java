@@ -8,6 +8,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -63,14 +64,7 @@ public class LandFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_land_list, container, false);
-        FloatingActionButton btn = (FloatingActionButton) view.findViewById(R.id.add_land_button);
-        btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(getContext(), AddLandActivity.class);
-                startActivity(intent);
-            }
-        });
+
 
         // Set the adapter
         if (view instanceof FrameLayout) {
@@ -83,6 +77,15 @@ public class LandFragment extends Fragment {
             }
             recyclerView.setAdapter(new MyLandRecyclerViewAdapter(DummyContent.ITEMS, mListener));
         }
+        FloatingActionButton btn = (FloatingActionButton) view.findViewById(R.id.add_land_button);
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.i("LAND_LIST","carregou no botao");
+                Intent intent = new Intent(getContext(), AddLandActivity.class);
+                startActivity(intent);
+            }
+        });
         return view;
     }
 
