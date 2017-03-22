@@ -43,6 +43,7 @@ dependencies {
     compile 'com.android.support:recyclerview-v7:25.3.0'
     compile 'com.github.badoualy:morphy-toolbar:1.0.4'
     compile 'de.hdodenhof:circleimageview:2.1.0'
+    compile 'id.arieridwan:pageloader:0.0.2'
     testCompile 'junit:junit:4.12'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.5.1'
 }
