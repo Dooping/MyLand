@@ -64,6 +64,12 @@ public class AddLandActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onStop(){
+        super.onStop();
+        mapView.onStop();
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         mapView.onDestroy();
