@@ -7,4 +7,6 @@
     <string name="menu_lands">Terrenos</string>
     <string name="menu_options">Opções</string>
     <string name="menu_exit">Sair</string>
+    <string name="please_wait">Por favor espere...</string>
+    <string name="something_happened">Algo aconteceu</string>
 </resources>

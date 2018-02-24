@@ -18,6 +18,8 @@ import com.gago.david.myland.dummy.DummyContent;
 import com.gago.david.myland.dummy.DummyContent.DummyItem;
 
 
+import id.arieridwan.lib.PageLoader;
+
 import static com.mapbox.mapboxsdk.Mapbox.getApplicationContext;
 
 /**
@@ -33,6 +35,8 @@ public class LandFragment extends Fragment {
     // TODO: Customize parameters
     private int mColumnCount = 1;
     private OnListFragmentInteractionListener mListener;
+
+    private PageLoader pageLoader;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -78,12 +82,15 @@ public class LandFragment extends Fragment {
             recyclerView.setAdapter(new MyLandRecyclerViewAdapter(DummyContent.ITEMS, mListener));
         }
         FloatingActionButton btn = (FloatingActionButton) view.findViewById(R.id.add_land_button);
+
+        pageLoader = (PageLoader) view.findViewById(R.id.pageloader);
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Log.i("LAND_LIST","carregou no botao");
                 Intent intent = new Intent(getContext(), AddLandActivity.class);
                 startActivity(intent);
+                pageLoader.startProgress();
             }
         });
         return view;
@@ -105,6 +112,12 @@ public class LandFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    @Override
+    public void onStop(){
+        super.onStop();
+        pageLoader.stopProgress();
     }
 
     /**

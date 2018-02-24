@@ -9,4 +9,6 @@
     <string name="menu_lands">Lands</string>
     <string name="menu_options">Options</string>
     <string name="menu_exit">Exit</string>
+    <string name="please_wait">Please wait...</string>
+    <string name="something_happened">Something happened</string>
 </resources>

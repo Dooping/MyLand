@@ -32,4 +32,14 @@
         app:elevation="10dp"
         app:srcCompat="@drawable/ic_add_black_48dp" />
 
+    <id.arieridwan.lib.PageLoader
+        android:id="@+id/pageloader"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:setErrorImage="@drawable/ic_not_found"
+        app:setErrorText="Something happened"
+        app:setLoadingAnimationMode="flip"
+        app:setLoadingImage="@drawable/ic_search"
+        app:setLoadingText="Please wait..." />
+
 </FrameLayout>

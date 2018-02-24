@@ -24,10 +24,10 @@
         android:id="@+id/pageloader"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:setErrorText="Something happened"
+        app:setErrorText="@string/something_happened"
         app:setLoadingAnimationMode="flip"
-        app:setLoadingText="Please wait..."
-        app:setLoadingImage="@drawable/ic_search"
+        app:setLoadingText="@string/please_wait"
+        app:setLoadingImage="@drawable/map_editing"
         app:setErrorImage="@drawable/ic_not_found" />
 
 </RelativeLayout>
