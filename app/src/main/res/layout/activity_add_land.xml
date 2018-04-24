@@ -3,6 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:mapbox="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:configChanges="orientation"
+    android:screenOrientation="landscape"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.gago.david.myland.AddLandActivity">
@@ -13,9 +15,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         mapbox:mapbox_styleUrl="mapbox://styles/mapbox/satellite-v9"
-        mapbox:mapbox_cameraTargetLat="38.666205"
-        mapbox:mapbox_cameraTargetLng="-9.198379"
-        mapbox:mapbox_cameraZoom="16"
         mapbox:mapbox_myLocation="true"
         mapbox:mapbox_uiLogo="false"
         mapbox:mapbox_uiAttribution="false"/>
@@ -24,10 +23,47 @@
         android:id="@+id/pageloader"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:setErrorText="Something happened"
+        app:setErrorText="@string/something_happened"
         app:setLoadingAnimationMode="flip"
-        app:setLoadingText="Please wait..."
-        app:setLoadingImage="@drawable/ic_search"
+        app:setLoadingText="@string/please_wait"
+        app:setLoadingImage="@drawable/map_editing"
         app:setErrorImage="@drawable/ic_not_found" />
+
+    <!-- Implementation of find my location button -->
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/saveButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_gravity="bottom|end"
+        android:layout_marginBottom="20dp"
+        android:layout_marginEnd="20dp"
+        android:alpha="0.8"
+        android:src="@drawable/ic_save"
+        android:visibility="invisible"
+        mapbox:borderWidth="0dp"
+        mapbox:elevation="6dp"
+        mapbox:fabSize="normal"
+        mapbox:pressedTranslationZ="12dp" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/myLocationButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/saveButton"
+        android:layout_alignParentBottom="false"
+        android:layout_alignParentEnd="true"
+        android:layout_gravity="bottom|end"
+        android:layout_marginBottom="20dp"
+        android:layout_marginEnd="20dp"
+        android:alpha="0.8"
+        android:src="@android:drawable/ic_menu_mylocation"
+        android:visibility="invisible"
+        app:borderWidth="0dp"
+        app:elevation="6dp"
+        app:fabSize="normal"
+        app:pressedTranslationZ="12dp" />
 
 </RelativeLayout>

@@ -1,5 +1,6 @@
 package com.gago.david.myland;
 
+import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,6 +12,8 @@ import com.gago.david.myland.dummy.DummyContent.DummyItem;
 
 import java.util.List;
 
+import de.hdodenhof.circleimageview.CircleImageView;
+
 /**
  * {@link RecyclerView.Adapter} that can display a {@link DummyItem} and makes a call to the
  * specified {@link OnListFragmentInteractionListener}.
@@ -18,10 +21,10 @@ import java.util.List;
  */
 public class MyLandRecyclerViewAdapter extends RecyclerView.Adapter<MyLandRecyclerViewAdapter.ViewHolder> {
 
-    private final List<DummyItem> mValues;
+    private final List<LandObject> mValues;
     private final OnListFragmentInteractionListener mListener;
 
-    public MyLandRecyclerViewAdapter(List<DummyItem> items, OnListFragmentInteractionListener listener) {
+    public MyLandRecyclerViewAdapter(List<LandObject> items, OnListFragmentInteractionListener listener) {
         mValues = items;
         mListener = listener;
     }
@@ -36,8 +39,9 @@ public class MyLandRecyclerViewAdapter extends RecyclerView.Adapter<MyLandRecycl
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mItem = mValues.get(position);
-        holder.mIdView.setText(mValues.get(position).id);
-        holder.mContentView.setText(mValues.get(position).content);
+        holder.mIdView.setText(mValues.get(position).name);
+        //holder.mContentView.setText(mValues.get(position).Description);
+        holder.landImage.setImageURI(Uri.parse((mValues.get(position).imageUri)));
 
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -60,13 +64,17 @@ public class MyLandRecyclerViewAdapter extends RecyclerView.Adapter<MyLandRecycl
         public final View mView;
         public final TextView mIdView;
         public final TextView mContentView;
-        public DummyItem mItem;
+        public final CircleImageView landImage;
+        public final CircleImageView notification;
+        public LandObject mItem;
 
         public ViewHolder(View view) {
             super(view);
             mView = view;
             mIdView = (TextView) view.findViewById(R.id.id);
             mContentView = (TextView) view.findViewById(R.id.content);
+            landImage = (CircleImageView) view.findViewById(R.id.land_image);
+            notification = (CircleImageView) view.findViewById(R.id.notification);
         }
 
         @Override

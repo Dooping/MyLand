@@ -2,6 +2,9 @@ package com.gago.david.myland;
 
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
@@ -18,6 +21,12 @@ import com.gago.david.myland.dummy.DummyContent;
 import com.gago.david.myland.dummy.DummyContent.DummyItem;
 
 
+import java.util.ArrayList;
+import java.util.List;
+
+import id.arieridwan.lib.PageLoader;
+
+import static android.app.Activity.RESULT_OK;
 import static com.mapbox.mapboxsdk.Mapbox.getApplicationContext;
 
 /**
@@ -33,6 +42,10 @@ public class LandFragment extends Fragment {
     // TODO: Customize parameters
     private int mColumnCount = 1;
     private OnListFragmentInteractionListener mListener;
+
+    private PageLoader pageLoader;
+
+    private List<LandObject> lands;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -65,6 +78,8 @@ public class LandFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_land_list, container, false);
 
+        lands = readLands();
+        //lands = new ArrayList<>();
 
         // Set the adapter
         if (view instanceof FrameLayout) {
@@ -75,18 +90,72 @@ public class LandFragment extends Fragment {
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-            recyclerView.setAdapter(new MyLandRecyclerViewAdapter(DummyContent.ITEMS, mListener));
+            recyclerView.setAdapter(new MyLandRecyclerViewAdapter(lands, mListener));
         }
         FloatingActionButton btn = (FloatingActionButton) view.findViewById(R.id.add_land_button);
+
+        pageLoader = (PageLoader) view.findViewById(R.id.pageloader);
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Log.i("LAND_LIST","carregou no botao");
                 Intent intent = new Intent(getContext(), AddLandActivity.class);
-                startActivity(intent);
+                startActivityForResult(intent,1);
+                pageLoader.startProgress();
             }
         });
         return view;
+    }
+
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == 1) {
+            if (resultCode == RESULT_OK) {
+                String filename = data.getData().toString();
+                ((MainActivity)getActivity()).addLandDetails(filename);
+            }
+        }
+    }
+
+    private List<LandObject> readLands(){
+        Log.v("DATABASE", "entrou");
+        LandOpenHelper mDbHelper = new LandOpenHelper(getContext());
+
+        SQLiteDatabase db = mDbHelper.getReadableDatabase();
+
+        // Define a projection that specifies which columns from the database
+        // you will actually use after this query.
+        String[] projection = {
+                "Name",
+                "ImageUri",
+                "Description"
+        };
+
+        // How you want the results sorted in the resulting Cursor
+        String sortOrder = null;
+
+        Cursor cursor = db.query(
+                "Lands",   // The table to query
+                projection,             // The array of columns to return (pass null to get all)
+                null,              // The columns for the WHERE clause
+                null,          // The values for the WHERE clause
+                null,                   // don't group the rows
+                null,                   // don't filter by row groups
+                sortOrder               // The sort order
+        );
+
+        List lands = new ArrayList<>();
+
+        Log.v("DATABASE", "precursor");
+        while(cursor.moveToNext()) {
+            LandObject o = new LandObject(cursor.getString(0), cursor.getString(1), cursor.getString(2));
+            lands.add(o);
+        }
+
+        Log.v("DATABASE", "after cursor");
+        cursor.close();
+
+        Log.v("DATABASE", "close");
+        return lands;
     }
 
 
@@ -107,6 +176,12 @@ public class LandFragment extends Fragment {
         mListener = null;
     }
 
+    @Override
+    public void onStop(){
+        super.onStop();
+        pageLoader.stopProgress();
+    }
+
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
@@ -119,6 +194,6 @@ public class LandFragment extends Fragment {
      */
     public interface OnListFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onListFragmentInteraction(DummyItem item);
+        void onListFragmentInteraction(LandObject item);
     }
 }

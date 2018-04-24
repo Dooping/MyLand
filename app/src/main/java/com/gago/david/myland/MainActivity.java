@@ -1,13 +1,12 @@
 package com.gago.david.myland;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
-import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -21,11 +20,8 @@ import android.widget.Toast;
 import com.gago.david.myland.dummy.DummyContent;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, LandFragment.OnListFragmentInteractionListener {
-    @Override
-    public void onListFragmentInteraction(DummyContent.DummyItem item) {
-        Log.i("MAIN", item.id);
-    }
+        implements NavigationView.OnNavigationItemSelectedListener, LandFragment.OnListFragmentInteractionListener,
+            AddLandDetailsFragment.OnFragmentInteractionListener{
 
     private boolean logout = false;
 
@@ -138,5 +134,34 @@ public class MainActivity extends AppCompatActivity
             ft.commit();
         }
         logout=false;
+    }
+
+    public void setActionBarTitle(String title){
+        setTitle(title);
+    }
+
+    public void addLandDetails(String filename) {
+        setActionBarTitle("Land Details");
+        Fragment fragment = new AddLandDetailsFragment();
+        Bundle args=new Bundle();
+        args.putString("filename",filename);
+        fragment.setArguments(args);
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, fragment).addToBackStack("main").commit();
+
+    }
+
+    @Override
+    public void onFragmentInteraction(Uri uri) {
+
+    }
+
+    @Override
+    public void onListFragmentInteraction(LandObject item) {
+        Intent intent = new Intent(this, ScrollingActivity.class);
+        Bundle b = new Bundle();
+        b.putString("name", item.name); //Your id
+        intent.putExtras(b); //Put your id to your next Intent
+        startActivity(intent);
     }
 }

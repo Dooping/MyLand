@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+    android:background="@android:color/background_light">
 
 
     <android.support.v7.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
@@ -16,7 +18,7 @@
         android:layout_marginRight="16dp"
         app:layoutManager="LinearLayoutManager"
         tools:context="com.gago.david.myland.LandFragment"
-        tools:listitem="@layout/fragment_land" >
+        tools:listitem="@layout/fragment_land">
 
 
     </android.support.v7.widget.RecyclerView>
@@ -31,5 +33,15 @@
         android:tint="@android:color/background_light"
         app:elevation="10dp"
         app:srcCompat="@drawable/ic_add_black_48dp" />
+
+    <id.arieridwan.lib.PageLoader
+        android:id="@+id/pageloader"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:setErrorImage="@drawable/ic_not_found"
+        app:setErrorText="Something happened"
+        app:setLoadingAnimationMode="flip"
+        app:setLoadingImage="@drawable/ic_search"
+        app:setLoadingText="Please wait..." />
 
 </FrameLayout>
