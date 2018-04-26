@@ -12,10 +12,10 @@ CREATE TABLE IF NOT EXISTS Lands(
 
 CREATE TABLE IF NOT EXISTS Plants(
     Land VARCHAR,
-    idx INTEGER,
     PlantType VARCHAR,
     description TEXT,
-	primary key(land, idx)
+	x FLOAT,
+	y FLOAT,
     FOREIGN KEY(Land) REFERENCES Lands(Name),
     FOREIGN KEY(PlantType) REFERENCES PlantTypes(Name)
 	);
@@ -47,4 +47,7 @@ CREATE TABLE IF NOT EXISTS Tasks(
 	);
 
 INSERT INTO 'Priorities' (Name, P_order, Color)
-VALUES ('Alta',1,'#B71C1C'),('Media',2,'#1B5E20'),('Baixa',3,'#0D47A1')
+VALUES ('Alta',1,'#B71C1C'),('Media',2,'#1B5E20'),('Baixa',3,'#0D47A1');
+
+INSERT INTO 'PlantTypes' (Name, Icon, Color)
+VALUES ('Alfarrobeira',2131230837,'#4d2600'),('Amendoeira',2131230837,'#996633'),('Oliveira',2131230837,'#669900')

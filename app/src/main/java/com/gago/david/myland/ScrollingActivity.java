@@ -1,5 +1,6 @@
 package com.gago.david.myland;
 
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.drawable.Drawable;
@@ -25,7 +26,7 @@ public class ScrollingActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         Bundle b = getIntent().getExtras();
-        String name = b.getString("name");
+        final String name = b.getString("name");
 
         if (name == null) finish();
 
@@ -37,15 +38,20 @@ public class ScrollingActivity extends AppCompatActivity {
         cursor.close();
 
         setContentView(R.layout.activity_scrolling);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                //Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                //        .setAction("Action", null).show();
+                Intent intent = new Intent(getApplicationContext(), LandEditActivity.class);
+                Bundle b = new Bundle();
+                b.putString("name", name); //Your id
+                intent.putExtras(b); //Put your id to your next Intent
+                startActivity(intent);
             }
         });
 

@@ -117,7 +117,6 @@ public class LandFragment extends Fragment {
     }
 
     private List<LandObject> readLands(){
-        Log.v("DATABASE", "entrou");
         LandOpenHelper mDbHelper = new LandOpenHelper(getContext());
 
         SQLiteDatabase db = mDbHelper.getReadableDatabase();
@@ -143,18 +142,15 @@ public class LandFragment extends Fragment {
                 sortOrder               // The sort order
         );
 
-        List lands = new ArrayList<>();
+        List<LandObject> lands = new ArrayList<>();
 
-        Log.v("DATABASE", "precursor");
         while(cursor.moveToNext()) {
             LandObject o = new LandObject(cursor.getString(0), cursor.getString(1), cursor.getString(2));
             lands.add(o);
         }
 
-        Log.v("DATABASE", "after cursor");
         cursor.close();
 
-        Log.v("DATABASE", "close");
         return lands;
     }
 
