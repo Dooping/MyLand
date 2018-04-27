@@ -151,6 +151,16 @@ public class MainActivity extends AppCompatActivity
 
     }
 
+    public void removeLandDetails() {
+        Fragment fragment = new AddLandDetailsFragment();
+        FragmentManager manager = getSupportFragmentManager();
+        FragmentTransaction trans = manager.beginTransaction();
+        trans.remove(fragment);
+        trans.commit();
+        manager.popBackStack();
+
+    }
+
     @Override
     public void onFragmentInteraction(Uri uri) {
 

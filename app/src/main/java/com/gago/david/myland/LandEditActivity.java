@@ -296,7 +296,7 @@ public class LandEditActivity extends AppCompatActivity implements PopupMenuAdap
         String selection2 = "Land" + " = ?";
 
         // How you want the results sorted in the resulting Cursor
-        String sortOrder2 = "rowid DESC";
+        String sortOrder2 = "rowid ASC";
 
         Cursor cursor2 = db.query(
                 "Plants",   // The table to query

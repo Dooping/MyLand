@@ -125,6 +125,7 @@ public class AddLandDetailsFragment extends Fragment {
             b.putString("name", name.getText().toString()); //Your id
             intent.putExtras(b); //Put your id to your next Intent
             startActivity(intent);
+            ((MainActivity)getActivity()).removeLandDetails();
         }
     }
 

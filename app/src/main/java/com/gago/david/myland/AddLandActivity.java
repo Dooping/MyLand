@@ -94,12 +94,15 @@ public class AddLandActivity extends AppCompatActivity implements OnMapReadyCall
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                for(Polygon p: mapboxMap.getPolygons())
-                    mapboxMap.removePolygon(p);
-                poligon.add(poligon.getFirst());
-                mapboxMap.addPolyline(new PolylineOptions()
-                        .addAll(poligon)
-                        .color(Color.parseColor("#3bb2d0"))).setWidth(3.0f);
+                if(poligon.size()>0) {
+                    for (Polygon p : mapboxMap.getPolygons())
+                        mapboxMap.removePolygon(p);
+                    poligon.add(poligon.getFirst());
+                    mapboxMap.addPolyline(new PolylineOptions()
+                            .addAll(poligon)
+                            .color(Color.parseColor("#3bb2d0"))).setWidth(3.0f);
+                }
+
                 Handler myHandler = new Handler();
 
                 myHandler.postDelayed(new Runnable() {

@@ -40,7 +40,7 @@ public class MyLandRecyclerViewAdapter extends RecyclerView.Adapter<MyLandRecycl
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mItem = mValues.get(position);
         holder.mIdView.setText(mValues.get(position).name);
-        //holder.mContentView.setText(mValues.get(position).Description);
+        holder.mContentView.setText(mValues.get(position).Description);
         holder.landImage.setImageURI(Uri.parse((mValues.get(position).imageUri)));
 
         holder.mView.setOnClickListener(new View.OnClickListener() {

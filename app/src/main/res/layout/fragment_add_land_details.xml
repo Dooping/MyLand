@@ -33,7 +33,7 @@
                 android:layout_marginBottom="8dp"
                 android:capitalize="words"
                 android:hint="Name"
-                android:inputType="textPersonName"
+                android:inputType="textCapWords"
                 android:singleLine="true" />
 
             <EditText
@@ -41,7 +41,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Description"
-                android:inputType="textMultiLine" />
+                android:inputType="textCapSentences|textMultiLine" />
         </LinearLayout>
     </ScrollView>
 
