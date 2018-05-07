@@ -9,4 +9,12 @@
     <string name="menu_exit">Sair</string>
     <string name="please_wait">Por favor espere...</string>
     <string name="something_happened">Algo aconteceu</string>
+    <string name="task_type">Tipo de Tarefa</string>
+    <string name="title_activity_land_edit">Editar Terreno</string>
+    <string name="priority">Prioridade</string>
+    <string name="optional">(opcional)</string>
+    <string name="target_date">Data Alvo</string>
+    <string name="add_task">Adicionar Tarefa</string>
+    <string name="all">Todos</string>
+    <string name="land">Terreno</string>
 </resources>

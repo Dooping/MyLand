@@ -105,7 +105,14 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
-    <string name="title_activity_land_edit">LandEditActivity</string>
+    <string name="title_activity_land_edit">Edit Land</string>
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="task_type">Task Type</string>
+    <string name="priority">Priority</string>
+    <string name="optional">(optional)</string>
+    <string name="target_date">Target Date</string>
+    <string name="add_task">Add Task</string>
+    <string name="all">All</string>
+    <string name="land">Land</string>
 </resources>

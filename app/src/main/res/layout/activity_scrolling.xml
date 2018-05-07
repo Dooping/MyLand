@@ -43,4 +43,14 @@
         app:layout_anchorGravity="bottom|end"
         app:srcCompat="@android:drawable/ic_menu_edit" />
 
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/add_task_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="@dimen/fab_margin"
+        android:tint="@android:color/background_light"
+        app:elevation="10dp"
+        app:srcCompat="@drawable/ic_add_black_48dp" />
+
 </android.support.design.widget.CoordinatorLayout>

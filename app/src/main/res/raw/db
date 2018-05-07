@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS Lands(
 	);
 
 CREATE TABLE IF NOT EXISTS Plants(
+	Id INTEGER primary key autoincrement,
     Land VARCHAR,
     PlantType VARCHAR,
     description TEXT,
@@ -26,28 +27,32 @@ CREATE TABLE IF NOT EXISTS TaskTypes(
 	);
 
 CREATE TABLE IF NOT EXISTS Priorities(
-    Name VARCHAR PRIMARY KEY,
-    P_order INTEGER NOT NULL,
+    Name VARCHAR,
+    P_order INTEGER PRIMARY KEY,
     Color VARCHAR
     );
 
 CREATE TABLE IF NOT EXISTS Tasks(
-    Land VARCHAR,
+    Land VARCHAR NOT NULL,
 	PlantIndex INTEGER,
-    TaskType VARCHAR,
-    Priority VARCHAR,
-	CreationDate INTEGER NOT NULL,
-	ExpirationDate INTEGER,
+    TaskType VARCHAR NOT NULL,
+    Priority INTEGER NOT NULL,
+	CreationDate LONG NOT NULL,
+	ExpirationDate LONG,
 	Completed BOOLEAN NOT NULL CHECK (Completed IN (0,1)),
 	Observations TEXT,
-	FOREIGN KEY(PlantIndex) REFERENCES Plants(idx),
-    FOREIGN KEY(Land) REFERENCES Land(Name),
+	FOREIGN KEY(PlantIndex) REFERENCES Plants(Id),
+    FOREIGN KEY(Land) REFERENCES Lands(Name),
     FOREIGN KEY(TaskType) REFERENCES TaskTypes(Name),
-    FOREIGN KEY(Priority) REFERENCES Priorities(Name)
+    FOREIGN KEY(Priority) REFERENCES Priorities(P_order)
 	);
 
 INSERT INTO 'Priorities' (Name, P_order, Color)
-VALUES ('Alta',1,'#B71C1C'),('Media',2,'#1B5E20'),('Baixa',3,'#0D47A1');
+VALUES ('Alta',1,'#B71C1C'),('Media',3,'#1B5E20'),('Baixa',5,'#0D47A1');
 
 INSERT INTO 'PlantTypes' (Name, Icon, Color)
-VALUES ('Alfarrobeira',2131230837,'#4d2600'),('Amendoeira',2131230837,'#996633'),('Oliveira',2131230837,'#669900')
+VALUES ('Alfarrobeira',2131230837,'#4d2600'),('Amendoeira',2131230837,'#996633'),('Oliveira',2131230837,'#669900');
+
+INSERT INTO 'TaskTypes' (Name, Description)
+VALUES ('Lavrar', 'texto estupidamente grande para testar o redimensionamento de coisas. akshdjhgklajsdlkjhasjkdjfkljj aksdhflkajdsf akjdshlfkjaçdfklsja'),
+('Apanhar Alfarrobas', 'texto pequeno'), ('Apanhar Amêndoas', 'texto médio. !#$%&() asjdhghfkjlasdfaáé`qàóíú')

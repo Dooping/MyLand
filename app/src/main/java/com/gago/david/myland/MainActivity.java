@@ -28,6 +28,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //deleteDatabase("myland.db");
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -44,10 +45,10 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.setDrawerListener(toggle);
+        drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
         LandFragment fragment = new LandFragment();
@@ -123,7 +124,7 @@ public class MainActivity extends AppCompatActivity
         String backStateName = fragment.getClass().getName();
 
         FragmentManager manager = getSupportFragmentManager();
-        if(backStateName == LandFragment.class.getName())
+        if(backStateName.equals(LandFragment.class.getName()))
             manager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
         else {
             manager.popBackStack(backStateName, FragmentManager.POP_BACK_STACK_INCLUSIVE);

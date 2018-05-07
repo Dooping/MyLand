@@ -1,5 +1,7 @@
 package com.gago.david.myland;
 
+import android.animation.AnimatorListenerAdapter;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -14,18 +16,25 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.util.SortedList;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
-import android.widget.EditText;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.TranslateAnimation;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 import com.lantouzi.wheelview.WheelView;
@@ -33,11 +42,13 @@ import com.lantouzi.wheelview.WheelView;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 
-public class ScrollingActivity extends AppCompatActivity {
+public class ScrollingActivity extends AppCompatActivity implements AddTaskFragment.OnFragmentInteractionListener {
 
-    private List<String> list;
     private WheelView wheel;
     private LandObject land;
     private String name;
@@ -46,10 +57,15 @@ public class ScrollingActivity extends AppCompatActivity {
     private CollapsingToolbarLayout toolbarLayout;
     private ArrayList<PlantTypeObject> plantTypeList;
     private int selected = 0;
+    private FloatingActionButton editButton, addTaskButton;
+    private TaskListAdapter mAdapter;
+    private ArrayList<TaskObject> tasks = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+
 
         Bundle b = getIntent().getExtras();
         name = b.getString("name");
@@ -64,8 +80,8 @@ public class ScrollingActivity extends AppCompatActivity {
         final Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+        editButton = findViewById(R.id.fab);
+        editButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 //Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
@@ -75,6 +91,14 @@ public class ScrollingActivity extends AppCompatActivity {
                 b.putString("name", name); //Your id
                 intent.putExtras(b); //Put your id to your next Intent
                 startActivity(intent);
+            }
+        });
+
+        addTaskButton = findViewById(R.id.add_task_button);
+        addTaskButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                addTaskPressed();
             }
         });
 
@@ -99,6 +123,12 @@ public class ScrollingActivity extends AppCompatActivity {
             }
         });
 
+        RecyclerView recyclerView = findViewById(R.id.task_list);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        tasks = readTasks(land.name);
+        mAdapter = new TaskListAdapter(tasks);
+        recyclerView.setAdapter(mAdapter);
+
         wheel = findViewById(R.id.wheelview);
 
         wheel.setOnWheelItemSelectedListener(new WheelView.OnWheelItemSelectedListener() {
@@ -106,6 +136,22 @@ public class ScrollingActivity extends AppCompatActivity {
             public void onWheelItemChanged(WheelView wheelView, int position) {
                 selected = position;
                 drawTrees();
+
+                if(selected == 0)
+                    mAdapter.getFilter().filter("all");
+                else if(selected == 1)
+                    mAdapter.getFilter().filter("land");
+                else if (selected < plantTypeList.size()+2){
+                    String filter = "group";
+                    for (PlantObject p : land.plants)
+                        if(plantTypeList.get(selected-2).name.equals(p.plantType))
+                            filter = filter.concat(" "+p.id);
+                    mAdapter.getFilter().filter(filter);
+                }
+                else{
+                    mAdapter.getFilter().filter("item "+land.plants.get(selected-2-plantTypeList.size()).id);
+                }
+
             }
 
             @Override
@@ -118,6 +164,46 @@ public class ScrollingActivity extends AppCompatActivity {
         setTitle(land.name);
         TextView description = findViewById(R.id.scrolling_description);
         description.setText(land.Description);
+    }
+
+    private void addTaskPressed() {
+        AddTaskFragment fragment = new AddTaskFragment();
+        Bundle args=new Bundle();
+        args.putString("land" ,land.name);
+        String type = "all";
+        ArrayList<Integer> list = new ArrayList<>();
+        if(wheel.getSelectedPosition()==0)
+            for (PlantObject p : land.plants)
+                list.add(p.id);
+        else if (wheel.getSelectedPosition()==1)
+            type = "land";
+        else if (wheel.getSelectedPosition()-2 < plantTypeList.size()){
+            for (PlantObject p : land.plants)
+                if(plantTypeList.get(wheel.getSelectedPosition()-1).name.equals(p.plantType))
+                    list.add(p.id);
+            type = "group";
+        }
+        else {
+            list.add(land.plants.get(wheel.getSelectedPosition() - 2 - plantTypeList.size()).id);
+            type = "item";
+        }
+
+        Log.v("ScrollingActivity", "list:"+list);
+
+        args.putString("type" ,type);
+        args.putIntegerArrayList("plandIndex", list);
+        fragment.setArguments(args);
+        FragmentManager manager = getSupportFragmentManager();
+        manager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        getSupportFragmentManager()
+                .beginTransaction()
+                .setCustomAnimations(R.anim.enter_vertical, R.anim.exit_vertical, R.anim.pop_enter_vertical, R.anim.pop_exit_vertical)
+                .add(R.id.add_fragment_container, fragment, LandFragment.class.getName())
+                .addToBackStack(fragment.getClass().getName())
+                .commit();
+
+        editButton.setVisibility(View.GONE);
+        addTaskButton.setVisibility(View.GONE);
     }
 
     private void drawTrees(){
@@ -159,7 +245,8 @@ public class ScrollingActivity extends AppCompatActivity {
                     d.setColorFilter(new PorterDuffColorFilter(Color.parseColor(type.color), PorterDuff.Mode.SRC_IN));
                     //And draw it...
                     d.draw(canvas);
-                    if (i == selected)
+
+                    if ((i + 2 + plantTypeList.size() == selected) || selected == 0 || ((selected-2 < plantTypeList.size()) && selected > 1 && p.plantType.equals(plantTypeList.get(selected-2).name)))
                         canvas.drawCircle(p.x * canvas.getWidth(), p.y * canvas.getHeight(), r, mPaint);
                     break;
                 }
@@ -205,7 +292,7 @@ public class ScrollingActivity extends AppCompatActivity {
         }
 
         cursor.close();
-
+        db.close();
         return plants;
     }
 
@@ -244,6 +331,7 @@ public class ScrollingActivity extends AppCompatActivity {
         // Define a projection that specifies which columns from the database
         // you will actually use after this query.
         String[] projection2 = {
+                "Id",
                 "Land",
                 "PlantType",
                 "Description",
@@ -255,7 +343,7 @@ public class ScrollingActivity extends AppCompatActivity {
         String selection2 = "Land" + " = ?";
 
         // How you want the results sorted in the resulting Cursor
-        String sortOrder2 = "rowid ASC";
+        String sortOrder2 = "Id ASC";
 
         Cursor cursor2 = db.query(
                 "Plants",   // The table to query
@@ -267,7 +355,13 @@ public class ScrollingActivity extends AppCompatActivity {
                 sortOrder2               // The sort order
         );
         while (cursor2.moveToNext())
-            l.addPlant(new PlantObject(cursor2.getString(1), cursor2.getString(2), cursor2.getFloat(3), cursor2.getFloat(4)));
+            l.addPlant(new PlantObject(cursor2.getInt(cursor2.getColumnIndex("Id"))
+                    , cursor2.getString(2), cursor2.getString(3), cursor2.getFloat(4), cursor2.getFloat(5)));
+
+        Log.v("ScrollingActivity", ""+cursor2.getColumnIndex("Id"));
+        cursor.close();
+        cursor2.close();
+        db.close();
         return l;
     }
 
@@ -276,13 +370,129 @@ public class ScrollingActivity extends AppCompatActivity {
         super.onResume();
         land = readLand(name);
         List<String> strings = new ArrayList<>(land.plants.size());
+        strings.add(getResources().getString(R.string.all));
+        strings.add(getResources().getString(R.string.land));
+        for (PlantTypeObject p : plantTypeList)
+            strings.add(p.name + " (" + getResources().getString(R.string.all) + ")");
         for (PlantObject p : land.plants)
             strings.add(p.plantType);
 
         wheel.setItems(strings);
         wheel.setMinSelectableIndex(0);
-        wheel.setMaxSelectableIndex(land.plants.size()-1);
+        wheel.setMaxSelectableIndex(strings.size()-1);
         if (!first)
             drawTrees();
     }
+
+    public void showButtons(){
+        editButton.setVisibility(View.VISIBLE);
+        addTaskButton.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void onFragmentInteraction(ArrayList<TaskObject> tasks) {
+        Fragment fragment = new AddTaskFragment();
+        FragmentManager manager = getSupportFragmentManager();
+        FragmentTransaction trans = manager.beginTransaction();
+        trans.remove(fragment);
+        trans.commit();
+        manager.popBackStack();
+        Log.v("tasks", tasks.toString());
+        addTaskQuery(tasks);
+    }
+
+    private void addTaskQuery(ArrayList<TaskObject> tasks){
+        LandOpenHelper mDbHelper = new LandOpenHelper(this);
+        boolean success = true;
+
+        // Gets the data repository in write mode
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+
+        for(TaskObject t : tasks) {
+            ContentValues values = new ContentValues();
+            values.put("Land", t.land);
+            values.put("PlantIndex", t.plantIndex);
+            values.put("TaskType", t.taskType);
+            values.put("Priority", t.priority);
+            values.put("CreationDate", t.creationDate.getTime());
+            if (t.targetDate != null)
+                values.put("ExpirationDate", t.targetDate.getTime());
+            values.put("Completed", t.completed);
+            values.put("Observations", t.observations);
+
+// Insert the new row, returning the primary key value of the new row
+            long newRowId = db.insert("Tasks", null, values);
+            if (newRowId == -1)
+                success = false;
+            else {
+                Log.v("AddTask", "row inserted: " + newRowId);
+                this.tasks.add(t);
+
+            }
+
+        }
+        if (!success)
+            Toast.makeText(this,"Some error occurred while adding the task", Toast.LENGTH_SHORT).show();
+        else
+            Toast.makeText(this,"Task Added", Toast.LENGTH_SHORT).show();
+
+        db.close();
+    }
+
+    private ArrayList<TaskObject> readTasks(String land){
+        ArrayList<TaskObject> tasks = new ArrayList<>();
+        LandOpenHelper mDbHelper = new LandOpenHelper(getApplicationContext());
+
+        SQLiteDatabase db = mDbHelper.getReadableDatabase();
+
+        // Define a projection that specifies which columns from the database
+        // you will actually use after this query.
+        String[] projection = {
+                "Land",
+                "PlantIndex",
+                "TaskType",
+                "Priority",
+                "CreationDate",
+                "ExpirationDate",
+                "Completed",
+                "Observations"
+        };
+
+        // How you want the results sorted in the resulting Cursor
+        String sortOrder = "Priority ASC";
+
+        String selection = "Land = ?";
+        String[] selectionArgs = new String[]{land};
+
+        Cursor cursor = db.query(
+                "Tasks",   // The table to query
+                projection,             // The array of columns to return (pass null to get all)
+                selection,              // The columns for the WHERE clause
+                selectionArgs,          // The values for the WHERE clause
+                null,                   // don't group the rows
+                null,                   // don't filter by row groups
+                sortOrder               // The sort order
+        );
+
+        //ArrayList<TaskObject> tasks = new ArrayList<>();
+        tasks.clear();
+
+        while(cursor.moveToNext()) {
+            Calendar cl = Calendar.getInstance();
+            cl.setTimeInMillis(cursor.getLong(4));
+
+            Calendar cl2 = (cursor.isNull(5)) ? null : Calendar.getInstance();
+            if(cl2 != null)
+                cl2.setTimeInMillis(cursor.getLong(4));
+            Date targetDate = cl2 == null ? null : cl2.getTime();
+            TaskObject o = new TaskObject(cursor.getString(0), cursor.isNull(1) ? null : cursor.getInt(1), cursor.getString(2)
+                    , cursor.getInt(3), cl.getTime(), targetDate, cursor.getInt(5) > 0, cursor.getString(6));
+            tasks.add(o);
+        }
+
+        cursor.close();
+        db.close();
+        return tasks;
+    }
+
 }

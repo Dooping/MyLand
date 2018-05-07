@@ -66,6 +66,7 @@ public class AddLandActivity extends AppCompatActivity implements OnMapReadyCall
         Log.v("MAPBOX", "onMapReady");
         AddLandActivity.this.mapboxMap = mapboxMap;
         askLocationPermission();
+        mapboxMap.getUiSettings().setTiltGesturesEnabled(false);
         mapboxMap.setOnMapLongClickListener(this);
         mapboxMap.setMyLocationEnabled(true);
         mapboxMap.setOnMarkerClickListener(new MapboxMap.OnMarkerClickListener() {

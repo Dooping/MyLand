@@ -285,6 +285,7 @@ public class LandEditActivity extends AppCompatActivity implements PopupMenuAdap
         // Define a projection that specifies which columns from the database
         // you will actually use after this query.
         String[] projection2 = {
+                "Id",
                 "Land",
                 "PlantType",
                 "Description",
@@ -296,7 +297,7 @@ public class LandEditActivity extends AppCompatActivity implements PopupMenuAdap
         String selection2 = "Land" + " = ?";
 
         // How you want the results sorted in the resulting Cursor
-        String sortOrder2 = "rowid ASC";
+        String sortOrder2 = "Id ASC";
 
         Cursor cursor2 = db.query(
                 "Plants",   // The table to query
@@ -308,7 +309,7 @@ public class LandEditActivity extends AppCompatActivity implements PopupMenuAdap
                 sortOrder2               // The sort order
         );
         while (cursor2.moveToNext())
-            l.addPlant(new PlantObject(cursor2.getString(1), cursor2.getString(2), cursor2.getFloat(3), cursor2.getFloat(4)));
+            l.addPlant(new PlantObject(cursor2.getInt(1), cursor2.getString(2), cursor2.getString(3), cursor2.getFloat(4), cursor2.getFloat(5)));
         return l;
     }
 
@@ -489,6 +490,7 @@ public class LandEditActivity extends AppCompatActivity implements PopupMenuAdap
 
 // Insert the new row, returning the primary key value of the new row
         long newRowId = db.insert("Plants", null, values);
+        p.id = (int)newRowId;
         Log.v("ADDDETAIL", "row inserted: "+newRowId);
         if (newRowId == -1)
             Toast.makeText(this,"Some error happened while adding the item", Toast.LENGTH_SHORT).show();

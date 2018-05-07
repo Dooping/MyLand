@@ -29,4 +29,9 @@
         <item name="android:background">@color/black_overlay</item>
     </style>
 
+    <style name="SpinnerStyle" parent="android:TextAppearance.Widget.TextView.SpinnerItem">
+        <item name="android:divider">#565656</item>
+        <item name="android:dividerHeight">1dp</item>
+    </style>
+
 </resources>
