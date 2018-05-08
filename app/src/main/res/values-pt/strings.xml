@@ -17,4 +17,6 @@
     <string name="add_task">Adicionar Tarefa</string>
     <string name="all">Todos</string>
     <string name="land">Terreno</string>
+    <string name="description">Descrição</string>
+    <string name="cancel">Cancelar</string>
 </resources>

@@ -1,13 +1,16 @@
 package com.gago.david.myland;
 
 import android.animation.AnimatorListenerAdapter;
+import android.app.AlertDialog;
 import android.content.ContentValues;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.ColorFilter;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
@@ -28,11 +31,16 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -57,7 +65,7 @@ public class ScrollingActivity extends AppCompatActivity implements AddTaskFragm
     private CollapsingToolbarLayout toolbarLayout;
     private ArrayList<PlantTypeObject> plantTypeList;
     private int selected = 0;
-    private FloatingActionButton editButton, addTaskButton;
+    private FloatingActionButton editButton, addTaskButton, removeButton;
     private TaskListAdapter mAdapter;
     private ArrayList<TaskObject> tasks = new ArrayList<>();
 
@@ -93,6 +101,8 @@ public class ScrollingActivity extends AppCompatActivity implements AddTaskFragm
                 startActivity(intent);
             }
         });
+
+        removeButton = findViewById(R.id.remove);
 
         addTaskButton = findViewById(R.id.add_task_button);
         addTaskButton.setOnClickListener(new View.OnClickListener() {
@@ -136,21 +146,7 @@ public class ScrollingActivity extends AppCompatActivity implements AddTaskFragm
             public void onWheelItemChanged(WheelView wheelView, int position) {
                 selected = position;
                 drawTrees();
-
-                if(selected == 0)
-                    mAdapter.getFilter().filter("all");
-                else if(selected == 1)
-                    mAdapter.getFilter().filter("land");
-                else if (selected < plantTypeList.size()+2){
-                    String filter = "group";
-                    for (PlantObject p : land.plants)
-                        if(plantTypeList.get(selected-2).name.equals(p.plantType))
-                            filter = filter.concat(" "+p.id);
-                    mAdapter.getFilter().filter(filter);
-                }
-                else{
-                    mAdapter.getFilter().filter("item "+land.plants.get(selected-2-plantTypeList.size()).id);
-                }
+                filter();
 
             }
 
@@ -162,8 +158,68 @@ public class ScrollingActivity extends AppCompatActivity implements AddTaskFragm
 
         plantTypeList = readPlantTypes();
         setTitle(land.name);
-        TextView description = findViewById(R.id.scrolling_description);
+        final TextView description = findViewById(R.id.scrolling_description);
         description.setText(land.Description);
+        LinearLayout descriptionLayout = findViewById(R.id.description_layout);
+        descriptionLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AlertDialog.Builder alertDialog = new AlertDialog.Builder(ScrollingActivity.this);
+                alertDialog.setTitle("Edit Land");
+                alertDialog.setMessage("Description");
+
+                final EditText input = new EditText(ScrollingActivity.this);
+                input.setText(land.Description);
+                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.MATCH_PARENT);
+                input.setLayoutParams(lp);
+                alertDialog.setView(input);
+                ColorFilter filter = new PorterDuffColorFilter(getResources().getColor(R.color.colorAccent), PorterDuff.Mode.SRC_IN);
+                Drawable icon = getResources().getDrawable(R.drawable.ic_action_edit);
+                icon.setColorFilter(filter);
+                alertDialog.setIcon(icon);
+
+                alertDialog.setPositiveButton("OK",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                land.Description = input.getText().toString();
+                                updateLand();
+                                description.setText(land.Description);
+                            }
+                        });
+
+                alertDialog.setNegativeButton(getResources().getString(R.string.cancel),
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.cancel();
+                            }
+                        });
+
+                alertDialog.show();
+            }
+        });
+    }
+
+    private void filter(){
+        if(selected == 0)
+            mAdapter.getFilter().filter("all");
+        else if(selected == 1)
+            mAdapter.getFilter().filter("land");
+        else if (selected < plantTypeList.size()+2){
+            String filter = "group";
+            for (PlantObject p : land.plants)
+                if(plantTypeList.get(selected-2).name.equals(p.plantType))
+                    filter = filter.concat(" "+p.id);
+            mAdapter.getFilter().filter(filter);
+        }
+        else
+            mAdapter.getFilter().filter("item "+land.plants.get(selected-2-plantTypeList.size()).id);
+
+        if (selected < plantTypeList.size()+2)
+            removeButton.setVisibility(View.GONE);
+        else
+            removeButton.setVisibility(View.VISIBLE);
     }
 
     private void addTaskPressed() {
@@ -204,6 +260,7 @@ public class ScrollingActivity extends AppCompatActivity implements AddTaskFragm
 
         editButton.setVisibility(View.GONE);
         addTaskButton.setVisibility(View.GONE);
+        removeButton.setVisibility(View.GONE);
     }
 
     private void drawTrees(){
@@ -256,6 +313,29 @@ public class ScrollingActivity extends AppCompatActivity implements AddTaskFragm
         layers[1] = drawable;
 
         toolbarLayout.setBackground(new LayerDrawable(layers));
+    }
+
+    public void removeTree(View view) {
+
+        LandOpenHelper mDbHelper = new LandOpenHelper(this);
+
+        // Gets the data repository in write mode
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+
+        int id = land.plants.get(selected-2-plantTypeList.size()).id;
+        String whereClause = "Id = ?";
+        String[] whereArgs = new String[]{""+id};
+
+// Create a new map of values, where column names are the keys
+        int i = db.delete("Plants", whereClause, whereArgs);
+        Log.v("Remove Plant", i+" rows removed");
+        db.close();
+        selected--;
+        for(TaskObject t : tasks)
+            if(t.plantIndex != null && t.plantIndex == id)
+                tasks.remove(t);
+        filter();
+        initiateStuff();
     }
 
     private ArrayList<PlantTypeObject> readPlantTypes(){
@@ -368,6 +448,10 @@ public class ScrollingActivity extends AppCompatActivity implements AddTaskFragm
     @Override
     protected void onResume() {
         super.onResume();
+        initiateStuff();
+    }
+
+    private void initiateStuff(){
         land = readLand(name);
         List<String> strings = new ArrayList<>(land.plants.size());
         strings.add(getResources().getString(R.string.all));
@@ -380,6 +464,8 @@ public class ScrollingActivity extends AppCompatActivity implements AddTaskFragm
         wheel.setItems(strings);
         wheel.setMinSelectableIndex(0);
         wheel.setMaxSelectableIndex(strings.size()-1);
+        /*if (land.plants.size()==0)
+            removeButton.setVisibility(View.GONE);*/
         if (!first)
             drawTrees();
     }
@@ -387,6 +473,8 @@ public class ScrollingActivity extends AppCompatActivity implements AddTaskFragm
     public void showButtons(){
         editButton.setVisibility(View.VISIBLE);
         addTaskButton.setVisibility(View.VISIBLE);
+        if (selected > plantTypeList.size()+1)
+            removeButton.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -399,6 +487,7 @@ public class ScrollingActivity extends AppCompatActivity implements AddTaskFragm
         manager.popBackStack();
         Log.v("tasks", tasks.toString());
         addTaskQuery(tasks);
+        filter();
     }
 
     private void addTaskQuery(ArrayList<TaskObject> tasks){
@@ -495,4 +584,30 @@ public class ScrollingActivity extends AppCompatActivity implements AddTaskFragm
         return tasks;
     }
 
+    private void updateLand(){
+
+        LandOpenHelper mDbHelper = new LandOpenHelper(this);
+
+        // Gets the data repository in write mode
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+
+// Create a new map of values, where column names are the keys
+        ContentValues values = new ContentValues();
+        values.put("Name", land.name);
+        values.put("ImageUri", land.imageUri);
+        values.put("Description", land.Description);
+
+// Insert the new row, returning the primary key value of the new row
+        String whereClause = "Name = ?";
+        String[] whereArgs = new String[]{land.name};
+        long newRowId = db.update("Lands", values, whereClause, whereArgs);
+        Log.v("Update Detail", "row updated: "+newRowId);
+        if (newRowId == -1)
+            Toast.makeText(this,"Some error happened while updating the land", Toast.LENGTH_SHORT).show();
+        else {
+            Toast.makeText(this,"Land updated", Toast.LENGTH_SHORT).show();
+            //meter na layer
+        }
+        db.close();
+    }
 }

@@ -464,7 +464,7 @@ public class LandEditActivity extends AppCompatActivity implements PopupMenuAdap
                     }
                 });
 
-        alertDialog.setNegativeButton("Cancel",
+        alertDialog.setNegativeButton(getResources().getString(R.string.cancel),
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.cancel();

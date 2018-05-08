@@ -23,11 +23,33 @@
             android:orientation="vertical">
 
 
-            <TextView
-                android:id="@+id/scrolling_description"
+            <LinearLayout
+                android:id="@+id/description_layout"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="@dimen/text_margin" />
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/textView3"
+                    style="?android:attr/textAppearanceSmall"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="16dp"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="16dp"
+                    android:text="@string/description"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/scrolling_description"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:layout_marginEnd="@dimen/text_margin"
+                    android:layout_marginStart="@dimen/text_margin"
+                    android:layout_marginTop="8dp"
+                    android:minHeight="0dp" />
+            </LinearLayout>
 
             <com.lantouzi.wheelview.WheelView
                 android:id="@+id/wheelview"
@@ -37,7 +59,7 @@
                 android:background="@android:color/white"
                 app:lwvHighlightColor="#31B1E6"
                 app:lwvIntervalFactor="0.5"
-                app:lwvMarkRatio="0.2"
+                app:lwvMarkRatio="0.4"
                 app:lwvMarkTextSize="12sp"
                 app:lwvCenterMarkTextSize="14sp"
                 app:lwvCursorSize="10dp"

@@ -43,6 +43,29 @@
         app:layout_anchorGravity="bottom|end"
         app:srcCompat="@android:drawable/ic_menu_edit" />
 
+    <Space
+        android:id="@+id/space"
+        android:layout_width="match_parent"
+        android:layout_height="8dp"
+        android:layout_gravity="bottom"
+        android:layout_margin="8dp"
+        app:layout_anchor="@id/fab"
+        app:layout_anchorGravity="bottom" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/remove"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="@dimen/fab_margin"
+        android:onClick="removeTree"
+        android:tint="@android:color/background_light"
+        android:visibility="gone"
+        app:backgroundTint="@android:color/holo_red_dark"
+        app:layout_anchor="@id/space"
+        app:layout_anchorGravity="bottom|end"
+        app:srcCompat="@drawable/ic_remove" />
+
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/add_task_button"
         android:layout_width="wrap_content"
