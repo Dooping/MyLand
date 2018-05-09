@@ -8,4 +8,12 @@ public class TaskTypeObject {
         this.name = name;
         this.description = description;
     }
+
+    @Override
+    public String toString() {
+        return "TaskTypeObject{" +
+                "name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                '}';
+    }
 }

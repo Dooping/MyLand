@@ -10,4 +10,13 @@ public class PlantTypeObject {
         this.icon = icon;
         this.color = color;
     }
+
+    @Override
+    public String toString() {
+        return "PlantTypeObject{" +
+                "name='" + name + '\'' +
+                ", icon=" + icon +
+                ", color='" + color + '\'' +
+                '}';
+    }
 }

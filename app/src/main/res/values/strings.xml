@@ -117,4 +117,6 @@
     <string name="land">Land</string>
     <string name="description">Description</string>
     <string name="cancel">Cancel</string>
+    <string name="task_types">Task Types</string>
+    <string name="item_types">Item Types</string>
 </resources>

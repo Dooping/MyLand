@@ -1,6 +1,8 @@
 package com.gago.david.myland;
 
+import android.content.ContentValues;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -21,7 +23,8 @@ import com.gago.david.myland.dummy.DummyContent;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, LandFragment.OnListFragmentInteractionListener,
-            AddLandDetailsFragment.OnFragmentInteractionListener{
+            AddLandDetailsFragment.OnFragmentInteractionListener, SettingsFragment.OnListFragmentInteractionListener,
+            SettingsFragment.OnTaskListFragmentInteractionListener{
 
     private boolean logout = false;
 
@@ -108,9 +111,11 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.lands) {
-
+            LandFragment fragment = new LandFragment();
+            replaceFragmentFromMenu(fragment);
         } else if (id == R.id.settings) {
-
+            SettingsFragment fragment = new SettingsFragment();
+            replaceFragmentFromMenu(fragment);
         } else if (id == R.id.exit) {
             finish();
         }
@@ -174,5 +179,100 @@ public class MainActivity extends AppCompatActivity
         b.putString("name", item.name); //Your id
         intent.putExtras(b); //Put your id to your next Intent
         startActivity(intent);
+    }
+
+    @Override
+    public void selectItem(PlantTypeObject item) {
+        //TODO open Plant type fragment
+    }
+
+    @Override
+    public boolean removeItem(PlantTypeObject item) {
+        LandOpenHelper mDbHelper = new LandOpenHelper(this);
+
+        // Gets the data repository in write mode
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+
+        String whereClause = "Name = ?";
+        String[] whereArgs = new String[]{item.name};
+
+        int i = db.delete("PlantTypes", whereClause, whereArgs);
+        Log.v("Remove item", i+" rows removed");
+        db.close();
+        return i > 0;
+    }
+
+    @Override
+    public long addItem(PlantTypeObject item) {
+        LandOpenHelper mDbHelper = new LandOpenHelper(this);
+
+        // Gets the data repository in write mode
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put("Name", item.name);
+        values.put("Icon", item.icon);
+        values.put("Color", item.color);
+
+// Insert the new row, returning the primary key value of the new row
+        long newRowId = db.insert("PlantTypes", null, values);
+        if (newRowId == -1) {
+            Toast.makeText(this,"Item Added", Toast.LENGTH_SHORT).show();
+            Log.v("Add Item", "Failed to insert item: " + item.toString());
+        }
+        else {
+            Toast.makeText(this,"Some error occurred while adding the Item", Toast.LENGTH_SHORT).show();
+            Log.v("Add Item", "row inserted: " + newRowId);
+        }
+
+        db.close();
+        return newRowId;
+    }
+
+    @Override
+    public void selectItem(TaskTypeObject item) {
+        //TODO open Plant type fragment
+    }
+
+    @Override
+    public boolean removeItem(TaskTypeObject item) {
+        LandOpenHelper mDbHelper = new LandOpenHelper(this);
+
+        // Gets the data repository in write mode
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+
+        String whereClause = "Name = ?";
+        String[] whereArgs = new String[]{item.name};
+
+        int i = db.delete("TaskTypes", whereClause, whereArgs);
+        Log.v("Remove TaskType", i+" rows removed");
+        db.close();
+        return i > 0;
+    }
+
+    @Override
+    public long addItem(TaskTypeObject item) {
+        LandOpenHelper mDbHelper = new LandOpenHelper(this);
+
+        // Gets the data repository in write mode
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put("Name", item.name);
+        values.put("Description", item.description);
+
+// Insert the new row, returning the primary key value of the new row
+        long newRowId = db.insert("TaskTypes", null, values);
+        if (newRowId == -1) {
+            Toast.makeText(this,"Task Type Added", Toast.LENGTH_SHORT).show();
+            Log.v("Add TaskType", "Failed to insert task type: " + item.toString());
+        }
+        else {
+            Toast.makeText(this,"Some error occurred while adding the Item", Toast.LENGTH_SHORT).show();
+            Log.v("Add TaskType", "row inserted: " + newRowId);
+        }
+
+        db.close();
+        return newRowId;
     }
 }

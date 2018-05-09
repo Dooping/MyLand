@@ -19,4 +19,6 @@
     <string name="land">Terreno</string>
     <string name="description">Descrição</string>
     <string name="cancel">Cancelar</string>
+    <string name="task_types">Tipos de Tarefas</string>
+    <string name="item_types">Tipos de Item</string>
 </resources>

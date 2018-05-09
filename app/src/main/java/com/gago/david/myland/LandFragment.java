@@ -78,11 +78,7 @@ public class LandFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_land_list, container, false);
 
-        lands = readLands();
-        //lands = new ArrayList<>();
-
-        // Set the adapter
-        if (view instanceof FrameLayout) {
+        lands = readLands();if (view instanceof FrameLayout) {
             Context context = view.getContext();
             RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.list);
             if (mColumnCount <= 1) {
@@ -92,6 +88,10 @@ public class LandFragment extends Fragment {
             }
             recyclerView.setAdapter(new MyLandRecyclerViewAdapter(lands, mListener));
         }
+        //lands = new ArrayList<>();
+
+        // Set the adapter
+
         FloatingActionButton btn = (FloatingActionButton) view.findViewById(R.id.add_land_button);
 
         pageLoader = (PageLoader) view.findViewById(R.id.pageloader);
