@@ -390,7 +390,6 @@ public class AddTaskFragment extends Fragment implements AdapterView.OnItemSelec
     public static int getHeight(Context context, CharSequence text, int textSize, int deviceWidth, Typeface typeface) {
         TextView textView = new TextView(context);
         textView.setWidth(deviceWidth);
-        //textView.setPadding(24,0,24,padding);
         textView.setTypeface(typeface);
         textView.setText(text, TextView.BufferType.SPANNABLE);
         textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize);

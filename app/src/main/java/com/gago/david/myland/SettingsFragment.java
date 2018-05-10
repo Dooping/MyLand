@@ -6,6 +6,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -14,6 +15,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 
 import java.util.ArrayList;
@@ -92,6 +94,20 @@ public class SettingsFragment extends Fragment {
             recyclerView2.setLayoutManager(new LinearLayoutManager(context));
             taskAdapter = new TaskTypeAdapter(tasks, mListener2);
             recyclerView2.setAdapter(taskAdapter);
+            FloatingActionButton addTask = view.findViewById(R.id.add_task_type);
+            addTask.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    mListener2.addTaskType(taskAdapter, tasks);
+                }
+            });
+            FloatingActionButton addPlant = view.findViewById(R.id.add_item_type);
+            addPlant.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    mListener.addItem(itemAdapter, items);
+                }
+            });
         }
 
         return view;
@@ -126,14 +142,14 @@ public class SettingsFragment extends Fragment {
         // TODO: Update argument type and name
         void selectItem(PlantTypeObject item);
         boolean removeItem(PlantTypeObject item);
-        long addItem(PlantTypeObject item);
+        void addItem(ItemTypeAdapter itemAdapter, ArrayList<PlantTypeObject> items);
     }
 
     public interface OnTaskListFragmentInteractionListener {
         // TODO: Update argument type and name
         void selectItem(TaskTypeObject item);
         boolean removeItem(TaskTypeObject item);
-        long addItem(TaskTypeObject item);
+        void addTaskType(TaskTypeAdapter taskAdapter, ArrayList<TaskTypeObject> tasks);
     }
 
     private ArrayList<PlantTypeObject> readPlantTypes(){

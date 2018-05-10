@@ -7,6 +7,7 @@
     tools:context=".SettingsFragment">
 
     <!-- TODO: Update blank fragment layout -->
+
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -22,15 +23,33 @@
                 android:layout_margin="16dp"
                 android:orientation="horizontal">
 
-                <TextView
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
-                    android:layout_marginEnd="8dp"
-                    android:layout_marginTop="8dp"
                     android:layout_weight="0"
-                    android:text="@string/item_types"
-                    android:textSize="18sp" />
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_marginTop="8dp"
+                        android:text="@string/item_types"
+                        android:textSize="18sp" />
+
+                    <android.support.design.widget.FloatingActionButton
+                        android:id="@+id/add_item_type"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_margin="@dimen/fab_margin"
+                        android:layout_weight="0"
+                        android:tint="@android:color/background_light"
+                        app:elevation="10dp"
+                        app:srcCompat="@drawable/ic_add_black_48dp" />
+
+                </LinearLayout>
 
                 <android.support.v7.widget.RecyclerView
                     android:id="@+id/item_list"
@@ -49,15 +68,33 @@
                 android:layout_marginStart="16dp"
                 android:orientation="horizontal">
 
-                <TextView
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
-                    android:layout_marginEnd="8dp"
-                    android:layout_marginTop="8dp"
                     android:layout_weight="0"
-                    android:text="@string/task_types"
-                    android:textSize="18sp" />
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_marginTop="8dp"
+                        android:text="@string/task_types"
+                        android:textSize="18sp" />
+
+                    <android.support.design.widget.FloatingActionButton
+                        android:id="@+id/add_task_type"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_margin="@dimen/fab_margin"
+                        android:layout_weight="0"
+                        android:tint="@android:color/background_light"
+                        app:elevation="10dp"
+                        app:srcCompat="@drawable/ic_add_black_48dp" />
+
+                </LinearLayout>
 
                 <android.support.v7.widget.RecyclerView
                     android:id="@+id/task_type_list"
@@ -65,7 +102,9 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     tools:context="com.gago.david.myland.SettingsFragment"
-                    tools:listitem="@layout/task_type_item" />
+                    tools:listitem="@layout/task_type_item" >
+
+                </android.support.v7.widget.RecyclerView>
             </LinearLayout>
         </LinearLayout>
     </ScrollView>

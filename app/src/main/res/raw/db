@@ -51,7 +51,7 @@ INSERT INTO 'Priorities' (Name, P_order, Color)
 VALUES ('Alta',1,'#B71C1C'),('Media',3,'#1B5E20'),('Baixa',5,'#0D47A1');
 
 INSERT INTO 'PlantTypes' (Name, Icon, Color)
-VALUES ('Alfarrobeira',2131230839,'#4d2600'),('Amendoeira',2131230839,'#996633'),('Oliveira',2131230839,'#669900');
+VALUES ('Alfarrobeira',2131230842,'#4d2600'),('Amendoeira',2131230842,'#996633'),('Oliveira',2131230842,'#669900');
 
 INSERT INTO 'TaskTypes' (Name, Description)
 VALUES ('Lavrar', 'texto estupidamente grande para testar o redimensionamento de coisas. akshdjhgklajsdlkjhasjkdjfkljj aksdhflkajdsf akjdshlfkjaçdfklsja'),

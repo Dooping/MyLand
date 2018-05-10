@@ -20,13 +20,22 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.gago.david.myland.dummy.DummyContent;
+import com.jaredrummler.android.colorpicker.ColorPickerDialogListener;
+
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, LandFragment.OnListFragmentInteractionListener,
             AddLandDetailsFragment.OnFragmentInteractionListener, SettingsFragment.OnListFragmentInteractionListener,
-            SettingsFragment.OnTaskListFragmentInteractionListener{
+            SettingsFragment.OnTaskListFragmentInteractionListener, EditTaskTypeFragment.OnFragmentInteractionListener,
+        EditItemTypeFragment.OnFragmentInteractionListener, ColorPickerDialogListener {
 
     private boolean logout = false;
+    private ArrayList<TaskTypeObject> tasks;
+    private TaskTypeAdapter taskTypeAdapter;
+    private ArrayList<PlantTypeObject> items;
+    private ItemTypeAdapter itemTypeAdapter;
+    private Fragment fragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,7 +113,6 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
@@ -183,7 +191,8 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void selectItem(PlantTypeObject item) {
-        //TODO open Plant type fragment
+        fragment = EditItemTypeFragment.newInstance(item, false);
+        replaceFragmentFromMenu(fragment);
     }
 
     @Override
@@ -200,6 +209,137 @@ public class MainActivity extends AppCompatActivity
         Log.v("Remove item", i+" rows removed");
         db.close();
         return i > 0;
+    }
+
+    @Override
+    public void addItem(ItemTypeAdapter itemAdapter, ArrayList<PlantTypeObject> items) {
+        this.itemTypeAdapter = itemAdapter;
+        this.items = items;
+        PlantTypeObject item = new PlantTypeObject("", R.drawable.ic_tree, "");
+        fragment = EditItemTypeFragment.newInstance(item, true);
+        replaceFragmentFromMenu(fragment);
+    }
+
+    @Override
+    public void selectItem(TaskTypeObject item) {
+        replaceFragmentFromMenu(EditTaskTypeFragment.newInstance(item, false));
+    }
+
+    @Override
+    public boolean removeItem(TaskTypeObject item) {
+        LandOpenHelper mDbHelper = new LandOpenHelper(this);
+
+        // Gets the data repository in write mode
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+
+        String whereClause = "Name = ?";
+        String[] whereArgs = new String[]{item.name};
+
+        int i = db.delete("TaskTypes", whereClause, whereArgs);
+        Log.v("Remove TaskType", i+" rows removed");
+        db.close();
+        return i > 0;
+    }
+
+    @Override
+    public void addTaskType(TaskTypeAdapter taskAdapter, ArrayList<TaskTypeObject> tasks) {
+        this.tasks = tasks;
+        this.taskTypeAdapter = taskAdapter;
+        TaskTypeObject item = new TaskTypeObject("", "");
+        replaceFragmentFromMenu(EditTaskTypeFragment.newInstance(item, true));
+    }
+
+    @Override
+    public long addItem(TaskTypeObject item) {
+        LandOpenHelper mDbHelper = new LandOpenHelper(this);
+
+        // Gets the data repository in write mode
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put("Name", item.name);
+        values.put("Description", item.description);
+
+// Insert the new row, returning the primary key value of the new row
+        long newRowId = db.insert("TaskTypes", null, values);
+        if (newRowId == -1) {
+            Toast.makeText(this,"Task Type Added", Toast.LENGTH_SHORT).show();
+            Log.v("Add TaskType", "Failed to insert task type: " + item.toString());
+        }
+        else {
+            if(taskTypeAdapter != null && tasks != null){
+                tasks.add(item);
+                taskTypeAdapter.notifyDataSetChanged();
+            }
+            Toast.makeText(this,"Some error occurred while adding the Item", Toast.LENGTH_SHORT).show();
+            Log.v("Add TaskType", "row inserted: " + newRowId);
+        }
+
+        db.close();
+        return newRowId;
+    }
+
+    @Override
+    public void onFragmentInteraction(TaskTypeObject taskType) {
+        LandOpenHelper mDbHelper = new LandOpenHelper(this);
+
+        // Gets the data repository in write mode
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+
+// Create a new map of values, where column names are the keys
+        ContentValues values = new ContentValues();
+        values.put("Name", taskType.name);
+        values.put("Description", taskType.description);
+
+// Insert the new row, returning the primary key value of the new row
+        String whereClause = "Name = ?";
+        String[] whereArgs = new String[]{taskType.name};
+        long newRowId = db.update("TaskTypes", values, whereClause, whereArgs);
+        Log.v("Update TaskType", "row updated: "+newRowId);
+        if (newRowId == -1)
+            Toast.makeText(this,"Some error happened while updating the task type", Toast.LENGTH_SHORT).show();
+        else {
+            Toast.makeText(this,"Task Type updated", Toast.LENGTH_SHORT).show();
+        }
+        db.close();
+        Fragment fragment = new EditTaskTypeFragment();
+        FragmentManager manager = getSupportFragmentManager();
+        FragmentTransaction trans = manager.beginTransaction();
+        trans.remove(fragment);
+        trans.commit();
+        manager.popBackStack();
+    }
+
+    @Override
+    public void onFragmentInteraction(PlantTypeObject itemType) {
+        LandOpenHelper mDbHelper = new LandOpenHelper(this);
+
+        // Gets the data repository in write mode
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+
+// Create a new map of values, where column names are the keys
+        ContentValues values = new ContentValues();
+        values.put("Name", itemType.name);
+        values.put("Icon", itemType.icon);
+        values.put("Color", itemType.color);
+
+// Insert the new row, returning the primary key value of the new row
+        String whereClause = "Name = ?";
+        String[] whereArgs = new String[]{itemType.name};
+        long newRowId = db.update("PlantTypes", values, whereClause, whereArgs);
+        Log.v("Update PlantType", "row updated: "+newRowId);
+        if (newRowId == -1)
+            Toast.makeText(this,"Some error happened while updating the item type", Toast.LENGTH_SHORT).show();
+        else {
+            Toast.makeText(this,"Item Type updated", Toast.LENGTH_SHORT).show();
+        }
+        db.close();
+        Fragment fragment = new EditItemTypeFragment();
+        FragmentManager manager = getSupportFragmentManager();
+        FragmentTransaction trans = manager.beginTransaction();
+        trans.remove(fragment);
+        trans.commit();
+        manager.popBackStack();
     }
 
     @Override
@@ -221,6 +361,10 @@ public class MainActivity extends AppCompatActivity
             Log.v("Add Item", "Failed to insert item: " + item.toString());
         }
         else {
+            if(itemTypeAdapter != null && items != null){
+                items.add(item);
+                itemTypeAdapter.notifyDataSetChanged();
+            }
             Toast.makeText(this,"Some error occurred while adding the Item", Toast.LENGTH_SHORT).show();
             Log.v("Add Item", "row inserted: " + newRowId);
         }
@@ -230,49 +374,15 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void selectItem(TaskTypeObject item) {
-        //TODO open Plant type fragment
+    public void onColorSelected(int dialogId, int color) {
+        String strColor = String.format("#%06X", 0xFFFFFF & color);
+        if (fragment instanceof EditItemTypeFragment){
+            ((EditItemTypeFragment) fragment).setColor(strColor);
+        }
     }
 
     @Override
-    public boolean removeItem(TaskTypeObject item) {
-        LandOpenHelper mDbHelper = new LandOpenHelper(this);
+    public void onDialogDismissed(int dialogId) {
 
-        // Gets the data repository in write mode
-        SQLiteDatabase db = mDbHelper.getWritableDatabase();
-
-        String whereClause = "Name = ?";
-        String[] whereArgs = new String[]{item.name};
-
-        int i = db.delete("TaskTypes", whereClause, whereArgs);
-        Log.v("Remove TaskType", i+" rows removed");
-        db.close();
-        return i > 0;
-    }
-
-    @Override
-    public long addItem(TaskTypeObject item) {
-        LandOpenHelper mDbHelper = new LandOpenHelper(this);
-
-        // Gets the data repository in write mode
-        SQLiteDatabase db = mDbHelper.getWritableDatabase();
-
-        ContentValues values = new ContentValues();
-        values.put("Name", item.name);
-        values.put("Description", item.description);
-
-// Insert the new row, returning the primary key value of the new row
-        long newRowId = db.insert("TaskTypes", null, values);
-        if (newRowId == -1) {
-            Toast.makeText(this,"Task Type Added", Toast.LENGTH_SHORT).show();
-            Log.v("Add TaskType", "Failed to insert task type: " + item.toString());
-        }
-        else {
-            Toast.makeText(this,"Some error occurred while adding the Item", Toast.LENGTH_SHORT).show();
-            Log.v("Add TaskType", "row inserted: " + newRowId);
-        }
-
-        db.close();
-        return newRowId;
     }
 }

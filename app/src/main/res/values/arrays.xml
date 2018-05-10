@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <integer-array name="imageList">
+        <item>@drawable/ic_tree</item>
+        <item>@drawable/ic_rock</item>
+        <item>@drawable/ic_grass</item>
+        <item>@drawable/ic_water</item>
+        <item>@drawable/ic_cut</item>
+        <item>@drawable/ic_paper_bag</item>
+        <item>@drawable/ic_watering_can</item>
+    </integer-array>
+
+</resources>

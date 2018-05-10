@@ -1,6 +1,8 @@
 package com.gago.david.myland;
 
-public class PlantTypeObject {
+import java.io.Serializable;
+
+public class PlantTypeObject implements Serializable {
     public String name;
     public int icon;
     public String color;

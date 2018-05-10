@@ -21,4 +21,10 @@
     <string name="cancel">Cancelar</string>
     <string name="task_types">Tipos de Tarefas</string>
     <string name="item_types">Tipos de Item</string>
+    <string name="task_name">Nome da Tarefa</string>
+    <string name="item_name">Nome do Item</string>
+    <string name="icon">Ícone</string>
+    <string name="edit_icon">Editar ícone</string>
+    <string name="edit_color">Editar cor</string>
+    <string name="color">Cor</string>
 </resources>

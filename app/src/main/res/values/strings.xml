@@ -119,4 +119,10 @@
     <string name="cancel">Cancel</string>
     <string name="task_types">Task Types</string>
     <string name="item_types">Item Types</string>
+    <string name="task_name">Task Name</string>
+    <string name="item_name">Item Name</string>
+    <string name="icon">Icon</string>
+    <string name="edit_icon">Edit icon</string>
+    <string name="edit_color">Edit color</string>
+    <string name="color">Color</string>
 </resources>

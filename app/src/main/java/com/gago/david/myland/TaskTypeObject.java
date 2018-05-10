@@ -1,6 +1,8 @@
 package com.gago.david.myland;
 
-public class TaskTypeObject {
+import java.io.Serializable;
+
+public class TaskTypeObject implements Serializable {
     public String name;
     public String description;
 
