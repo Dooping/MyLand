@@ -23,11 +23,11 @@
         android:id="@+id/pageloader"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:setErrorText="@string/something_happened"
+        app:setErrorImage="@drawable/ic_not_found"
+        app:setErrorText="Something happened"
         app:setLoadingAnimationMode="flip"
-        app:setLoadingText="@string/please_wait"
-        app:setLoadingImage="@drawable/map_editing"
-        app:setErrorImage="@drawable/ic_not_found" />
+        app:setLoadingImage="@drawable/ic_search"
+        app:setLoadingText="Please wait..." />
 
     <!-- Implementation of find my location button -->
 

@@ -142,7 +142,7 @@ public class EditItemTypeFragment extends Fragment {
 
 
         ColorFilter filter = new PorterDuffColorFilter(Color.parseColor(item.color), PorterDuff.Mode.SRC_IN);
-        Drawable icon = getResources().getDrawable(item.icon);
+        Drawable icon = getResources().getDrawable(drawable);
         icon.setColorFilter(filter);
         alertDialog.setIcon(icon);
 

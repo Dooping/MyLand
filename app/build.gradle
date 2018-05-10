@@ -5,7 +5,7 @@ android {
     buildToolsVersion "27.0.3"
     defaultConfig {
         applicationId "com.gago.david.myland"
-        minSdkVersion 19
+        minSdkVersion 24
         targetSdkVersion 25
         versionCode 1
         versionName "1.0"
@@ -30,9 +30,8 @@ dependencies {
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    compile('com.mapbox.mapboxsdk:mapbox-android-sdk:5.0.0@aar') {
-        transitive = true
-    }
+    implementation 'com.mapbox.mapboxsdk:mapbox-android-sdk:6.1.1'
+    implementation 'com.mapbox.mapboxsdk:mapbox-android-plugin-locationlayer:0.5.2'
     compile 'com.android.support:appcompat-v7:27.1.1'
     compile 'com.android.support:design:27.1.1'
     compile 'com.android.support:cardview-v7:27.1.1'
