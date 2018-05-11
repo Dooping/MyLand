@@ -1,8 +1,15 @@
 package com.gago.david.myland;
 
+import android.app.AlertDialog;
 import android.content.ContentValues;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
+import android.graphics.ColorFilter;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -17,6 +24,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.gago.david.myland.dummy.DummyContent;
@@ -263,7 +272,7 @@ public class MainActivity extends AppCompatActivity
 // Insert the new row, returning the primary key value of the new row
         long newRowId = db.insert("TaskTypes", null, values);
         if (newRowId == -1) {
-            Toast.makeText(this,"Task Type Added", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this,"Some error occurred while adding the Item", Toast.LENGTH_SHORT).show();
             Log.v("Add TaskType", "Failed to insert task type: " + item.toString());
         }
         else {
@@ -271,8 +280,14 @@ public class MainActivity extends AppCompatActivity
                 tasks.add(item);
                 taskTypeAdapter.notifyDataSetChanged();
             }
-            Toast.makeText(this,"Some error occurred while adding the Item", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this,"Task Type Added", Toast.LENGTH_SHORT).show();
             Log.v("Add TaskType", "row inserted: " + newRowId);
+            Fragment fragment = new EditTaskTypeFragment();
+            FragmentManager manager = getSupportFragmentManager();
+            FragmentTransaction trans = manager.beginTransaction();
+            trans.remove(fragment);
+            trans.commit();
+            manager.popBackStack();
         }
 
         db.close();
@@ -357,7 +372,7 @@ public class MainActivity extends AppCompatActivity
 // Insert the new row, returning the primary key value of the new row
         long newRowId = db.insert("PlantTypes", null, values);
         if (newRowId == -1) {
-            Toast.makeText(this,"Item Added", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this,"Some error occurred while adding the Item", Toast.LENGTH_SHORT).show();
             Log.v("Add Item", "Failed to insert item: " + item.toString());
         }
         else {
@@ -365,8 +380,15 @@ public class MainActivity extends AppCompatActivity
                 items.add(item);
                 itemTypeAdapter.notifyDataSetChanged();
             }
-            Toast.makeText(this,"Some error occurred while adding the Item", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this,"Item Added", Toast.LENGTH_SHORT).show();
             Log.v("Add Item", "row inserted: " + newRowId);
+
+            Fragment fragment = new EditItemTypeFragment();
+            FragmentManager manager = getSupportFragmentManager();
+            FragmentTransaction trans = manager.beginTransaction();
+            trans.remove(fragment);
+            trans.commit();
+            manager.popBackStack();
         }
 
         db.close();

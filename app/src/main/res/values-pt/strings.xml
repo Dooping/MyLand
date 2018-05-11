@@ -27,4 +27,8 @@
     <string name="edit_icon">Editar ícone</string>
     <string name="edit_color">Editar cor</string>
     <string name="color">Cor</string>
+    <string name="remove_item">Deseja remover este tipo de item?</string>
+    <string name="yes">Sim</string>
+    <string name="no">Não</string>
+    <string name="remove_task">Deseja remover este tipo de tarefa?</string>
 </resources>

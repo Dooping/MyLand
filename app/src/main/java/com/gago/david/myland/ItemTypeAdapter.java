@@ -1,6 +1,13 @@
 package com.gago.david.myland;
 
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Color;
+import android.graphics.ColorFilter;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -47,9 +54,31 @@ public class ItemTypeAdapter extends RecyclerView.Adapter<ItemTypeAdapter.ViewHo
         holder.remove.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mListener.removeItem(holder.mItem);
-                mValues.remove(holder.mItem);
-                notifyDataSetChanged();
+                AlertDialog.Builder alertDialog = new AlertDialog.Builder(view.getRootView().getContext());
+                alertDialog.setTitle(holder.mItem.name);
+                alertDialog.setMessage(R.string.remove_item);
+
+                ColorFilter filter = new PorterDuffColorFilter(Color.parseColor(holder.mItem.color), PorterDuff.Mode.SRC_IN);
+                Drawable icon = view.getRootView().getContext().getResources().getDrawable(holder.mItem.icon);
+                icon.setColorFilter(filter);
+                alertDialog.setIcon(icon);
+
+                alertDialog.setPositiveButton(R.string.yes,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                mListener.removeItem(holder.mItem);
+                                mValues.remove(holder.mItem);
+                                notifyDataSetChanged();
+                            }
+                        });
+
+                alertDialog.setNegativeButton(R.string.no,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.cancel();
+                            }
+                        });
+                alertDialog.show();
             }
         });
 

@@ -125,4 +125,8 @@
     <string name="edit_icon">Edit icon</string>
     <string name="edit_color">Edit color</string>
     <string name="color">Color</string>
+    <string name="remove_item">Do you wish to remove this type of item?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="remove_task">Do you wish to remove this type of task?</string>
 </resources>

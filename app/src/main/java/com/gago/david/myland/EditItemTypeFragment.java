@@ -141,12 +141,12 @@ public class EditItemTypeFragment extends Fragment {
         alertDialog.setTitle("Choose image");
 
 
-        ColorFilter filter = new PorterDuffColorFilter(Color.parseColor(item.color), PorterDuff.Mode.SRC_IN);
+        ColorFilter filter = new PorterDuffColorFilter(Color.parseColor(tintColor), PorterDuff.Mode.SRC_IN);
         Drawable icon = getResources().getDrawable(drawable);
         icon.setColorFilter(filter);
         alertDialog.setIcon(icon);
 
-        alertDialog.setAdapter(new ImageAdapter(getActivity(), list, Color.parseColor(item.color)),
+        alertDialog.setAdapter(new ImageAdapter(getActivity(), list, Color.parseColor(tintColor)),
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
