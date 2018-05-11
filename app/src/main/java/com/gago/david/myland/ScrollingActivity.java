@@ -521,9 +521,9 @@ public class ScrollingActivity extends AppCompatActivity implements AddTaskFragm
 
         }
         if (!success)
-            Toast.makeText(this,"Some error occurred while adding the task", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this,R.string.task_add_error, Toast.LENGTH_SHORT).show();
         else
-            Toast.makeText(this,"Task Added", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this,R.string.task_added, Toast.LENGTH_SHORT).show();
 
         db.close();
     }
@@ -603,9 +603,9 @@ public class ScrollingActivity extends AppCompatActivity implements AddTaskFragm
         long newRowId = db.update("Lands", values, whereClause, whereArgs);
         Log.v("Update Detail", "row updated: "+newRowId);
         if (newRowId == -1)
-            Toast.makeText(this,"Some error happened while updating the land", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this,R.string.land_update_error, Toast.LENGTH_SHORT).show();
         else {
-            Toast.makeText(this,"Land updated", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this,R.string.land_update_success, Toast.LENGTH_SHORT).show();
             //meter na layer
         }
         db.close();

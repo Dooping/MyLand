@@ -436,11 +436,10 @@ public class LandEditActivity extends AppCompatActivity implements PopupMenuAdap
     }
 
     public void onMenuItemInteraction(final PlantTypeObject item){
-        //Toast.makeText(getApplicationContext(), "item: "+item.name, Toast.LENGTH_SHORT).show();
         popupWindow.dismiss();
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
         alertDialog.setTitle(item.name);
-        alertDialog.setMessage("Description");
+        alertDialog.setMessage(R.string.description);
 
         final EditText input = new EditText(this);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
@@ -493,10 +492,9 @@ public class LandEditActivity extends AppCompatActivity implements PopupMenuAdap
         p.id = (int)newRowId;
         Log.v("ADDDETAIL", "row inserted: "+newRowId);
         if (newRowId == -1)
-            Toast.makeText(this,"Some error happened while adding the item", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this,R.string.item_add_error, Toast.LENGTH_SHORT).show();
         else {
-            Toast.makeText(this,"Item Added", Toast.LENGTH_SHORT).show();
-            //meter na layer
+            Toast.makeText(this,R.string.item_added, Toast.LENGTH_SHORT).show();
         }
     }
 

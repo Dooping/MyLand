@@ -31,4 +31,19 @@
     <string name="yes">Sim</string>
     <string name="no">Não</string>
     <string name="remove_task">Deseja remover este tipo de tarefa?</string>
+    <string name="item_added">Item adicionado</string>
+    <string name="task_added">Tarefa adicionada</string>
+    <string name="item_add_error">Aconteceu um erro ao adicionar o item!</string>
+    <string name="task_add_error">Aconteceu um erro ao adicionar a tarefa!</string>
+    <string name="land_update_success">Terreno atualizado</string>
+    <string name="land_update_error">Aconteceu um erro ao atualizar o terreno</string>
+    <string name="item_type_update_success">Tipo de item atualizado</string>
+    <string name="item_type_update_error">Aconteceu um erro ao atualizar tipo de item</string>
+    <string name="item_type_add_success">Tipo de item atualizado</string>
+    <string name="item_type_add_error">Aconteceu um erro ao adicionar tipo de item</string>
+    <string name="task_type_add_success">Tipo de tarefa adicionado</string>
+    <string name="task_type_add_error">Aconteceu um erro ao adicionar tipo de tarefa</string>
+    <string name="task_type_update_success">Tipo de tarefa atualizado</string>
+    <string name="task_type_update_error">Aconteceu um erro ao atualizar tipo de tarefa</string>
+    <string name="leave_message">Carregue voltar outra vez para sair</string>
 </resources>

@@ -129,4 +129,19 @@
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="remove_task">Do you wish to remove this type of task?</string>
+    <string name="item_added">Item added</string>
+    <string name="task_added">Task added</string>
+    <string name="item_add_error">Some error happened while adding the item!</string>
+    <string name="task_add_error">Some error happened while adding the task!</string>
+    <string name="land_update_success">Land updated</string>
+    <string name="land_update_error">Some error happened while updating the land</string>
+    <string name="item_type_update_success">Item type updated</string>
+    <string name="item_type_update_error">Some error happened while updating the item type</string>
+    <string name="item_type_add_success">Item type added</string>
+    <string name="item_type_add_error">Some error occurred while adding the item type</string>
+    <string name="task_type_add_success">Task type added</string>
+    <string name="task_type_add_error">Some error occurred while adding the task type</string>
+    <string name="task_type_update_success">Task type updated</string>
+    <string name="task_type_update_error">Some error happened while updating the task type</string>
+    <string name="leave_message">Press back again to leave</string>
 </resources>
