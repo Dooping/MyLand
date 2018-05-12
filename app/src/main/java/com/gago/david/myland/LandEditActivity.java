@@ -439,7 +439,7 @@ public class LandEditActivity extends AppCompatActivity implements PopupMenuAdap
         popupWindow.dismiss();
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
         alertDialog.setTitle(item.name);
-        alertDialog.setMessage(R.string.description);
+        alertDialog.setMessage(R.string.state);
 
         final EditText input = new EditText(this);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(

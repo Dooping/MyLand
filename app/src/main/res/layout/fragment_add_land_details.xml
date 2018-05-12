@@ -32,7 +32,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
                 android:capitalize="words"
-                android:hint="Name"
+                android:hint="@string/name"
                 android:inputType="textCapWords"
                 android:singleLine="true" />
 
@@ -40,7 +40,7 @@
                 android:id="@+id/land_description"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Description"
+                android:hint="@string/state"
                 android:inputType="textCapSentences|textMultiLine" />
         </LinearLayout>
     </ScrollView>

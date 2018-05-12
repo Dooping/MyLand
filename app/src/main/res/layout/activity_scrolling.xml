@@ -73,6 +73,7 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
         android:tint="@android:color/background_light"
+        android:visibility="gone"
         app:elevation="10dp"
         app:srcCompat="@drawable/ic_add_black_48dp" />
 

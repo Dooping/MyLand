@@ -46,4 +46,14 @@
     <string name="task_type_update_success">Tipo de tarefa atualizado</string>
     <string name="task_type_update_error">Aconteceu um erro ao atualizar tipo de tarefa</string>
     <string name="leave_message">Carregue voltar outra vez para sair</string>
+    <string name="state">Estado</string>
+    <string name="tap_edit">(Toque para editar)</string>
+    <string name="name">Nome</string>
+    <string name="edit_land">Editar terreno</string>
+    <string name="edit_item">Editar item</string>
+    <string name="item_update_success">Item atualizado</string>
+    <string name="item_update_error">Aconteceu um erro ao atualizar o item</string>
+    <string name="land_state">Estado do terreno</string>
+    <string name="item_state">Estado do Item</string>
+    <string name="all_tasks">Todas as tarefas</string>
 </resources>
