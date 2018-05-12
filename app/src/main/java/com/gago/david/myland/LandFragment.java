@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
@@ -17,8 +16,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
-import com.gago.david.myland.dummy.DummyContent;
-import com.gago.david.myland.dummy.DummyContent.DummyItem;
+import com.gago.david.myland.Adapters.MyLandRecyclerViewAdapter;
+import com.gago.david.myland.Models.LandObject;
 
 
 import java.util.ArrayList;
@@ -27,7 +26,6 @@ import java.util.List;
 import id.arieridwan.lib.PageLoader;
 
 import static android.app.Activity.RESULT_OK;
-import static com.mapbox.mapboxsdk.Mapbox.getApplicationContext;
 
 /**
  * A fragment representing a list of Items.

@@ -1,4 +1,4 @@
-package com.gago.david.myland;
+package com.gago.david.myland.Models;
 
 import java.util.ArrayList;
 

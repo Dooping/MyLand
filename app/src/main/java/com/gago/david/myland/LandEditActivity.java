@@ -37,6 +37,10 @@ import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.Toast;
 
+import com.gago.david.myland.Adapters.PopupMenuAdapter;
+import com.gago.david.myland.Models.LandObject;
+import com.gago.david.myland.Models.PlantObject;
+import com.gago.david.myland.Models.PlantTypeObject;
 import com.github.chrisbanes.photoview.PhotoView;
 
 import java.util.ArrayList;

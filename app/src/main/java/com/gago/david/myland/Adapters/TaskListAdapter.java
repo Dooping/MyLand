@@ -1,4 +1,4 @@
-package com.gago.david.myland;
+package com.gago.david.myland.Adapters;
 
 import android.support.v7.util.SortedList;
 import android.support.v7.widget.RecyclerView;
@@ -10,6 +10,9 @@ import android.view.animation.AlphaAnimation;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.TextView;
+
+import com.gago.david.myland.R;
+import com.gago.david.myland.Models.TaskObject;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,4 +1,4 @@
-package com.gago.david.myland;
+package com.gago.david.myland.Models;
 
 public class PriorityObject {
     public String name;

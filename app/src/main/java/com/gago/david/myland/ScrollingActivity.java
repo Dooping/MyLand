@@ -29,34 +29,33 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.util.SortedList;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
-import android.view.animation.TranslateAnimation;
-import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 
+import com.gago.david.myland.Adapters.TaskListAdapter;
+import com.gago.david.myland.Models.LandObject;
+import com.gago.david.myland.Models.PlantObject;
+import com.gago.david.myland.Models.PlantTypeObject;
+import com.gago.david.myland.Models.TaskObject;
 import com.lantouzi.wheelview.WheelView;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Comparator;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 public class ScrollingActivity extends AppCompatActivity implements AddTaskFragment.OnFragmentInteractionListener {
@@ -265,7 +264,7 @@ public class ScrollingActivity extends AppCompatActivity implements AddTaskFragm
             type = "land";
         else if (wheel.getSelectedPosition()-2 < plantTypeList.size()){
             for (PlantObject p : land.plants)
-                if(plantTypeList.get(wheel.getSelectedPosition()-1).name.equals(p.plantType))
+                if(plantTypeList.get(wheel.getSelectedPosition()-2).name.equals(p.plantType))
                     list.add(p.id);
             type = "group";
         }
@@ -274,7 +273,7 @@ public class ScrollingActivity extends AppCompatActivity implements AddTaskFragm
             type = "item";
         }
 
-        Log.v("ScrollingActivity", "list:"+list);
+        Log.v("ScrollingActivity", "type:"+type+" list:"+list);
 
         args.putString("type" ,type);
         args.putIntegerArrayList("plandIndex", list);
@@ -361,9 +360,11 @@ public class ScrollingActivity extends AppCompatActivity implements AddTaskFragm
         Log.v("Remove Plant", i+" rows removed");
         db.close();
         selected--;
-        for(TaskObject t : tasks)
+        for (Iterator<TaskObject> iterator = tasks.iterator(); iterator.hasNext();) {
+            TaskObject t = iterator.next();
             if(t.plantIndex != null && t.plantIndex == id)
-                tasks.remove(t);
+                iterator.remove();
+        }
         filter();
         initiateStuff();
     }
@@ -692,21 +693,21 @@ public class ScrollingActivity extends AppCompatActivity implements AddTaskFragm
                 state.setText(title);
                 AlphaAnimation fadeIn = new AlphaAnimation(0.0f , 1.0f ) ;
                 descriptionLayout.startAnimation(fadeIn);
-                fadeIn.setDuration(500);
+                fadeIn.setDuration(300);
                 fadeIn.setFillAfter(true);
-                fadeIn.setStartOffset(500);
+                fadeIn.setStartOffset(300);
             }
 
             @Override
             public void onAnimationStart(Animator animation) {
                 super.onAnimationStart(animation);
                 AlphaAnimation fadeOut = new AlphaAnimation( 1.0f , 0.0f ) ;
-                fadeOut.setDuration(500);
+                fadeOut.setDuration(300);
                 fadeOut.setFillAfter(true);
                 descriptionLayout.startAnimation(fadeOut);
             }
         });
-        anim.setDuration(500);
+        anim.setDuration(300);
         anim.start();
     }
 }

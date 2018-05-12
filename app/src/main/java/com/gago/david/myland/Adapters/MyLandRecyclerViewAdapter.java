@@ -1,4 +1,4 @@
-package com.gago.david.myland;
+package com.gago.david.myland.Adapters;
 
 import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
@@ -8,14 +8,15 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.gago.david.myland.LandFragment.OnListFragmentInteractionListener;
-import com.gago.david.myland.dummy.DummyContent.DummyItem;
+import com.gago.david.myland.Models.LandObject;
+import com.gago.david.myland.R;
 
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
- * {@link RecyclerView.Adapter} that can display a {@link DummyItem} and makes a call to the
+ * {@link RecyclerView.Adapter} that can display a {@link LandObject} and makes a call to the
  * specified {@link OnListFragmentInteractionListener}.
  * TODO: Replace the implementation with code for your data type.
  */

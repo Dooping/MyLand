@@ -1,15 +1,8 @@
 package com.gago.david.myland;
 
-import android.app.AlertDialog;
 import android.content.ContentValues;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Color;
-import android.graphics.ColorFilter;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffColorFilter;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -25,11 +18,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 
-import com.gago.david.myland.dummy.DummyContent;
+import com.gago.david.myland.Adapters.ItemTypeAdapter;
+import com.gago.david.myland.Adapters.TaskTypeAdapter;
+import com.gago.david.myland.Models.LandObject;
+import com.gago.david.myland.Models.PlantTypeObject;
+import com.gago.david.myland.Models.TaskTypeObject;
 import com.jaredrummler.android.colorpicker.ColorPickerDialogListener;
 
 import java.util.ArrayList;

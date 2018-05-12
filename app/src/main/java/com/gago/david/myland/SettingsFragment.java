@@ -1,24 +1,24 @@
 package com.gago.david.myland;
 
 
-import android.content.ClipData;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.FrameLayout;
-import android.widget.ListAdapter;
-import android.widget.ListView;
+
+import com.gago.david.myland.Adapters.ItemTypeAdapter;
+import com.gago.david.myland.Adapters.TaskTypeAdapter;
+import com.gago.david.myland.Models.PlantTypeObject;
+import com.gago.david.myland.Models.TaskTypeObject;
 
 import java.util.ArrayList;
 
