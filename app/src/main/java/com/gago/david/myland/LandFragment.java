@@ -76,7 +76,8 @@ public class LandFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_land_list, container, false);
 
-        lands = readLands();if (view instanceof FrameLayout) {
+        lands = readLands();
+        if (view instanceof FrameLayout) {
             Context context = view.getContext();
             RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.list);
             if (mColumnCount <= 1) {
@@ -108,7 +109,7 @@ public class LandFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == 1) {
             if (resultCode == RESULT_OK) {
-                String filename = data.getData().toString();
+                String filename = data.getStringExtra("name");
                 ((MainActivity)getActivity()).addLandDetails(filename);
             }
         }
@@ -174,6 +175,13 @@ public class LandFragment extends Fragment {
     public void onStop(){
         super.onStop();
         pageLoader.stopProgress();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        lands.clear();
+        lands.addAll(readLands());
     }
 
     /**

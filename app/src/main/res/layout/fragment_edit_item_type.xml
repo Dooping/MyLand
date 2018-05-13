@@ -50,7 +50,7 @@
                 app:expandable_area_color="@color/colorPrimaryDark"
                 app:hide_text="@string/icon"
                 app:hide_text_color="@color/cardview_light_background"
-                app:hide_text_size="7dp"
+                app:hide_text_size="5dp"
                 app:icon_button_color="@color/colorPrimary"
                 app:magic_button_size="50dp" />
 
@@ -66,7 +66,7 @@
                 app:expandable_area_color="@color/colorPrimaryDark"
                 app:hide_text="@string/color"
                 app:hide_text_color="@color/cardview_light_background"
-                app:hide_text_size="7dp"
+                app:hide_text_size="5dp"
                 app:icon_button_color="@color/colorPrimary"
                 app:magic_button_size="50dp" />
         </LinearLayout>

@@ -1,9 +1,11 @@
 package com.gago.david.myland;
 
 import android.Manifest;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.location.Location;
@@ -12,12 +14,17 @@ import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
+import com.gago.david.myland.Models.PlantTypeObject;
 import com.mapbox.android.core.location.LocationEngine;
 import com.mapbox.android.core.location.LocationEngineListener;
 import com.mapbox.android.core.location.LocationEnginePriority;
@@ -35,6 +42,7 @@ import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.plugins.locationlayer.LocationLayerOptions;
 import com.mapbox.mapboxsdk.plugins.locationlayer.LocationLayerPlugin;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -138,9 +146,9 @@ public class AddLandActivity extends AppCompatActivity implements OnMapReadyCall
             @Override
             public void onClick(View v) {
                 pageLoader.startProgress();
+                locationLayerPlugin.setLocationLayerEnabled(false);
                 if(poligon.size()>0) {
                     mapboxMap.clear();
-                    locationLayerPlugin.setLocationLayerEnabled(false);
                     /*for (Polygon p : mapboxMap.getPolygons())
                         mapboxMap.removePolygon(p);*/
                     poligon.add(poligon.getFirst());
@@ -157,34 +165,16 @@ public class AddLandActivity extends AppCompatActivity implements OnMapReadyCall
                         mapboxMap.snapshot(new MapboxMap.SnapshotReadyCallback() {
                             @Override
                             public void onSnapshotReady(Bitmap snapshot) {
-                                askWritingPermission();
-                                String filename = UUID.randomUUID().toString()+".png";
-                                Log.v("MAPBOX", "filename: "+filename);
-                                FileOutputStream out = null;
-                                try {
-                                    File file = new File(getFilesDir(),filename);
-                                    out = new FileOutputStream(file);
-                                    snapshot.compress(Bitmap.CompressFormat.PNG, 100, out); // bmp is your Bitmap instance
-                                    // PNG is a lossless format, the compression factor (100) is ignored
+                                //askWritingPermission();
+                                String filename = addImage(snapshot);
 
                                     Intent data = new Intent();
                                     //---set the data to pass back---
-                                    data.setData(Uri.fromFile(file));
-                                    Log.v("MAPBOX", "fileUri: "+Uri.fromFile(file));
+                                    data.putExtra("name", filename);
+                                    Log.v("MAPBOX", "fileUri: "+filename);
                                     setResult(RESULT_OK, data);
                                     //---close the activity---
                                     finish();
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                } finally {
-                                    try {
-                                        if (out != null) {
-                                            out.close();
-                                        }
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
                             }
                         });
                     }
@@ -193,6 +183,39 @@ public class AddLandActivity extends AppCompatActivity implements OnMapReadyCall
             }
         });
 
+    }
+
+    public static byte[] getBitmapAsByteArray(Bitmap bitmap) {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 0, outputStream);
+        return outputStream.toByteArray();
+    }
+
+    public String addImage(Bitmap image) {
+        LandOpenHelper mDbHelper = new LandOpenHelper(this);
+
+        // Gets the data repository in write mode
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+
+        String name = UUID.randomUUID().toString()+".png";
+
+        ContentValues values = new ContentValues();
+        values.put("Name", name);
+        values.put("Image", getBitmapAsByteArray(image));
+
+// Insert the new row, returning the primary key value of the new row
+        long newRowId = db.insert("Images", null, values);
+        if (newRowId == -1) {
+            Toast.makeText(this,R.string.item_type_add_error, Toast.LENGTH_SHORT).show();
+            Log.v("Add Image", "Failed to insert item: " + name);
+        }
+        else {
+            Toast.makeText(this,R.string.item_type_add_success, Toast.LENGTH_SHORT).show();
+            Log.v("Add Item", "row inserted: " + newRowId);
+        }
+
+        db.close();
+        return name;
     }
 
     @Override

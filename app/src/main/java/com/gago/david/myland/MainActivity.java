@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, LandFragment.OnListFragmentInteractionListener,
             AddLandDetailsFragment.OnFragmentInteractionListener, SettingsFragment.OnListFragmentInteractionListener,
             SettingsFragment.OnTaskListFragmentInteractionListener, EditTaskTypeFragment.OnFragmentInteractionListener,
-        EditItemTypeFragment.OnFragmentInteractionListener, ColorPickerDialogListener {
+        EditItemTypeFragment.OnFragmentInteractionListener, ColorPickerDialogListener{
 
     private boolean logout = false;
     private ArrayList<TaskTypeObject> tasks;
@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //deleteDatabase("myland.db");
+        deleteDatabase("myland.db");
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);

@@ -4,10 +4,16 @@ CREATE TABLE IF NOT EXISTS PlantTypes(
 	Color VARCHAR
 	);
 
+CREATE TABLE IF NOT EXISTS Images(
+	Name VARCHAR PRIMARY KEY,
+	image BLOB
+	);
+
 CREATE TABLE IF NOT EXISTS Lands(
 	Name VARCHAR PRIMARY KEY,
 	ImageUri VARCHAR,
-	Description TEXT
+	Description TEXT,
+    FOREIGN KEY(ImageUri) REFERENCES Images(Name)
 	);
 
 CREATE TABLE IF NOT EXISTS Plants(
@@ -17,7 +23,7 @@ CREATE TABLE IF NOT EXISTS Plants(
     description TEXT,
 	x FLOAT,
 	y FLOAT,
-    FOREIGN KEY(Land) REFERENCES Lands(Name)  ON DELETE CASCADE,
+    FOREIGN KEY(Land) REFERENCES Lands(Name) ON DELETE CASCADE,
     FOREIGN KEY(PlantType) REFERENCES PlantTypes(Name)
 	);
 

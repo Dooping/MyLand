@@ -90,7 +90,7 @@ public class AddLandDetailsFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_add_land_details, container, false);
         ButterKnife.bind(this, view);
-        image.setImageURI(Uri.parse(imageUri));
+        image.setImageBitmap(new LandOpenHelper(getContext()).getImage(imageUri));
 
         button.setOnClickListener(new View.OnClickListener() {
                                       @Override

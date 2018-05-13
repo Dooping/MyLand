@@ -56,4 +56,6 @@
     <string name="land_state">Estado do terreno</string>
     <string name="item_state">Estado do Item</string>
     <string name="all_tasks">Todas as tarefas</string>
+    <string name="import_db">Importar BD</string>
+    <string name="export_db">Exportar BD</string>
 </resources>

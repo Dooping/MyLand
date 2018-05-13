@@ -106,6 +106,38 @@
 
                 </android.support.v7.widget.RecyclerView>
             </LinearLayout>
+
+            <br.com.bloder.magic.view.MagicButton
+                android:id="@+id/import_db"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_margin="16dp"
+                app:button_icon="@drawable/ic_cloud_download"
+                app:button_icon_height="25dp"
+                app:button_icon_width="25dp"
+                app:expandable_area_color="@color/colorAccent"
+                app:hide_text="@string/import_db"
+                app:hide_text_color="@color/cardview_light_background"
+                app:hide_text_size="5dp"
+                app:icon_button_color="@color/colorAccent"
+                app:magic_button_size="50dp" />
+
+            <br.com.bloder.magic.view.MagicButton
+                android:id="@+id/export_db"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_margin="16dp"
+                app:button_icon="@drawable/ic_cloud_upload"
+                app:button_icon_height="25dp"
+                app:button_icon_width="25dp"
+                app:expandable_area_color="@color/colorAccent"
+                app:hide_text="@string/export_db"
+                app:hide_text_color="@color/cardview_light_background"
+                app:hide_text_size="5dp"
+                app:icon_button_color="@color/colorAccent"
+                app:magic_button_size="50dp" />
         </LinearLayout>
     </ScrollView>
 

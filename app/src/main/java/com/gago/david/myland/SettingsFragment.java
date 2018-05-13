@@ -1,14 +1,24 @@
 package com.gago.david.myland;
 
 
+import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.provider.DocumentFile;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,7 +30,13 @@ import com.gago.david.myland.Adapters.TaskTypeAdapter;
 import com.gago.david.myland.Models.PlantTypeObject;
 import com.gago.david.myland.Models.TaskTypeObject;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+
+import br.com.bloder.magic.view.MagicButton;
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 
 /**
@@ -33,6 +49,8 @@ public class SettingsFragment extends Fragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
+    private final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 10;
+    private final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 20;
 
     ItemTypeAdapter itemAdapter;
     TaskTypeAdapter taskAdapter;
@@ -42,6 +60,9 @@ public class SettingsFragment extends Fragment {
 
     ArrayList<PlantTypeObject> items;
     ArrayList<TaskTypeObject> tasks;
+
+    @BindView(R.id.import_db) MagicButton importDB;
+    @BindView(R.id.export_db) MagicButton exportDB;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -79,6 +100,8 @@ public class SettingsFragment extends Fragment {
         }
         items = readPlantTypes();
         tasks = readTaskTypes();
+        askReadingPermission();
+        askWritingPermission();
     }
 
     @Override
@@ -110,9 +133,45 @@ public class SettingsFragment extends Fragment {
                     mListener.addItem(itemAdapter, items);
                 }
             });
+            ButterKnife.bind(this, view);
+            importDB.setMagicButtonClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+
+                    Intent i = new Intent(Intent.ACTION_GET_CONTENT );
+                    i.addCategory(Intent.CATEGORY_DEFAULT);
+                    i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                    startActivityForResult(Intent.createChooser(i, "Choose directory"), 9998);
+                }
+            });
+            exportDB.setMagicButtonClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent i = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+                    i.setType("application/octet-stream");
+                    i.putExtra(Intent.EXTRA_TITLE, "myland.db");
+                    i.addCategory(Intent.CATEGORY_OPENABLE);
+                    i.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                    startActivityForResult(Intent.createChooser(i, "Choose directory"), 9999);
+                }
+            });
         }
 
         return view;
+    }
+
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(resultCode == Activity.RESULT_OK)
+            switch(requestCode) {
+                case 9999:
+                    Log.i("Test", "Result 9999 URI " + data.getData().getPath());
+                    exportDB(data.getData());
+                    break;
+                case 9998:
+                    Log.i("Test", "Result 9998 URI " + data.getData().getPath());
+                    importDB(data.getData());
+                    break;
+            }
     }
 
     @Override
@@ -238,6 +297,82 @@ public class SettingsFragment extends Fragment {
         cursor.close();
 
         return taskTypes;
+    }
+
+    private void importDB(Uri s){
+        LandOpenHelper mDbHelper = new LandOpenHelper(getContext());
+        try {
+            mDbHelper.importDatabase(s);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void exportDB(Uri s){
+        LandOpenHelper mDbHelper = new LandOpenHelper(getContext());
+        try {
+            mDbHelper.exportDatabase(s);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void askWritingPermission(){
+        // Here, thisActivity is the current activity
+        if (ContextCompat.checkSelfPermission(getContext(),
+                Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+
+                // Show an expanation to the user *asynchronously* -- don't block
+                // this thread waiting for the user's response! After the user
+                // sees the explanation, try again to request the permission.
+
+            } else {
+
+                // No explanation needed, we can request the permission.
+
+                ActivityCompat.requestPermissions(getActivity(),
+                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
+
+                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
+                // app-defined int constant. The callback method gets the
+                // result of the request.
+            }
+        }
+    }
+
+    private void askReadingPermission(){
+        // Here, thisActivity is the current activity
+        if (ContextCompat.checkSelfPermission(getContext(),
+                Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),
+                    Manifest.permission.READ_EXTERNAL_STORAGE)) {
+
+                // Show an expanation to the user *asynchronously* -- don't block
+                // this thread waiting for the user's response! After the user
+                // sees the explanation, try again to request the permission.
+
+            } else {
+
+                // No explanation needed, we can request the permission.
+
+                ActivityCompat.requestPermissions(getActivity(),
+                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                        MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+
+                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
+                // app-defined int constant. The callback method gets the
+                // result of the request.
+            }
+        }
     }
 
 }

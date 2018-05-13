@@ -1,5 +1,6 @@
 package com.gago.david.myland.Adapters;
 
+import android.content.Context;
 import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -8,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.gago.david.myland.LandFragment.OnListFragmentInteractionListener;
+import com.gago.david.myland.LandOpenHelper;
 import com.gago.david.myland.Models.LandObject;
 import com.gago.david.myland.R;
 
@@ -42,7 +44,7 @@ public class MyLandRecyclerViewAdapter extends RecyclerView.Adapter<MyLandRecycl
         holder.mItem = mValues.get(position);
         holder.mIdView.setText(mValues.get(position).name);
         holder.mContentView.setText(mValues.get(position).Description);
-        holder.landImage.setImageURI(Uri.parse((mValues.get(position).imageUri)));
+        holder.landImage.setImageBitmap(new LandOpenHelper((Context) mListener).getImage(mValues.get(position).imageUri));
 
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -72,10 +74,10 @@ public class MyLandRecyclerViewAdapter extends RecyclerView.Adapter<MyLandRecycl
         public ViewHolder(View view) {
             super(view);
             mView = view;
-            mIdView = (TextView) view.findViewById(R.id.id);
-            mContentView = (TextView) view.findViewById(R.id.content);
-            landImage = (CircleImageView) view.findViewById(R.id.land_image);
-            notification = (CircleImageView) view.findViewById(R.id.notification);
+            mIdView = view.findViewById(R.id.id);
+            mContentView = view.findViewById(R.id.content);
+            landImage = view.findViewById(R.id.land_image);
+            notification = view.findViewById(R.id.notification);
         }
 
         @Override

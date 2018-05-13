@@ -119,14 +119,16 @@ public class ScrollingActivity extends AppCompatActivity implements AddTaskFragm
 
         toolbarLayout = findViewById(R.id.toolbar_layout);
         layers = new Drawable[2];
-        try {
+        layers[0] = new BitmapDrawable(getResources(), new LandOpenHelper(this).getImage(land.imageUri));
+        toolbarLayout.setBackground(layers[0]);
+        /*try {
             InputStream inputStream = getContentResolver().openInputStream(Uri.parse(land.imageUri));
             Drawable yourDrawable = Drawable.createFromStream(inputStream, land.imageUri );
             layers[0] = yourDrawable;
             toolbarLayout.setBackground(yourDrawable);
         } catch (FileNotFoundException e) {
             //yourDrawable = getResources().getDrawable(R.drawable.default_image);
-        }
+        }*/
 
         toolbarLayout.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
@@ -301,10 +303,8 @@ public class ScrollingActivity extends AppCompatActivity implements AddTaskFragm
         mPaint.setStrokeWidth(2.5f);
         mPaint.setAntiAlias(true);
 
-
-
-        float xRatio = toolbarLayout.getMeasuredWidth()/layers[0].getIntrinsicWidth();
-        float yRatio = toolbarLayout.getMeasuredHeight()/layers[0].getIntrinsicHeight();
+        float xRatio = (float)toolbarLayout.getMeasuredWidth()/(float)layers[0].getIntrinsicWidth();
+        float yRatio = (float)toolbarLayout.getMeasuredHeight()/(float)layers[0].getIntrinsicHeight();
 
         int xSize, ySize;
 

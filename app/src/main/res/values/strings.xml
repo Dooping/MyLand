@@ -154,4 +154,6 @@
     <string name="land_state">State of the land</string>
     <string name="item_state">State of the item</string>
     <string name="all_tasks">All tasks</string>
+    <string name="import_db">Import DB</string>
+    <string name="export_db">Export DB</string>
 </resources>
