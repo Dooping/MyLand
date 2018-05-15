@@ -89,29 +89,18 @@ public class LandOpenHelper extends SQLiteOpenHelper {
         close();
         File newDb = new File("//data/data/com.gago.david.myland/databases/",LAND_TABLE_NAME);
         ParcelFileDescriptor pfd = context.getContentResolver().openFileDescriptor(dbPath, "w");
-        try (InputStream is = new FileInputStream(newDb); FileOutputStream os = new FileOutputStream(pfd.getFileDescriptor())) {
+        try {
+            InputStream is = new FileInputStream(newDb);
+            FileOutputStream os = new FileOutputStream(pfd.getFileDescriptor());
             byte[] buffer = new byte[1024];
             int length;
             while ((length = is.read(buffer)) > 0) {
                 os.write(buffer, 0, length);
             }
+            return true;
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
         }
-
-        // Close the SQLiteOpenHelper so it will commit the created empty
-        // database to internal storage.
-        /*close();
-        File oldDb = new File(dbPath);
-        File newDb = new File("//data/data/com.gago.david.myland/databases/",LAND_TABLE_NAME);
-        if (newDb.exists()) {
-            if(!oldDb.exists())
-                oldDb.createNewFile();
-            FileUtils.copyFile(new FileInputStream(newDb), new FileOutputStream(oldDb));
-
-            // Access the copied database so SQLiteHelper will cache it and mark
-            // it as created.
-            //getWritableDatabase().close();
-            //                return true;
-        }*/
         return false;
     }
 
@@ -119,14 +108,17 @@ public class LandOpenHelper extends SQLiteOpenHelper {
         File f = Utils.getFileForUri(dbPath);
         Log.v("file", f.getPath() + " " + f.exists());
         File oldDb = new File("//data/data/com.gago.david.myland/databases/",LAND_TABLE_NAME);
-        try (InputStream is = new FileInputStream(f); FileOutputStream os = new FileOutputStream(oldDb)) {
-            byte[] buffer = new byte[1024];
-            int length;
-            while ((length = is.read(buffer)) > 0) {
-                os.write(buffer, 0, length);
+        if(f.exists())
+            try (InputStream is = new FileInputStream(f); FileOutputStream os = new FileOutputStream(oldDb)) {
+                byte[] buffer = new byte[1024];
+                int length;
+                while ((length = is.read(buffer)) > 0) {
+                    os.write(buffer, 0, length);
+                }
             }
-        }
-        return false;
+            else
+                return false;
+        return true;
     }
 
     public Bitmap getImage(String name){
@@ -149,8 +141,8 @@ public class LandOpenHelper extends SQLiteOpenHelper {
         Cursor cur = db.query(
                 "Images",   // The table to query
                 projection,             // The array of columns to return (pass null to get all)
-                null,              // The columns for the WHERE clause
-                null,          // The values for the WHERE clause
+                whereClause,              // The columns for the WHERE clause
+                whereArgs,          // The values for the WHERE clause
                 null,                   // don't group the rows
                 null,                   // don't filter by row groups
                 sortOrder               // The sort order

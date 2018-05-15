@@ -156,4 +156,9 @@
     <string name="all_tasks">All tasks</string>
     <string name="import_db">Import DB</string>
     <string name="export_db">Export DB</string>
+    <string name="image_add_error">Some error occurred while adding the image</string>
+    <string name="import_success">Database imported successfully</string>
+    <string name="import_error">Some error occurred while importing the database</string>
+    <string name="export_success">Database exported successfully</string>
+    <string name="export_error">Some error occurred while exporting the database</string>
 </resources>

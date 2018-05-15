@@ -24,6 +24,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.FrameLayout;
+import android.widget.Toast;
 
 import com.gago.david.myland.Adapters.ItemTypeAdapter;
 import com.gago.david.myland.Adapters.TaskTypeAdapter;
@@ -141,7 +142,7 @@ public class SettingsFragment extends Fragment {
                     Intent i = new Intent(Intent.ACTION_GET_CONTENT );
                     i.addCategory(Intent.CATEGORY_DEFAULT);
                     i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                    startActivityForResult(Intent.createChooser(i, "Choose directory"), 9998);
+                    startActivityForResult(Intent.createChooser(i, "Choose file"), 9998);
                 }
             });
             exportDB.setMagicButtonClickListener(new View.OnClickListener() {
@@ -149,7 +150,7 @@ public class SettingsFragment extends Fragment {
                 public void onClick(View view) {
                     Intent i = new Intent(Intent.ACTION_CREATE_DOCUMENT);
                     i.setType("application/octet-stream");
-                    i.putExtra(Intent.EXTRA_TITLE, "myland.db");
+                    //i.putExtra(Intent.EXTRA_TITLE, "myland.db");
                     i.addCategory(Intent.CATEGORY_OPENABLE);
                     i.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
                     startActivityForResult(Intent.createChooser(i, "Choose directory"), 9999);
@@ -302,7 +303,11 @@ public class SettingsFragment extends Fragment {
     private void importDB(Uri s){
         LandOpenHelper mDbHelper = new LandOpenHelper(getContext());
         try {
-            mDbHelper.importDatabase(s);
+            if (mDbHelper.importDatabase(s))
+                Toast.makeText(getContext(), R.string.import_success, Toast.LENGTH_SHORT);
+            else
+                Toast.makeText(getContext(), R.string.import_error, Toast.LENGTH_SHORT);
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -311,7 +316,10 @@ public class SettingsFragment extends Fragment {
     private void exportDB(Uri s){
         LandOpenHelper mDbHelper = new LandOpenHelper(getContext());
         try {
-            mDbHelper.exportDatabase(s);
+            if (mDbHelper.exportDatabase(s))
+                Toast.makeText(getContext(), R.string.export_success, Toast.LENGTH_SHORT);
+            else
+                Toast.makeText(getContext(), R.string.export_error, Toast.LENGTH_SHORT);
         } catch (IOException e) {
             e.printStackTrace();
         }
