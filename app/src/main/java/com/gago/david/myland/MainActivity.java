@@ -87,9 +87,10 @@ public class MainActivity extends AppCompatActivity
             else if (getSupportFragmentManager().getBackStackEntryCount() == 0) {
                 finish();
             }
-            else{
+            else if (getSupportFragmentManager().getBackStackEntryCount() > 0)
+                getSupportFragmentManager().popBackStack();
+            else
                 super.onBackPressed();
-            }
         }
     }
 
@@ -130,7 +131,7 @@ public class MainActivity extends AppCompatActivity
             finish();
         }
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
@@ -188,7 +189,28 @@ public class MainActivity extends AppCompatActivity
         Bundle b = new Bundle();
         b.putString("name", item.name); //Your id
         intent.putExtras(b); //Put your id to your next Intent
-        startActivity(intent);
+        startActivityForResult(intent, 2);
+    }
+
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode,resultCode,data);
+        if (requestCode == 2) {
+            if (resultCode == RESULT_OK) {
+                String menu = data.getStringExtra("menu");
+                if(menu.equals("settings")) {
+                    SettingsFragment fragment = new SettingsFragment();
+
+                    String backStateName = fragment.getClass().getName();
+
+                    FragmentManager manager = getSupportFragmentManager();
+                    FragmentTransaction ft = manager.beginTransaction();
+                    ft.setCustomAnimations(R.anim.enter, R.anim.exit, R.anim.pop_enter, R.anim.pop_exit);
+                    ft.replace(R.id.fragment_container, fragment);
+                    ft.addToBackStack(backStateName);
+                    ft.commit();
+                }
+            }
+        }
     }
 
     @Override
