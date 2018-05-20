@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import com.gago.david.myland.R;
 import com.gago.david.myland.Models.TaskObject;
+import com.gago.david.myland.TaskEditFragment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,9 +24,11 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.ViewHo
     private SortedList<TaskObject> mValues;
     private CustomFilter mFilter;
     private ArrayList<TaskObject> originalList;
+    private TaskEditFragment.OnFragmentInteractionListener mListener;
 
 
-    public TaskListAdapter(ArrayList<TaskObject> items) {
+    public TaskListAdapter(ArrayList<TaskObject> items, TaskEditFragment.OnFragmentInteractionListener mListener) {
+        this.mListener = mListener;
         mValues = new SortedList<>(TaskObject.class, new SortedList.Callback<TaskObject>() {
             @Override
             public int compare(TaskObject a, TaskObject b) {
@@ -77,8 +80,18 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.ViewHo
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mItem = mValues.get(position);
-        holder.mIdView.setText(mValues.get(position).taskType);
-        holder.mContentView.setText(mValues.get(position).observations);
+        holder.mIdView.setText(holder.mItem.taskType);
+        holder.mContentView.setText(holder.mItem.observations);
+        holder.mView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (null != mListener) {
+                    // Notify the active callbacks interface (the activity, if the
+                    // fragment is attached to one) that an item has been selected.
+                    mListener.selectTask(holder.mItem);
+                }
+            }
+        });
         setFadeAnimation(holder.mView);
     }
     private void setFadeAnimation(View view) {

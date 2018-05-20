@@ -48,7 +48,7 @@
         android:cropToPadding="false"
         android:elevation="5dp"
         android:focusable="true"
-        android:src="@drawable/ic_remove"
+        android:src="@drawable/ic_remove_white_18dp"
         android:tint="@android:color/background_light"
         android:tintMode="multiply"
         app:civ_border_width="0dp"

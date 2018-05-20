@@ -32,6 +32,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -65,7 +66,7 @@ import java.util.Iterator;
 import java.util.List;
 
 public class ScrollingActivity extends AppCompatActivity implements AddTaskFragment.OnFragmentInteractionListener,
-        NavigationView.OnNavigationItemSelectedListener{
+        NavigationView.OnNavigationItemSelectedListener, TaskEditFragment.OnFragmentInteractionListener {
 
     private WheelView wheel;
     private LandObject land;
@@ -75,11 +76,17 @@ public class ScrollingActivity extends AppCompatActivity implements AddTaskFragm
     private CollapsingToolbarLayout toolbarLayout;
     private ArrayList<PlantTypeObject> plantTypeList;
     private int selected = 0;
-    private FloatingActionButton editButton, addTaskButton, removeButton;
+    private FloatingActionButton editButton;
+    private FloatingActionButton addTaskButton;
+    private FloatingActionButton removeButton;
+    private FloatingActionButton doneButton;
+    private FloatingActionButton deleteButton;
     private TaskListAdapter mAdapter;
     private ArrayList<TaskObject> tasks = new ArrayList<>();
     private TextView description, state;
     private LinearLayout descriptionLayout;
+    private Fragment fragment;
+    private NestedScrollView scrollView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -124,6 +131,40 @@ public class ScrollingActivity extends AppCompatActivity implements AddTaskFragm
         });
 
         removeButton = findViewById(R.id.remove);
+        doneButton = findViewById(R.id.done);
+        deleteButton = findViewById(R.id.delete);
+
+        scrollView = findViewById(R.id.nested_scroll);
+
+        doneButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (fragment instanceof TaskEditFragment) {
+                    TaskObject task = ((TaskEditFragment) fragment).closeTask();
+                    getSupportFragmentManager().popBackStack();
+                    tasks.remove(task);
+                    filter();
+
+                    doneButton.setVisibility(View.GONE);
+                    deleteButton.setVisibility(View.GONE);
+                }
+            }
+        });
+
+        deleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(fragment instanceof TaskEditFragment){
+                    TaskObject task = ((TaskEditFragment) fragment).deleteTask();
+                    getSupportFragmentManager().popBackStack();
+                    tasks.remove(task);
+                    filter();
+
+                    doneButton.setVisibility(View.GONE);
+                    deleteButton.setVisibility(View.GONE);
+                }
+            }
+        });
 
         addTaskButton = findViewById(R.id.add_task_button);
         addTaskButton.setOnClickListener(new View.OnClickListener() {
@@ -159,7 +200,7 @@ public class ScrollingActivity extends AppCompatActivity implements AddTaskFragm
         RecyclerView recyclerView = findViewById(R.id.task_list);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         tasks = readTasks(land.name);
-        mAdapter = new TaskListAdapter(tasks);
+        mAdapter = new TaskListAdapter(tasks, this);
         recyclerView.setAdapter(mAdapter);
 
         wheel = findViewById(R.id.wheelview);
@@ -236,6 +277,13 @@ public class ScrollingActivity extends AppCompatActivity implements AddTaskFragm
             }
         });
         state = findViewById(R.id.state);
+    }
+
+    @Override
+    public void setContentView(View view) {
+        super.setContentView(view);
+
+        //scrollView.fullScroll(NestedScrollView.FOCUS_UP);
     }
 
     private void filter(){
@@ -563,7 +611,7 @@ public class ScrollingActivity extends AppCompatActivity implements AddTaskFragm
             else {
                 Log.v("AddTask", "row inserted: " + newRowId);
                 this.tasks.add(t);
-
+                t.rowid = newRowId;
             }
 
         }
@@ -591,13 +639,14 @@ public class ScrollingActivity extends AppCompatActivity implements AddTaskFragm
                 "CreationDate",
                 "ExpirationDate",
                 "Completed",
-                "Observations"
+                "Observations",
+                "rowid"
         };
 
         // How you want the results sorted in the resulting Cursor
         String sortOrder = "Priority ASC";
 
-        String selection = "Land = ?";
+        String selection = "Land = ? AND Completed = 0";
         String[] selectionArgs = new String[]{land};
 
         Cursor cursor = db.query(
@@ -621,9 +670,10 @@ public class ScrollingActivity extends AppCompatActivity implements AddTaskFragm
             if(cl2 != null)
                 cl2.setTimeInMillis(cursor.getLong(4));
             Date targetDate = cl2 == null ? null : cl2.getTime();
-            TaskObject o = new TaskObject(cursor.getString(0), cursor.isNull(1) ? null : cursor.getInt(1), cursor.getString(2)
+            TaskObject o = new TaskObject(cursor.getLong(cursor.getColumnIndex("rowid")), cursor.getString(0), cursor.isNull(1) ? null : cursor.getInt(1), cursor.getString(2)
                     , cursor.getInt(3), cl.getTime(), targetDate, cursor.getInt(5) > 0, cursor.getString(6));
             tasks.add(o);
+            Log.v("read tasks", "task: "+o.toString());
         }
 
         cursor.close();
@@ -748,5 +798,40 @@ public class ScrollingActivity extends AppCompatActivity implements AddTaskFragm
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    @Override
+    public void selectTask(TaskObject task) {
+        fragment = TaskEditFragment.newInstance(task);
+        FragmentManager manager = getSupportFragmentManager();
+        manager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        getSupportFragmentManager()
+                .beginTransaction()
+                .setCustomAnimations(R.anim.enter_vertical, R.anim.exit_vertical, R.anim.pop_enter_vertical, R.anim.pop_exit_vertical)
+                .add(R.id.add_fragment_container, fragment, LandFragment.class.getName())
+                .addToBackStack(fragment.getClass().getName())
+                .commit();
+        addTaskButton.setVisibility(View.GONE);
+        doneButton.setVisibility(View.VISIBLE);
+        deleteButton.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public boolean updateTask(TaskObject task) {
+        boolean success = LandOpenHelper.updateTask(task, this);
+
+        doneButton.setVisibility(View.GONE);
+        deleteButton.setVisibility(View.GONE);
+        if(success)
+            Toast.makeText(this, R.string.task_type_update_success, Toast.LENGTH_SHORT);
+        else
+            Toast.makeText(this, R.string.task_type_update_error, Toast.LENGTH_SHORT);
+        return success;
+    }
+
+    @Override
+    public void notUpdateTask() {
+        doneButton.setVisibility(View.GONE);
+        deleteButton.setVisibility(View.GONE);
     }
 }

@@ -127,6 +127,7 @@ public class AddLandDetailsFragment extends Fragment {
             startActivity(intent);
             ((MainActivity)getActivity()).removeLandDetails();
         }
+        db.close();
     }
 
     // TODO: Rename method, update argument and hook method into UI event

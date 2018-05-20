@@ -142,7 +142,7 @@
     <string name="task_type_add_success">Task type added</string>
     <string name="task_type_add_error">Some error occurred while adding the task type</string>
     <string name="task_type_update_success">Task type updated</string>
-    <string name="task_type_update_error">Some error happened while updating the task type</string>
+    <string name="task_type_update_error">Some error occurred while updating the task type</string>
     <string name="leave_message">Press back again to leave</string>
     <string name="state">State</string>
     <string name="tap_edit">(Tap to edit)</string>
@@ -150,7 +150,7 @@
     <string name="edit_land">Edit land</string>
     <string name="edit_item">Edit item</string>
     <string name="item_update_success">Item updated</string>
-    <string name="item_update_error">Some error happened while updating item</string>
+    <string name="item_update_error">Some error occurred while updating item</string>
     <string name="land_state">State of the land</string>
     <string name="item_state">State of the item</string>
     <string name="all_tasks">All tasks</string>
@@ -161,4 +161,8 @@
     <string name="import_error">Some error occurred while importing the database</string>
     <string name="export_success">Database exported successfully</string>
     <string name="export_error">Some error occurred while exporting the database</string>
+    <string name="close_task">Close task</string>
+    <string name="observations">Observations</string>
+    <string name="update_task_success">Task updated</string>
+    <string name="update_task_error">Some error occurred while updating the task</string>
 </resources>

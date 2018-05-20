@@ -63,4 +63,8 @@
     <string name="import_error">Aconteceu um erro ao importar a base de dados</string>
     <string name="export_success">Base de dados exportada com sucesso</string>
     <string name="export_error">Aconteceu um erro ao exportar a base de dados</string>
+    <string name="close_task">Encerrar tarefa</string>
+    <string name="observations">Observações</string>
+    <string name="update_task_success">Tarefa atualizada</string>
+    <string name="update_task_error">Aconteceu um erro ao atualizar a tarefa</string>
 </resources>

@@ -5,25 +5,21 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
 import android.app.DatePickerDialog;
 import android.content.Context;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Typeface;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.gago.david.myland.Models.PriorityObject;
 import com.gago.david.myland.Models.TaskObject;
@@ -34,39 +30,39 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link AddTaskFragment.OnFragmentInteractionListener} interface
+ * {@link TaskEditFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link AddTaskFragment#newInstance} factory method to
+ * Use the {@link TaskEditFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class AddTaskFragment extends Fragment implements AdapterView.OnItemSelectedListener {
+public class TaskEditFragment extends Fragment implements AdapterView.OnItemSelectedListener {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    private static final String ARG_PARAM1 = "task";
 
     // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
-    private TextView taskDescription;
-    private Spinner spinner;
+    private TaskObject task;
     private ArrayList<TaskTypeObject> taskTypes;
+    ArrayList<PriorityObject> priorities;
     private Calendar myCalendar;
-    private EditText targetDate;
     private boolean first = true;
-    private ArrayList<Integer> plantIndexes;
-    private String type;
-    private String land;
-    private EditText description;
+    private boolean deleted = false;
 
     private OnFragmentInteractionListener mListener;
+    @BindView(R.id.task_type_description) TextView taskTypeDescription;
+    @BindView(R.id.spinner) Spinner taskSpinner;
+    @BindView(R.id.priority_spinner) Spinner prioritySpinner;
+    @BindView(R.id.task_description) EditText taskDescription;
+    @BindView(R.id.targetDate) EditText targetDate;
 
-    public AddTaskFragment() {
+    public TaskEditFragment() {
         // Required empty public constructor
     }
 
@@ -74,16 +70,14 @@ public class AddTaskFragment extends Fragment implements AdapterView.OnItemSelec
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment AddTaskFragment.
+     * @param task Task to edit.
+     * @return A new instance of fragment TaskEditFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static AddTaskFragment newInstance(String param1, String param2) {
-        AddTaskFragment fragment = new AddTaskFragment();
+    public static TaskEditFragment newInstance(TaskObject task) {
+        TaskEditFragment fragment = new TaskEditFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
+        args.putSerializable(ARG_PARAM1, task);
         fragment.setArguments(args);
         return fragment;
     }
@@ -92,47 +86,50 @@ public class AddTaskFragment extends Fragment implements AdapterView.OnItemSelec
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+            task = (TaskObject) getArguments().getSerializable(ARG_PARAM1);
         }
+        taskTypes = LandOpenHelper.readTaskTypes(getContext());
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
-        plantIndexes = getArguments() != null ? getArguments().getIntegerArrayList("plandIndex") : null;
-        type = getArguments().getString("type", "");
-        land = getArguments().getString("land", "");
-
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_add_task, container, false);
-
-        spinner = view.findViewById(R.id.spinner);
-        taskTypes = LandOpenHelper.readTaskTypes(getContext());
+        View view = inflater.inflate(R.layout.fragment_task_edit, container, false);
+        ButterKnife.bind(this, view);
 
         ArrayList<String> list = new ArrayList<>();
-        for(TaskTypeObject task : taskTypes)
-            list.add(task.name);
+        int index = 0;
+        for(int i = 0; i < taskTypes.size(); i++) {
+            list.add(taskTypes.get(i).name);
+            if(taskTypes.get(i).name.equals(task.taskType))
+                index = i;
+        }
         ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), R.layout.support_simple_spinner_dropdown_item, list);
         adapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
-        spinner.setAdapter(adapter);
-        spinner.setOnItemSelectedListener(this);
+        taskSpinner.setAdapter(adapter);
+        taskSpinner.setOnItemSelectedListener(this);
+        taskSpinner.setSelection(index);
 
-        taskDescription = view.findViewById(R.id.task_type_description);
-
-        final ArrayList<PriorityObject> priorities = LandOpenHelper.readPriorities(getContext());
-        final Spinner prioritySpinner = view.findViewById(R.id.priority_spinner);
+        priorities = LandOpenHelper.readPriorities(getContext());
         ArrayList<String> list2 = new ArrayList<>();
-        for (PriorityObject p : priorities)
-            list2.add(p.name);
+        int index2 = 0;
+        for (int i = 0; i < priorities.size(); i++) {
+            list2.add(priorities.get(i).name);
+            if(priorities.get(i).p_order == task.priority)
+                index2 = i;
+        }
         ArrayAdapter<String> adapter2 = new ArrayAdapter<>(getContext(), R.layout.support_simple_spinner_dropdown_item, list2);
         adapter2.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
         prioritySpinner.setAdapter(adapter2);
+        prioritySpinner.setSelection(index2);
 
         myCalendar = Calendar.getInstance();
 
-        targetDate = view.findViewById(R.id.targetDate);
+        if(task.targetDate != null) {
+            myCalendar.setTime(task.targetDate);
+            updateLabel();
+        }
         final DatePickerDialog.OnDateSetListener date = new DatePickerDialog.OnDateSetListener() {
 
             @Override
@@ -158,41 +155,7 @@ public class AddTaskFragment extends Fragment implements AdapterView.OnItemSelec
             }
         });
 
-        description = view.findViewById(R.id.task_description);
-
-        Button addTask = view.findViewById(R.id.add_task);
-        addTask.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Date time = targetDate.getText().toString().equals("") ? null : myCalendar.getTime();
-                ArrayList<TaskObject> tasks = new ArrayList<>();
-                switch (type){
-                    case "land":
-                        tasks.add(new TaskObject(land, null, taskTypes.get(spinner.getSelectedItemPosition()).name
-                                , priorities.get(prioritySpinner.getSelectedItemPosition()).p_order, new Date(), time
-                                , false, description.getText().toString()));
-                        onButtonPressed(tasks);
-                        break;
-                    case "all":
-                    case "group":
-                    case "item":
-                        if(plantIndexes.size() == 0) {
-                            Toast.makeText(getContext(), "No items selected!", Toast.LENGTH_SHORT).show();
-                            break;
-                        }
-                        for (Integer i: plantIndexes)
-                            tasks.add(new TaskObject(land, Integer.valueOf(i), taskTypes.get(spinner.getSelectedItemPosition()).name
-                                    , priorities.get(prioritySpinner.getSelectedItemPosition()).p_order, new Date(), time
-                                    , false, description.getText().toString()));
-
-                        onButtonPressed(tasks);
-                        break;
-                    default:
-                        Toast.makeText(getContext(),"Something went wrong!!", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-
+        taskDescription.setText(task.observations);
 
         return view;
     }
@@ -204,11 +167,51 @@ public class AddTaskFragment extends Fragment implements AdapterView.OnItemSelec
         targetDate.setText(s);
     }
 
+    public TaskObject closeTask(){
+        task.completed = true;
+        return task;
+    }
+
+    public TaskObject deleteTask(){
+        LandOpenHelper.deleteTask(task, getContext());
+        deleted = true;
+        return task;
+    }
+
     // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(ArrayList<TaskObject> tasks) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(tasks);
+    public void onButtonPressed() {
+        if (mListener != null && !deleted) {
+            boolean changed = false;
+            if ( !taskTypes.get(taskSpinner.getSelectedItemPosition()).name.equals(task.taskType)){
+                changed = true;
+                task.taskType = taskTypes.get(taskSpinner.getSelectedItemPosition()).name;
+            }
+            if ( priorities.get(prioritySpinner.getSelectedItemPosition()).p_order != task.priority ){
+                changed = true;
+                task.priority = priorities.get(prioritySpinner.getSelectedItemPosition()).p_order;
+            }
+            if ( !taskDescription.getText().toString().equals(task.observations) ){
+                changed = true;
+                task.observations = taskDescription.getText().toString();
+            }
+            if (( !targetDate.getText().toString().equals("") && task.targetDate != null && myCalendar.getTime().compareTo(task.targetDate) != 0)
+                || ( !targetDate.getText().toString().equals("") && task.targetDate == null)){
+                changed = true;
+                task.targetDate = myCalendar.getTime();
+            }
+            if ( task.completed )
+                changed = true;
+            if ( changed )
+                mListener.updateTask(task);
+            else
+                mListener.notUpdateTask();
         }
+    }
+
+    @Override
+    public void onDestroyView() {
+        onButtonPressed();
+        super.onDestroyView();
     }
 
     @Override
@@ -231,15 +234,15 @@ public class AddTaskFragment extends Fragment implements AdapterView.OnItemSelec
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, final int i, long l) {
         if (taskTypes != null && !first) {
-            int measuredTextHeight = getHeight(getContext(), taskTypes.get(i).description, 14, taskDescription.getWidth(), Typeface.DEFAULT);
-            ValueAnimator anim = ValueAnimator.ofInt(taskDescription.getMeasuredHeight(), measuredTextHeight);
+            int measuredTextHeight = AddTaskFragment.getHeight(getContext(), taskTypes.get(i).description, 14, taskTypeDescription.getWidth(), Typeface.DEFAULT);
+            ValueAnimator anim = ValueAnimator.ofInt(taskTypeDescription.getMeasuredHeight(), measuredTextHeight);
             anim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
                 @Override
                 public void onAnimationUpdate(ValueAnimator valueAnimator) {
                     int val = (Integer) valueAnimator.getAnimatedValue();
-                    ViewGroup.LayoutParams layoutParams = taskDescription.getLayoutParams();
+                    ViewGroup.LayoutParams layoutParams = taskTypeDescription.getLayoutParams();
                     layoutParams.height = val;
-                    taskDescription.setLayoutParams(layoutParams);
+                    taskTypeDescription.setLayoutParams(layoutParams);
                 }
             });
             anim.addListener(new AnimatorListenerAdapter()
@@ -247,9 +250,9 @@ public class AddTaskFragment extends Fragment implements AdapterView.OnItemSelec
                 @Override
                 public void onAnimationEnd(Animator animation)
                 {
-                    taskDescription.setText(taskTypes.get(i).description);
+                    taskTypeDescription.setText(taskTypes.get(i).description);
                     AlphaAnimation fadeIn = new AlphaAnimation(0.0f , 1.0f ) ;
-                    taskDescription.startAnimation(fadeIn);
+                    taskTypeDescription.startAnimation(fadeIn);
                     fadeIn.setDuration(500);
                     fadeIn.setFillAfter(true);
                     fadeIn.setStartOffset(500);
@@ -261,7 +264,7 @@ public class AddTaskFragment extends Fragment implements AdapterView.OnItemSelec
                     AlphaAnimation fadeOut = new AlphaAnimation( 1.0f , 0.0f ) ;
                     fadeOut.setDuration(500);
                     fadeOut.setFillAfter(true);
-                    taskDescription.startAnimation(fadeOut);
+                    taskTypeDescription.startAnimation(fadeOut);
                 }
             });
             anim.setDuration(500);
@@ -269,14 +272,14 @@ public class AddTaskFragment extends Fragment implements AdapterView.OnItemSelec
         }
         else if(taskTypes != null) {
             first = false;
-            taskDescription.setText(taskTypes.get(i).description);
+            taskTypeDescription.setText(taskTypes.get(i).description);
         }
     }
 
     @Override
     public void onNothingSelected(AdapterView<?> adapterView) {
         Log.v("item", "not selected");
-        taskDescription.setText("");
+        taskTypeDescription.setText("");
     }
 
     /**
@@ -291,39 +294,8 @@ public class AddTaskFragment extends Fragment implements AdapterView.OnItemSelec
      */
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onFragmentInteraction(ArrayList<TaskObject> tasks);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        taskTypes = LandOpenHelper.readTaskTypes(getContext());
-
-        ArrayList<String> list = new ArrayList<>();
-        for(TaskTypeObject task : taskTypes)
-            list.add(task.name);
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), R.layout.support_simple_spinner_dropdown_item, list);
-        adapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
-        spinner.setAdapter(adapter);
-    }
-
-
-
-    public static int getHeight(Context context, CharSequence text, int textSize, int deviceWidth, Typeface typeface) {
-        TextView textView = new TextView(context);
-        textView.setWidth(deviceWidth);
-        textView.setTypeface(typeface);
-        textView.setText(text, TextView.BufferType.SPANNABLE);
-        textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize);
-        int widthMeasureSpec = View.MeasureSpec.makeMeasureSpec(deviceWidth, View.MeasureSpec.AT_MOST);
-        int heightMeasureSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
-        textView.measure(widthMeasureSpec, heightMeasureSpec);
-        return textView.getMeasuredHeight();
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        ((ScrollingActivity)getActivity()).showButtons();
+        void selectTask(TaskObject task);
+        boolean updateTask(TaskObject task);
+        void notUpdateTask();
     }
 }

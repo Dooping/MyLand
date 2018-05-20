@@ -314,6 +314,7 @@ public class LandEditActivity extends AppCompatActivity implements PopupMenuAdap
         );
         while (cursor2.moveToNext())
             l.addPlant(new PlantObject(cursor2.getInt(1), cursor2.getString(2), cursor2.getString(3), cursor2.getFloat(4), cursor2.getFloat(5)));
+        db.close();
         return l;
     }
 
@@ -351,7 +352,7 @@ public class LandEditActivity extends AppCompatActivity implements PopupMenuAdap
         }
 
         cursor.close();
-
+        db.close();
         return plants;
     }
 

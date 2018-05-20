@@ -149,6 +149,7 @@ public class LandFragment extends Fragment {
         }
 
         cursor.close();
+        db.close();
 
         return lands;
     }

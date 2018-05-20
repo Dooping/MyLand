@@ -73,7 +73,7 @@
             app:backgroundTint="@android:color/holo_red_dark"
             app:layout_anchor="@id/space"
             app:layout_anchorGravity="bottom|end"
-            app:srcCompat="@drawable/ic_remove" />
+            app:srcCompat="@drawable/ic_remove_white_18dp" />
 
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/add_task_button"
@@ -86,7 +86,40 @@
             app:elevation="10dp"
             app:srcCompat="@drawable/ic_add_black_48dp" />
 
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|center_horizontal"
+            android:orientation="horizontal">
+
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/delete"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                android:layout_weight="1"
+                android:clickable="true"
+                android:focusable="true"
+                android:src="@drawable/ic_delete"
+                android:visibility="gone"
+                app:backgroundTint="@android:color/holo_red_dark" />
+
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/done"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                android:layout_weight="1"
+                android:clickable="true"
+                android:focusable="true"
+                android:src="@drawable/ic_done"
+                android:visibility="gone" />
+
+        </LinearLayout>
+
     </android.support.design.widget.CoordinatorLayout>
+
+
 
 
 
