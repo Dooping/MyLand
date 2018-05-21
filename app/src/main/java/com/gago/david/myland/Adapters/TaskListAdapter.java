@@ -1,5 +1,8 @@
 package com.gago.david.myland.Adapters;
 
+import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.support.v7.util.SortedList;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -11,10 +14,12 @@ import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.TextView;
 
+import com.gago.david.myland.Models.PriorityObject;
 import com.gago.david.myland.R;
 import com.gago.david.myland.Models.TaskObject;
 import com.gago.david.myland.TaskEditFragment;
 
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,10 +30,12 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.ViewHo
     private CustomFilter mFilter;
     private ArrayList<TaskObject> originalList;
     private TaskEditFragment.OnFragmentInteractionListener mListener;
+    private final List<PriorityObject> priorities;
 
 
-    public TaskListAdapter(ArrayList<TaskObject> items, TaskEditFragment.OnFragmentInteractionListener mListener) {
+    public TaskListAdapter(ArrayList<TaskObject> items, TaskEditFragment.OnFragmentInteractionListener mListener, List<PriorityObject> priorities) {
         this.mListener = mListener;
+        this.priorities = priorities;
         mValues = new SortedList<>(TaskObject.class, new SortedList.Callback<TaskObject>() {
             @Override
             public int compare(TaskObject a, TaskObject b) {
@@ -82,6 +89,18 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.ViewHo
         holder.mItem = mValues.get(position);
         holder.mIdView.setText(holder.mItem.taskType);
         holder.mContentView.setText(holder.mItem.observations);
+        if(holder.mItem.targetDate == null)
+            holder.date.setText("");
+        else{
+            DateFormat dateFormat = android.text.format.DateFormat.getDateFormat((Context) mListener);
+            String s = dateFormat.format(holder.mItem.targetDate);
+            holder.date.setText(s);
+        }
+        for (PriorityObject p : priorities)
+            if(p.p_order == holder.mItem.priority) {
+                holder.mNotificationView.setImageDrawable(new ColorDrawable(Color.parseColor(p.color)));
+                break;
+            }
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -111,7 +130,7 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.ViewHo
         public final View mView;
         public final TextView mIdView;
         public final TextView mContentView;
-        public final CircleImageView mLogoView;
+        public final TextView date;
         public final CircleImageView mNotificationView;
         public TaskObject mItem;
         public ViewHolder(View view) {
@@ -119,8 +138,8 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.ViewHo
             mView = view;
             mIdView = view.findViewById(R.id.id);
             mContentView = view.findViewById(R.id.content);
-            mLogoView = view.findViewById(R.id.logo_image);
             mNotificationView = view.findViewById(R.id.notification);
+            date = view.findViewById(R.id.date);
         }
         @Override
         public String toString() {

@@ -154,12 +154,15 @@ public class LandOpenHelper extends SQLiteOpenHelper {
         );
 
         if (cur.moveToFirst()){
-            byte[] imgByte = cur.getBlob(1);
+            byte[] imgByte = cur.getBlob(cur.getColumnIndex("Image"));
+            Bitmap bitmap = BitmapFactory.decodeByteArray(imgByte, 0, imgByte.length);
             cur.close();
-            return BitmapFactory.decodeByteArray(imgByte, 0, imgByte.length);
+            db.close();
+            return bitmap;
         }
         if (cur != null && !cur.isClosed()) {
             cur.close();
+            db.close();
         }
 
         Log.v("image", "algo falhou");
@@ -245,6 +248,7 @@ public class LandOpenHelper extends SQLiteOpenHelper {
     public static boolean updateTask(TaskObject t, Context context){
         LandOpenHelper mDbHelper = new LandOpenHelper(context);
         boolean success = true;
+        Log.v("Task to update", t.toString());
 
         // Gets the data repository in write mode
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
@@ -266,7 +270,6 @@ public class LandOpenHelper extends SQLiteOpenHelper {
             success = false;
         else {
             Log.v("UpdateTask", "row updated: " + newRowId);
-
         }
 
         db.close();
@@ -287,6 +290,48 @@ public class LandOpenHelper extends SQLiteOpenHelper {
             success = false;
         else {
             Log.v("DeleteTask", "rows deleted: " + newRowId);
+
+        }
+
+        db.close();
+        return success;
+    }
+
+    public static boolean deleteLand(LandObject l, Context context){
+        LandOpenHelper mDbHelper = new LandOpenHelper(context);
+        boolean success = true;
+
+        // Gets the data repository in write mode
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+
+        String whereClause = "name = ?";
+        String[] whereArgs = new String[]{""+l.name};
+        long newRowId = db.delete("Lands", whereClause, whereArgs);
+        if (newRowId == 0)
+            success = false;
+        else {
+            Log.v("DeleteLand", "rows deleted: " + newRowId);
+            deleteImage(l.imageUri, context);
+        }
+
+        db.close();
+        return success;
+    }
+
+    public static boolean deleteImage(String image, Context context){
+        LandOpenHelper mDbHelper = new LandOpenHelper(context);
+        boolean success = true;
+
+        // Gets the data repository in write mode
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+
+        String whereClause = "name = ?";
+        String[] whereArgs = new String[]{""+image};
+        long newRowId = db.delete("Images", whereClause, whereArgs);
+        if (newRowId == 0)
+            success = false;
+        else {
+            Log.v("DeleteImage", "rows deleted: " + newRowId);
 
         }
 

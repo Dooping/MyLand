@@ -165,4 +165,10 @@
     <string name="observations">Observations</string>
     <string name="update_task_success">Task updated</string>
     <string name="update_task_error">Some error occurred while updating the task</string>
+    <string name="delete_task_success">Task deleted</string>
+    <string name="delete_task_error">Some error occured while deleting the task</string>
+    <string name="button_remove">Remove land?</string>
+    <string name="remove_tree">Do you wish to remove the selected item?</string>
+    <string name="remove_land">Do you wish to delete this land?</string>
+    <string name="item">Item</string>
 </resources>

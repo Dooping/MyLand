@@ -67,4 +67,10 @@
     <string name="observations">Observações</string>
     <string name="update_task_success">Tarefa atualizada</string>
     <string name="update_task_error">Aconteceu um erro ao atualizar a tarefa</string>
+    <string name="delete_task_success">Tarefa apagada</string>
+    <string name="delete_task_error">Aconteceu um erro ao apagar a tarefa</string>
+    <string name="button_remove">Remover terreno?</string>
+    <string name="remove_tree">Deseja remover o item selecionado?</string>
+    <string name="remove_land">Deseja remover este terreno?</string>
+    <string name="item">Item</string>
 </resources>

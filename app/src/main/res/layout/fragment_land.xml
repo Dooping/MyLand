@@ -32,7 +32,8 @@
         android:layout_weight="0"
         android:ellipsize="marquee"
         android:singleLine="true"
-        android:textAppearance="?attr/textAppearanceListItem" />
+        android:textAppearance="?attr/textAppearanceListItem"
+        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/content"
@@ -46,17 +47,36 @@
         android:maxLines="1"
         android:textAppearance="?attr/textAppearanceListItem" />
 
-    <de.hdodenhof.circleimageview.CircleImageView
-        android:id="@+id/notification"
+
+
+    <RelativeLayout
         android:layout_width="40dp"
         android:layout_height="40dp"
-        android:layout_gravity="center_vertical"
         android:layout_marginBottom="8dp"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
         android:layout_marginTop="8dp"
         android:layout_weight="0"
-        android:src="@drawable/ic_cut"
-        app:civ_border_color="@android:color/background_dark"
-        app:civ_border_width="0dp" />
+        android:layout_gravity="center_vertical">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/notification"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@android:color/background_light"
+            app:civ_border_color="@android:color/background_dark"
+            app:civ_border_width="0dp" />
+
+        <TextView
+            android:id="@+id/number"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignBottom="@id/notification"
+            android:layout_alignEnd="@id/notification"
+            android:layout_alignStart="@id/notification"
+            android:layout_alignTop="@id/notification"
+            android:gravity="center"
+            android:text="0"
+            android:textColor="@android:color/background_light" />
+    </RelativeLayout>
 </LinearLayout>

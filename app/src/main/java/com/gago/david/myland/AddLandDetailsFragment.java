@@ -47,7 +47,8 @@ public class AddLandDetailsFragment extends Fragment {
     @BindView(R.id.land_description) EditText description;
     @BindView(R.id.next_button) FloatingActionButton button;
 
-    String imageUri;
+    private String imageUri;
+    private boolean created = false;
 
     private OnFragmentInteractionListener mListener;
 
@@ -120,6 +121,7 @@ public class AddLandDetailsFragment extends Fragment {
         if (newRowId == -1)
             Toast.makeText(getContext(),"Land already exists, choose a different name", Toast.LENGTH_SHORT).show();
         else {
+            created = true;
             Intent intent = new Intent(getContext(), ScrollingActivity.class);
             Bundle b = new Bundle();
             b.putString("name", name.getText().toString()); //Your id
@@ -152,6 +154,13 @@ public class AddLandDetailsFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    @Override
+    public void onDestroyView() {
+        if(!created)
+            LandOpenHelper.deleteImage(imageUri,getContext());
+        super.onDestroyView();
     }
 
     /**

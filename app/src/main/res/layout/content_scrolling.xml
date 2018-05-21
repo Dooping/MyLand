@@ -30,6 +30,7 @@
                 android:id="@+id/description_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_weight="0"
                 android:orientation="vertical">
 
                 <LinearLayout
@@ -73,6 +74,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
+                android:layout_weight="0"
                 android:background="@android:color/white"
                 app:lwvCenterMarkTextSize="14sp"
                 app:lwvCursorSize="10dp"
@@ -85,9 +87,27 @@
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/task_list"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
                 tools:context="com.gago.david.myland.ScrollingActivity"
-                tools:listitem="@layout/task_item" />
+                tools:listitem="@layout/task_item">
+
+            </android.support.v7.widget.RecyclerView>
+
+
+            <Button
+                android:id="@+id/button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_margin="16dp"
+                android:layout_weight="0"
+                android:background="@drawable/button_shape"
+                android:backgroundTint="@android:color/holo_red_dark"
+                android:onClick="deleteLand"
+                android:text="@string/button_remove"
+                android:textColor="@android:color/background_light"
+                android:textSize="12sp" />
 
         </LinearLayout>
 

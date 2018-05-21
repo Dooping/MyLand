@@ -26,7 +26,7 @@
         app:setErrorImage="@drawable/ic_not_found"
         app:setErrorText="Something happened"
         app:setLoadingAnimationMode="flip"
-        app:setLoadingImage="@drawable/ic_search"
+        app:setLoadingImage="@drawable/laucher_icon"
         app:setLoadingText="Please wait..." />
 
     <!-- Implementation of find my location button -->

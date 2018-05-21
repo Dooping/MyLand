@@ -6,6 +6,8 @@ public class LandObject {
     public String name;
     public String imageUri;
     public String Description;
+    public int notifications;
+    public int priority;
     public ArrayList<PlantObject> plants;
 
     public LandObject(String name, String imageUri, String description) {
@@ -13,6 +15,15 @@ public class LandObject {
         this.imageUri = imageUri;
         Description = description;
         plants = new ArrayList<>();
+    }
+
+    public LandObject(String name, String imageUri, String description, int notifications, int priority) {
+        this.name = name;
+        this.imageUri = imageUri;
+        Description = description;
+        plants = new ArrayList<>();
+        this.notifications = notifications;
+        this.priority = priority;
     }
 
     public void addPlant(PlantObject plant){
@@ -29,6 +40,8 @@ public class LandObject {
                 "name='" + name + '\'' +
                 ", imageUri='" + imageUri + '\'' +
                 ", Description='" + Description + '\'' +
+                ", notifications=" + notifications +
+                ", priority=" + priority +
                 ", plants=" + plants +
                 '}';
     }

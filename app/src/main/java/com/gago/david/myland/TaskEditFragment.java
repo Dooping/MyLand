@@ -20,6 +20,7 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.gago.david.myland.Models.PriorityObject;
 import com.gago.david.myland.Models.TaskObject;
@@ -173,8 +174,12 @@ public class TaskEditFragment extends Fragment implements AdapterView.OnItemSele
     }
 
     public TaskObject deleteTask(){
-        LandOpenHelper.deleteTask(task, getContext());
+        boolean success = LandOpenHelper.deleteTask(task, getContext());
         deleted = true;
+        if(success)
+            Toast.makeText(getContext(), R.string.delete_task_success, Toast.LENGTH_SHORT).show();
+        else
+            Toast.makeText(getContext(), R.string.delete_task_error, Toast.LENGTH_SHORT).show();
         return task;
     }
 
@@ -203,14 +208,16 @@ public class TaskEditFragment extends Fragment implements AdapterView.OnItemSele
                 changed = true;
             if ( changed )
                 mListener.updateTask(task);
-            else
-                mListener.notUpdateTask();
+//            else
+//                mListener.notUpdateTask();
         }
     }
 
     @Override
     public void onDestroyView() {
-        onButtonPressed();
+        //onButtonPressed();
+        if (mListener!=null)
+            mListener.notUpdateTask();
         super.onDestroyView();
     }
 

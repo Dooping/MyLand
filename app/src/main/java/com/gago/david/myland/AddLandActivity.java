@@ -1,34 +1,26 @@
 package com.gago.david.myland;
 
-import android.Manifest;
 import android.content.ContentValues;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.content.res.Configuration;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.location.Location;
-import android.net.Uri;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
-import com.gago.david.myland.Models.PlantTypeObject;
 import com.mapbox.android.core.location.LocationEngine;
 import com.mapbox.android.core.location.LocationEngineListener;
 import com.mapbox.android.core.location.LocationEnginePriority;
 import com.mapbox.android.core.location.LocationEngineProvider;
+import com.mapbox.android.core.permissions.PermissionsListener;
+import com.mapbox.android.core.permissions.PermissionsManager;
 import com.mapbox.mapboxsdk.annotations.Marker;
 import com.mapbox.mapboxsdk.annotations.MarkerOptions;
 import com.mapbox.mapboxsdk.annotations.PolygonOptions;
@@ -39,26 +31,24 @@ import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
-import com.mapbox.mapboxsdk.plugins.locationlayer.LocationLayerOptions;
 import com.mapbox.mapboxsdk.plugins.locationlayer.LocationLayerPlugin;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.UUID;
 
 import id.arieridwan.lib.PageLoader;
 
 
 public class AddLandActivity extends AppCompatActivity implements OnMapReadyCallback,
-        MapboxMap.OnMapLongClickListener, LocationEngineListener {
+        MapboxMap.OnMapLongClickListener, LocationEngineListener, PermissionsListener {
 
     private MapView mapView;
     private MapboxMap mapboxMap;
     private LocationLayerPlugin locationLayerPlugin;
     private LocationEngine locationEngine;
+    private PermissionsManager permissionsManager;
     private LinkedList<LatLng> poligon;
     private PageLoader pageLoader;
     private final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 10;
@@ -85,35 +75,35 @@ public class AddLandActivity extends AppCompatActivity implements OnMapReadyCall
         pageLoader.stopProgress();
         Log.v("MAPBOX", "onMapReady");
         AddLandActivity.this.mapboxMap = mapboxMap;
-        askLocationPermission();
         mapboxMap.getUiSettings().setTiltGesturesEnabled(false);
         mapboxMap.addOnMapLongClickListener(this);
-
-        locationEngine = new LocationEngineProvider(this).obtainBestLocationEngineAvailable();
-        locationEngine.setPriority(LocationEnginePriority.HIGH_ACCURACY);
-        locationEngine.setFastestInterval(1000);
-        locationEngine.addLocationEngineListener(this);
-        locationEngine.activate();
-
-        int[] padding;
-        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-            padding = new int[] {0, 750, 0, 0};
-        } else {
-            padding = new int[] {0, 250, 0, 0};
-        }
-        LocationLayerOptions options = LocationLayerOptions.builder(this)
-                .padding(padding)
-                .build();
-
-        locationLayerPlugin = new LocationLayerPlugin(mapView, mapboxMap, locationEngine, options);
+        enableLocationPlugin();
+//
+//        locationEngine = new LocationEngineProvider(this).obtainBestLocationEngineAvailable();
+//        locationEngine.setPriority(LocationEnginePriority.HIGH_ACCURACY);
+//        locationEngine.setFastestInterval(1000);
+//        locationEngine.addLocationEngineListener(this);
+//        locationEngine.activate();
+//
+//        int[] padding;
+//        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+//            padding = new int[] {0, 750, 0, 0};
+//        } else {
+//            padding = new int[] {0, 250, 0, 0};
+//        }
+//        LocationLayerOptions options = LocationLayerOptions.builder(this)
+//                .padding(padding)
+//                .build();
+//
+//        locationLayerPlugin = new LocationLayerPlugin(mapView, mapboxMap, locationEngine, options);
         //locationLayerPlugin.addOnLocationClickListener(this);
         //locationLayerPlugin.addOnCameraTrackingChangedListener(this);
 
-        getLifecycle().addObserver(locationLayerPlugin);
-
-        if(locationLayerPlugin.getLastKnownLocation() != null) { // Check to ensure coordinates aren't null, probably a better way of doing this...
-            mapboxMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(locationLayerPlugin.getLastKnownLocation()),16), 3000);
-        }
+//        getLifecycle().addObserver(locationLayerPlugin);
+//
+//        if(locationLayerPlugin.getLastKnownLocation() != null) { // Check to ensure coordinates aren't null, probably a better way of doing this...
+//            mapboxMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(locationLayerPlugin.getLastKnownLocation()),16), 3000);
+//        }
 
 
 
@@ -185,6 +175,37 @@ public class AddLandActivity extends AppCompatActivity implements OnMapReadyCall
 
     }
 
+    private void enableLocationPlugin() {
+        // Check if permissions are enabled and if not request
+        if (PermissionsManager.areLocationPermissionsGranted(this)) {
+            // Create a location engine instance
+            initializeLocationEngine();
+            locationLayerPlugin = new LocationLayerPlugin(mapView, mapboxMap, locationEngine);
+            locationLayerPlugin.setLocationLayerEnabled(true);
+            getLifecycle().addObserver(locationLayerPlugin);
+        } else {
+            permissionsManager = new PermissionsManager(this);
+            permissionsManager.requestLocationPermissions(this);
+        }
+    }
+
+    private void initializeLocationEngine() {
+        locationEngine = new LocationEngineProvider(this).obtainBestLocationEngineAvailable();
+        locationEngine.setPriority(LocationEnginePriority.HIGH_ACCURACY);
+        locationEngine.addLocationEngineListener(this);
+        locationEngine.activate();
+        Location lastLocation = locationEngine.getLastLocation();
+        if (lastLocation != null) {
+            setCameraPosition(lastLocation);
+        } else {
+            locationEngine.addLocationEngineListener(this);
+        }
+    }
+    private void setCameraPosition(Location location) {
+        mapboxMap.animateCamera(CameraUpdateFactory.newLatLngZoom(
+                new LatLng(location.getLatitude(), location.getLongitude()), 16), 3000);
+    }
+
     public static byte[] getBitmapAsByteArray(Bitmap bitmap) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.PNG, 0, outputStream);
@@ -210,7 +231,7 @@ public class AddLandActivity extends AppCompatActivity implements OnMapReadyCall
             Log.v("Add Image", "Failed to insert item: " + name);
         }
         else {
-            Log.v("Add Item", "row inserted: " + newRowId);
+            Log.v("Add Image", "row inserted: " + newRowId);
         }
 
         db.close();
@@ -219,50 +240,16 @@ public class AddLandActivity extends AppCompatActivity implements OnMapReadyCall
 
     @Override
     public void onConnected() {
-        locationEngine.requestLocationUpdates();
+        if (locationEngine != null)
+            locationEngine.requestLocationUpdates();
     }
 
     @Override
     public void onLocationChanged(Location location) {
         mapboxMap.animateCamera(CameraUpdateFactory.newLatLngZoom(
-                new LatLng(location.getLatitude(), location.getLongitude()), 16));
-        locationEngine.removeLocationEngineListener(this);
-    }
-
-    private void askLocationPermission(){
-        if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.ACCESS_FINE_LOCATION)) {
-
-            } else {
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                        MY_PERMISSIONS_REQUEST_LOCATION);
-            }
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
-        switch (requestCode) {
-            case MY_PERMISSIONS_REQUEST_LOCATION: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-                    // permission was granted, yay!
-
-                    locationLayerPlugin.setLocationLayerEnabled(true);
-
-                } else {
-
-                    locationLayerPlugin.setLocationLayerEnabled(false);
-                }
-            }
-        }
+                new LatLng(location.getLatitude(), location.getLongitude()), 16), 3000);
+        if (locationEngine != null)
+            locationEngine.removeLocationEngineListener(this);
     }
 
     private void userLocationFAB(){
@@ -356,5 +343,26 @@ public class AddLandActivity extends AppCompatActivity implements OnMapReadyCall
                     .fillColor(Color.parseColor("#7cd3ea"))
                     .alpha(0.7f));
         Log.v("MAPBOX", "marker added");
+    }
+
+    @Override
+    public void onExplanationNeeded(List<String> permissionsToExplain) {
+        //
+    }
+
+    @Override
+    public void onPermissionResult(boolean granted) {
+        if (granted) {
+            Log.v("Permission", "granted");
+            enableLocationPlugin();
+        } else {
+            Toast.makeText(this, "ahsd", Toast.LENGTH_LONG).show();
+            finish();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        permissionsManager.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 }

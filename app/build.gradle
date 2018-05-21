@@ -49,4 +49,5 @@ dependencies {
     compile 'com.lantouzi.wheelview:library:1.1.2'
     compile 'com.jaredrummler:colorpicker:1.0.2'
     compile 'com.github.bloder:magic:1.1'
+    api 'com.google.android.gms:play-services-location:15.0.1'
 }

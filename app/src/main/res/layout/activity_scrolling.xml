@@ -105,6 +105,17 @@
                 app:backgroundTint="@android:color/holo_red_dark" />
 
             <android.support.design.widget.FloatingActionButton
+                android:id="@+id/edit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                android:layout_weight="1"
+                android:clickable="true"
+                android:focusable="true"
+                android:src="@drawable/ic_action_edit"
+                android:visibility="gone" />
+
+            <android.support.design.widget.FloatingActionButton
                 android:id="@+id/done"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -112,7 +123,7 @@
                 android:layout_weight="1"
                 android:clickable="true"
                 android:focusable="true"
-                android:src="@drawable/ic_done"
+                android:src="@drawable/ic_assignment_turned_in"
                 android:visibility="gone" />
 
         </LinearLayout>

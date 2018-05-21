@@ -1,6 +1,8 @@
 package com.gago.david.myland.Adapters;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -11,6 +13,8 @@ import android.widget.TextView;
 import com.gago.david.myland.LandFragment.OnListFragmentInteractionListener;
 import com.gago.david.myland.LandOpenHelper;
 import com.gago.david.myland.Models.LandObject;
+import com.gago.david.myland.Models.PriorityObject;
+import com.gago.david.myland.Models.TaskTypeObject;
 import com.gago.david.myland.R;
 
 import java.util.List;
@@ -26,10 +30,12 @@ public class MyLandRecyclerViewAdapter extends RecyclerView.Adapter<MyLandRecycl
 
     private final List<LandObject> mValues;
     private final OnListFragmentInteractionListener mListener;
+    private final List<PriorityObject> priorities;
 
-    public MyLandRecyclerViewAdapter(List<LandObject> items, OnListFragmentInteractionListener listener) {
+    public MyLandRecyclerViewAdapter(List<LandObject> items, OnListFragmentInteractionListener listener, List<PriorityObject> priorities) {
         mValues = items;
         mListener = listener;
+        this.priorities = priorities;
     }
 
     @Override
@@ -42,9 +48,19 @@ public class MyLandRecyclerViewAdapter extends RecyclerView.Adapter<MyLandRecycl
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mItem = mValues.get(position);
-        holder.mIdView.setText(mValues.get(position).name);
-        holder.mContentView.setText(mValues.get(position).Description);
-        holder.landImage.setImageBitmap(new LandOpenHelper((Context) mListener).getImage(mValues.get(position).imageUri));
+        holder.mIdView.setText(holder.mItem.name);
+        holder.mContentView.setText(holder.mItem.Description);
+        holder.landImage.setImageBitmap(new LandOpenHelper((Context) mListener).getImage(holder.mItem.imageUri));
+        holder.number.setText(String.format("%d",holder.mItem.notifications));
+        boolean colorChanged = false;
+        for (PriorityObject p : priorities)
+            if(p.p_order == holder.mItem.priority) {
+                holder.notification.setImageDrawable(new ColorDrawable(Color.parseColor(p.color)));
+                colorChanged = true;
+                break;
+            }
+        if(!colorChanged)
+            holder.notification.setImageDrawable(new ColorDrawable(Color.WHITE));
 
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -69,6 +85,7 @@ public class MyLandRecyclerViewAdapter extends RecyclerView.Adapter<MyLandRecycl
         public final TextView mContentView;
         public final CircleImageView landImage;
         public final CircleImageView notification;
+        public final TextView number;
         public LandObject mItem;
 
         public ViewHolder(View view) {
@@ -78,6 +95,7 @@ public class MyLandRecyclerViewAdapter extends RecyclerView.Adapter<MyLandRecycl
             mContentView = view.findViewById(R.id.content);
             landImage = view.findViewById(R.id.land_image);
             notification = view.findViewById(R.id.notification);
+            number = view.findViewById(R.id.number);
         }
 
         @Override

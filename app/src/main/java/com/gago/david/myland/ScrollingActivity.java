@@ -54,6 +54,7 @@ import com.gago.david.myland.Adapters.TaskListAdapter;
 import com.gago.david.myland.Models.LandObject;
 import com.gago.david.myland.Models.PlantObject;
 import com.gago.david.myland.Models.PlantTypeObject;
+import com.gago.david.myland.Models.PriorityObject;
 import com.gago.david.myland.Models.TaskObject;
 import com.lantouzi.wheelview.WheelView;
 
@@ -80,13 +81,14 @@ public class ScrollingActivity extends AppCompatActivity implements AddTaskFragm
     private FloatingActionButton addTaskButton;
     private FloatingActionButton removeButton;
     private FloatingActionButton doneButton;
+    private FloatingActionButton editTaskButton;
     private FloatingActionButton deleteButton;
     private TaskListAdapter mAdapter;
     private ArrayList<TaskObject> tasks = new ArrayList<>();
     private TextView description, state;
     private LinearLayout descriptionLayout;
     private Fragment fragment;
-    private NestedScrollView scrollView;
+    private List<PriorityObject> priorities;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,6 +104,7 @@ public class ScrollingActivity extends AppCompatActivity implements AddTaskFragm
 
 
         land = readLand(name);
+        priorities = LandOpenHelper.readPriorities(this);
 
         setContentView(R.layout.activity_scrolling);
         final Toolbar toolbar = findViewById(R.id.toolbar);
@@ -132,9 +135,9 @@ public class ScrollingActivity extends AppCompatActivity implements AddTaskFragm
 
         removeButton = findViewById(R.id.remove);
         doneButton = findViewById(R.id.done);
+        editTaskButton = findViewById(R.id.edit);
         deleteButton = findViewById(R.id.delete);
 
-        scrollView = findViewById(R.id.nested_scroll);
 
         doneButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -146,6 +149,21 @@ public class ScrollingActivity extends AppCompatActivity implements AddTaskFragm
                     filter();
 
                     doneButton.setVisibility(View.GONE);
+                    deleteButton.setVisibility(View.GONE);
+                }
+            }
+        });
+
+        editTaskButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (fragment instanceof TaskEditFragment) {
+                    ((TaskEditFragment) fragment).onButtonPressed();
+                    getSupportFragmentManager().popBackStack();
+                    filter();
+
+                    doneButton.setVisibility(View.GONE);
+                    editTaskButton.setVisibility(View.GONE);
                     deleteButton.setVisibility(View.GONE);
                 }
             }
@@ -200,7 +218,7 @@ public class ScrollingActivity extends AppCompatActivity implements AddTaskFragm
         RecyclerView recyclerView = findViewById(R.id.task_list);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         tasks = readTasks(land.name);
-        mAdapter = new TaskListAdapter(tasks, this);
+        mAdapter = new TaskListAdapter(tasks, this, priorities);
         recyclerView.setAdapter(mAdapter);
 
         wheel = findViewById(R.id.wheelview);
@@ -410,27 +428,81 @@ public class ScrollingActivity extends AppCompatActivity implements AddTaskFragm
 
     public void removeTree(View view) {
 
-        LandOpenHelper mDbHelper = new LandOpenHelper(this);
+        PlantObject p = land.plants.get(selected-2-plantTypeList.size());
+        PlantTypeObject plantTypeObject = null;
+        for (PlantTypeObject pl : plantTypeList)
+            if(pl.name.equals(p.plantType)){
+                plantTypeObject= pl;
+                break;
+            }
 
-        // Gets the data repository in write mode
-        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(view.getRootView().getContext());
+        alertDialog.setTitle(p.plantType);
+        alertDialog.setMessage(R.string.remove_tree);
 
-        int id = land.plants.get(selected-2-plantTypeList.size()).id;
-        String whereClause = "Id = ?";
-        String[] whereArgs = new String[]{""+id};
+        ColorFilter filter = new PorterDuffColorFilter(Color.parseColor(plantTypeObject.color), PorterDuff.Mode.SRC_IN);
+        Drawable icon = view.getRootView().getContext().getResources().getDrawable(plantTypeObject.icon);
+        icon.setColorFilter(filter);
+        alertDialog.setIcon(icon);
+
+        alertDialog.setPositiveButton(R.string.yes,
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        LandOpenHelper mDbHelper = new LandOpenHelper(ScrollingActivity.this);
+
+                        // Gets the data repository in write mode
+                        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+
+                        int id = land.plants.get(selected-2-plantTypeList.size()).id;
+                        String whereClause = "Id = ?";
+                        String[] whereArgs = new String[]{""+id};
 
 // Create a new map of values, where column names are the keys
-        int i = db.delete("Plants", whereClause, whereArgs);
-        Log.v("Remove Plant", i+" rows removed");
-        db.close();
-        selected--;
-        for (Iterator<TaskObject> iterator = tasks.iterator(); iterator.hasNext();) {
-            TaskObject t = iterator.next();
-            if(t.plantIndex != null && t.plantIndex == id)
-                iterator.remove();
-        }
-        filter();
-        initiateStuff();
+                        int i = db.delete("Plants", whereClause, whereArgs);
+                        Log.v("Remove Plant", i+" rows removed");
+                        db.close();
+                        selected--;
+                        for (Iterator<TaskObject> iterator = tasks.iterator(); iterator.hasNext();) {
+                            TaskObject t = iterator.next();
+                            if(t.plantIndex != null && t.plantIndex == id)
+                                iterator.remove();
+                        }
+                        filter();
+                        initiateStuff();
+                    }
+                });
+
+        alertDialog.setNegativeButton(R.string.no,
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+        alertDialog.show();
+
+
+    }
+
+    public void deleteLand(View view){
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(view.getRootView().getContext());
+        alertDialog.setTitle(land.name);
+        alertDialog.setMessage(R.string.remove_land);
+
+        alertDialog.setPositiveButton(R.string.yes,
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        LandOpenHelper.deleteLand(land, ScrollingActivity.this);
+                        finish();
+                    }
+                });
+
+        alertDialog.setNegativeButton(R.string.no,
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+        alertDialog.show();
     }
 
     private ArrayList<PlantTypeObject> readPlantTypes(){
@@ -664,14 +736,22 @@ public class ScrollingActivity extends AppCompatActivity implements AddTaskFragm
 
         while(cursor.moveToNext()) {
             Calendar cl = Calendar.getInstance();
-            cl.setTimeInMillis(cursor.getLong(4));
+            cl.setTimeInMillis(cursor.getLong(cursor.getColumnIndex("CreationDate")));
 
-            Calendar cl2 = (cursor.isNull(5)) ? null : Calendar.getInstance();
+            Calendar cl2 = (cursor.isNull(cursor.getColumnIndex("ExpirationDate"))) ? null : Calendar.getInstance();
             if(cl2 != null)
-                cl2.setTimeInMillis(cursor.getLong(4));
+                cl2.setTimeInMillis(cursor.getLong(cursor.getColumnIndex("ExpirationDate")));
             Date targetDate = cl2 == null ? null : cl2.getTime();
-            TaskObject o = new TaskObject(cursor.getLong(cursor.getColumnIndex("rowid")), cursor.getString(0), cursor.isNull(1) ? null : cursor.getInt(1), cursor.getString(2)
-                    , cursor.getInt(3), cl.getTime(), targetDate, cursor.getInt(5) > 0, cursor.getString(6));
+            TaskObject o = new TaskObject(
+                    cursor.getLong(cursor.getColumnIndex("rowid"))
+                    , cursor.getString(cursor.getColumnIndex("Land"))
+                    , cursor.isNull(cursor.getColumnIndex("PlantIndex")) ? null : cursor.getInt(cursor.getColumnIndex("PlantIndex"))
+                    , cursor.getString(cursor.getColumnIndex("TaskType"))
+                    , cursor.getInt(cursor.getColumnIndex("Priority"))
+                    , cl.getTime()
+                    , targetDate
+                    , cursor.getInt(cursor.getColumnIndex("Completed")) > 0
+                    , cursor.getString(cursor.getColumnIndex("Observations")));
             tasks.add(o);
             Log.v("read tasks", "task: "+o.toString());
         }
@@ -813,7 +893,10 @@ public class ScrollingActivity extends AppCompatActivity implements AddTaskFragm
                 .commit();
         addTaskButton.setVisibility(View.GONE);
         doneButton.setVisibility(View.VISIBLE);
+        editTaskButton.setVisibility(View.VISIBLE);
         deleteButton.setVisibility(View.VISIBLE);
+        editButton.setVisibility(View.GONE);
+        removeButton.setVisibility(View.GONE);
     }
 
     @Override
@@ -821,17 +904,21 @@ public class ScrollingActivity extends AppCompatActivity implements AddTaskFragm
         boolean success = LandOpenHelper.updateTask(task, this);
 
         doneButton.setVisibility(View.GONE);
+        editTaskButton.setVisibility(View.GONE);
         deleteButton.setVisibility(View.GONE);
         if(success)
-            Toast.makeText(this, R.string.task_type_update_success, Toast.LENGTH_SHORT);
+            Toast.makeText(this, R.string.update_task_success, Toast.LENGTH_SHORT).show();
         else
-            Toast.makeText(this, R.string.task_type_update_error, Toast.LENGTH_SHORT);
+            Toast.makeText(this, R.string.update_task_error, Toast.LENGTH_SHORT).show();
+        filter();
         return success;
     }
 
     @Override
     public void notUpdateTask() {
         doneButton.setVisibility(View.GONE);
+        editTaskButton.setVisibility(View.GONE);
         deleteButton.setVisibility(View.GONE);
+        mAdapter.notifyDataSetChanged();
     }
 }

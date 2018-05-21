@@ -18,6 +18,8 @@ import android.widget.FrameLayout;
 
 import com.gago.david.myland.Adapters.MyLandRecyclerViewAdapter;
 import com.gago.david.myland.Models.LandObject;
+import com.gago.david.myland.Models.PriorityObject;
+import com.gago.david.myland.Models.TaskTypeObject;
 
 
 import java.util.ArrayList;
@@ -40,10 +42,12 @@ public class LandFragment extends Fragment {
     // TODO: Customize parameters
     private int mColumnCount = 1;
     private OnListFragmentInteractionListener mListener;
+    private MyLandRecyclerViewAdapter adapter;
 
     private PageLoader pageLoader;
 
     private List<LandObject> lands;
+    private List<PriorityObject> priorities;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -69,6 +73,7 @@ public class LandFragment extends Fragment {
         if (getArguments() != null) {
             mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
         }
+        priorities = LandOpenHelper.readPriorities(getContext());
     }
 
     @Override
@@ -79,13 +84,14 @@ public class LandFragment extends Fragment {
         lands = readLands();
         if (view instanceof FrameLayout) {
             Context context = view.getContext();
-            RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.list);
+            RecyclerView recyclerView = view.findViewById(R.id.list);
             if (mColumnCount <= 1) {
                 recyclerView.setLayoutManager(new LinearLayoutManager(context));
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-            recyclerView.setAdapter(new MyLandRecyclerViewAdapter(lands, mListener));
+            adapter = new MyLandRecyclerViewAdapter(lands, mListener, priorities);
+            recyclerView.setAdapter(adapter);
         }
         //lands = new ArrayList<>();
 
@@ -123,30 +129,44 @@ public class LandFragment extends Fragment {
         // Define a projection that specifies which columns from the database
         // you will actually use after this query.
         String[] projection = {
-                "Name",
-                "ImageUri",
-                "Description"
+                "Lands.Name as 'Name'",
+                "Lands.ImageUri as 'ImageUri'",
+                "Lands.Description as 'Description'",
+                "count(Tasks.Land) as 'Notification'",
+                "min(Tasks.Priority) as 'Priority'"
         };
 
         // How you want the results sorted in the resulting Cursor
         String sortOrder = null;
 
         Cursor cursor = db.query(
-                "Lands",   // The table to query
+                "Lands left outer join Tasks on Lands.Name = Tasks.Land",   // The table to query
                 projection,             // The array of columns to return (pass null to get all)
-                null,              // The columns for the WHERE clause
+                "completed = 0 or completed is null",              // The columns for the WHERE clause
                 null,          // The values for the WHERE clause
-                null,                   // don't group the rows
+                "Name",                   // don't group the rows
                 null,                   // don't filter by row groups
                 sortOrder               // The sort order
         );
+        /*Cursor cursor = db.rawQuery("select Name, ImageUri, Description, count(Tasks.Land) as 'Notification' \n" +
+                "from Lands left outer join Tasks on Lands.Name = Tasks.Land\n" +
+                "where Priority is null or Priority = 1\n" +
+                "group by Tasks.Land", null
+        );*/
 
         List<LandObject> lands = new ArrayList<>();
 
         while(cursor.moveToNext()) {
-            LandObject o = new LandObject(cursor.getString(0), cursor.getString(1), cursor.getString(2));
+            int priority = cursor.isNull(cursor.getColumnIndex("Priority")) ? 0 : cursor.getInt(cursor.getColumnIndex("Priority"));
+            LandObject o = new LandObject(cursor.getString(cursor.getColumnIndex("Name"))
+                    , cursor.getString(cursor.getColumnIndex("ImageUri"))
+                    , cursor.getString(cursor.getColumnIndex("Description"))
+                    , cursor.getInt(cursor.getColumnIndex("Notification"))
+                    , priority);
             lands.add(o);
         }
+
+        Log.v("Lands", lands.toString());
 
         cursor.close();
         db.close();
@@ -183,6 +203,7 @@ public class LandFragment extends Fragment {
         super.onResume();
         lands.clear();
         lands.addAll(readLands());
+        adapter.notifyDataSetChanged();
     }
 
     /**
