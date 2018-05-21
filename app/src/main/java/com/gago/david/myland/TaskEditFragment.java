@@ -170,6 +170,7 @@ public class TaskEditFragment extends Fragment implements AdapterView.OnItemSele
 
     public TaskObject closeTask(){
         task.completed = true;
+        onButtonPressed();
         return task;
     }
 

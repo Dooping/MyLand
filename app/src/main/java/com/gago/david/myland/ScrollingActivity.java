@@ -919,6 +919,7 @@ public class ScrollingActivity extends AppCompatActivity implements AddTaskFragm
         doneButton.setVisibility(View.GONE);
         editTaskButton.setVisibility(View.GONE);
         deleteButton.setVisibility(View.GONE);
+        editButton.setVisibility(View.VISIBLE);
         mAdapter.notifyDataSetChanged();
     }
 }
