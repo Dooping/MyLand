@@ -137,7 +137,6 @@ public class LandFragment extends Fragment {
         };
 
         // How you want the results sorted in the resulting Cursor
-        String sortOrder = null;
 
         Cursor cursor = db.query(
                 "Lands left outer join (select * from tasks where completed = 0) as 'Tasks' on Lands.Name = 'Tasks'.Land",   // The table to query
@@ -146,7 +145,7 @@ public class LandFragment extends Fragment {
                 null,          // The values for the WHERE clause
                 "Name",                   // don't group the rows
                 null,                   // don't filter by row groups
-                sortOrder               // The sort order
+                "Lands.rowid asc"               // The sort order
         );
         /*Cursor cursor = db.rawQuery("select Name, ImageUri, Description, count(Tasks.Land) as 'Notification' \n" +
                 "from Lands left outer join Tasks on Lands.Name = Tasks.Land\n" +
