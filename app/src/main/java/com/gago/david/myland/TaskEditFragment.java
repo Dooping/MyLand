@@ -55,6 +55,7 @@ public class TaskEditFragment extends Fragment implements AdapterView.OnItemSele
     private Calendar myCalendar;
     private boolean first = true;
     private boolean deleted = false;
+    private boolean completed = false;
 
     private OnFragmentInteractionListener mListener;
     @BindView(R.id.task_type_description) TextView taskTypeDescription;
@@ -169,8 +170,8 @@ public class TaskEditFragment extends Fragment implements AdapterView.OnItemSele
     }
 
     public TaskObject closeTask(){
-        task.completed = true;
-        onButtonPressed();
+        completed = true;
+        //onButtonPressed();
         return task;
     }
 
@@ -187,6 +188,7 @@ public class TaskEditFragment extends Fragment implements AdapterView.OnItemSele
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed() {
         if (mListener != null && !deleted) {
+            TaskObject task = this.task.clone();
             boolean changed = false;
             if ( !taskTypes.get(taskSpinner.getSelectedItemPosition()).name.equals(task.taskType)){
                 changed = true;
@@ -205,18 +207,20 @@ public class TaskEditFragment extends Fragment implements AdapterView.OnItemSele
                 changed = true;
                 task.targetDate = myCalendar.getTime();
             }
-            if ( task.completed )
+            if ( completed ) {
                 changed = true;
+                task.completed = true;
+            }
             if ( changed )
-                mListener.updateTask(task);
-//            else
-//                mListener.notUpdateTask();
+                mListener.updateTask(task, this.task);
+            else
+                mListener.notUpdateTask();
         }
     }
 
     @Override
     public void onDestroyView() {
-        //onButtonPressed();
+        onButtonPressed();
         if (mListener!=null)
             mListener.notUpdateTask();
         super.onDestroyView();
@@ -303,7 +307,7 @@ public class TaskEditFragment extends Fragment implements AdapterView.OnItemSele
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void selectTask(TaskObject task);
-        boolean updateTask(TaskObject task);
+        void updateTask(TaskObject newTask, TaskObject oldTask);
         void notUpdateTask();
     }
 }

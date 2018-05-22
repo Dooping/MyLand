@@ -81,7 +81,6 @@ public class ScrollingActivity extends AppCompatActivity implements AddTaskFragm
     private FloatingActionButton addTaskButton;
     private FloatingActionButton removeButton;
     private FloatingActionButton doneButton;
-    private FloatingActionButton editTaskButton;
     private FloatingActionButton deleteButton;
     private TaskListAdapter mAdapter;
     private ArrayList<TaskObject> tasks = new ArrayList<>();
@@ -135,52 +134,70 @@ public class ScrollingActivity extends AppCompatActivity implements AddTaskFragm
 
         removeButton = findViewById(R.id.remove);
         doneButton = findViewById(R.id.done);
-        editTaskButton = findViewById(R.id.edit);
         deleteButton = findViewById(R.id.delete);
 
 
         doneButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (fragment instanceof TaskEditFragment) {
-                    TaskObject task = ((TaskEditFragment) fragment).closeTask();
-                    getSupportFragmentManager().popBackStack();
-                    tasks.remove(task);
-                    filter();
+                AlertDialog.Builder alertDialog = new AlertDialog.Builder(view.getRootView().getContext());
+                alertDialog.setTitle(R.string.close);
+                alertDialog.setMessage(R.string.close_task_ask);
 
-                    doneButton.setVisibility(View.GONE);
-                    deleteButton.setVisibility(View.GONE);
-                }
-            }
-        });
+                alertDialog.setPositiveButton(R.string.yes,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                if (fragment instanceof TaskEditFragment) {
+                                    TaskObject task = ((TaskEditFragment) fragment).closeTask();
+                                    getSupportFragmentManager().popBackStack();
+                                    tasks.remove(task);
+                                    filter();
 
-        editTaskButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (fragment instanceof TaskEditFragment) {
-                    ((TaskEditFragment) fragment).onButtonPressed();
-                    getSupportFragmentManager().popBackStack();
-                    filter();
+                                    doneButton.setVisibility(View.GONE);
+                                    deleteButton.setVisibility(View.GONE);
+                                }
+                            }
+                        });
 
-                    doneButton.setVisibility(View.GONE);
-                    editTaskButton.setVisibility(View.GONE);
-                    deleteButton.setVisibility(View.GONE);
-                }
+                alertDialog.setNegativeButton(R.string.no,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.cancel();
+                            }
+                        });
+                alertDialog.show();
             }
         });
 
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(fragment instanceof TaskEditFragment){
-                    TaskObject task = ((TaskEditFragment) fragment).deleteTask();
-                    getSupportFragmentManager().popBackStack();
-                    tasks.remove(task);
-                    filter();
+                AlertDialog.Builder alertDialog = new AlertDialog.Builder(view.getRootView().getContext());
+                alertDialog.setTitle(R.string.delete);
+                alertDialog.setMessage(R.string.delete_task);
 
-                    doneButton.setVisibility(View.GONE);
-                    deleteButton.setVisibility(View.GONE);
-                }
+                alertDialog.setPositiveButton(R.string.yes,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                if(fragment instanceof TaskEditFragment){
+                                    TaskObject task = ((TaskEditFragment) fragment).deleteTask();
+                                    getSupportFragmentManager().popBackStack();
+                                    tasks.remove(task);
+                                    filter();
+
+                                    doneButton.setVisibility(View.GONE);
+                                    deleteButton.setVisibility(View.GONE);
+                                }
+                            }
+                        });
+
+                alertDialog.setNegativeButton(R.string.no,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.cancel();
+                            }
+                        });
+                alertDialog.show();
             }
         });
 
@@ -893,31 +910,53 @@ public class ScrollingActivity extends AppCompatActivity implements AddTaskFragm
                 .commit();
         addTaskButton.setVisibility(View.GONE);
         doneButton.setVisibility(View.VISIBLE);
-        editTaskButton.setVisibility(View.VISIBLE);
         deleteButton.setVisibility(View.VISIBLE);
         editButton.setVisibility(View.GONE);
         removeButton.setVisibility(View.GONE);
     }
 
     @Override
-    public boolean updateTask(TaskObject task) {
-        boolean success = LandOpenHelper.updateTask(task, this);
+    public void updateTask(final TaskObject newTask, final TaskObject oldTask) {
+        if(newTask.completed){
+            boolean success = LandOpenHelper.updateTask(newTask, ScrollingActivity.this);
+            if (success) {
+                Toast.makeText(ScrollingActivity.this, R.string.update_task_success, Toast.LENGTH_SHORT).show();
+            } else
+                Toast.makeText(ScrollingActivity.this, R.string.update_task_error, Toast.LENGTH_SHORT).show();
+            filter();
+        }
+        else {
+            AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+            alertDialog.setTitle(R.string.update);
+            alertDialog.setMessage(R.string.save_changes);
 
-        doneButton.setVisibility(View.GONE);
-        editTaskButton.setVisibility(View.GONE);
-        deleteButton.setVisibility(View.GONE);
-        if(success)
-            Toast.makeText(this, R.string.update_task_success, Toast.LENGTH_SHORT).show();
-        else
-            Toast.makeText(this, R.string.update_task_error, Toast.LENGTH_SHORT).show();
-        filter();
-        return success;
+            alertDialog.setPositiveButton(R.string.yes,
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            boolean success = LandOpenHelper.updateTask(newTask, ScrollingActivity.this);
+                            if (success) {
+                                Toast.makeText(ScrollingActivity.this, R.string.update_task_success, Toast.LENGTH_SHORT).show();
+                                tasks.set(tasks.indexOf(oldTask), newTask);
+                            } else
+                                Toast.makeText(ScrollingActivity.this, R.string.update_task_error, Toast.LENGTH_SHORT).show();
+                            filter();
+                        }
+                    });
+
+            alertDialog.setNegativeButton(R.string.no,
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                            filter();
+                        }
+                    });
+            alertDialog.show();
+        }
     }
 
     @Override
     public void notUpdateTask() {
         doneButton.setVisibility(View.GONE);
-        editTaskButton.setVisibility(View.GONE);
         deleteButton.setVisibility(View.GONE);
         editButton.setVisibility(View.VISIBLE);
         mAdapter.notifyDataSetChanged();

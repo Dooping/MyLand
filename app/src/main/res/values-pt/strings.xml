@@ -73,4 +73,13 @@
     <string name="remove_tree">Deseja remover o item selecionado?</string>
     <string name="remove_land">Deseja remover este terreno?</string>
     <string name="item">Item</string>
+    <string name="save_changes">Deseja salvar as alterações?</string>
+    <string name="task">Tarefa</string>
+    <string name="update">Atualizar</string>
+    <string name="delete">Apagar</string>
+    <string name="close">Fechar</string>
+    <string name="delete_task">Deseja apagar esta tarefa?</string>
+    <string name="close_task_ask">Deseja encerrar esta tarefa?</string>
+    <string name="task_close_success">Tarefa encerrada</string>
+    <string name="task_close_error">Aconteceu um erro ao encerrar a tarefa</string>
 </resources>

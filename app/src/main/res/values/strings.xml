@@ -171,4 +171,13 @@
     <string name="remove_tree">Do you wish to remove the selected item?</string>
     <string name="remove_land">Do you wish to delete this land?</string>
     <string name="item">Item</string>
+    <string name="save_changes">Do you wish to save the changes?</string>
+    <string name="task">Task</string>
+    <string name="update">Update</string>
+    <string name="delete">Delete</string>
+    <string name="close">Close</string>
+    <string name="delete_task">Do you wish to delete this task?</string>
+    <string name="close_task_ask">Do you wish to close this task?</string>
+    <string name="task_close_success">Task closed</string>
+    <string name="task_close_error">Some error occurred while closing the task</string>
 </resources>

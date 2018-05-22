@@ -132,17 +132,17 @@ public class LandFragment extends Fragment {
                 "Lands.Name as 'Name'",
                 "Lands.ImageUri as 'ImageUri'",
                 "Lands.Description as 'Description'",
-                "count(Tasks.Land) as 'Notification'",
-                "min(Tasks.Priority) as 'Priority'"
+                "count('Tasks'.Land) as 'Notification'",
+                "min('Tasks'.Priority) as 'Priority'"
         };
 
         // How you want the results sorted in the resulting Cursor
         String sortOrder = null;
 
         Cursor cursor = db.query(
-                "Lands left outer join Tasks on Lands.Name = Tasks.Land",   // The table to query
+                "Lands left outer join (select * from tasks where completed = 0) as 'Tasks' on Lands.Name = 'Tasks'.Land",   // The table to query
                 projection,             // The array of columns to return (pass null to get all)
-                "completed = 0 or completed is null",              // The columns for the WHERE clause
+                null,              // The columns for the WHERE clause
                 null,          // The values for the WHERE clause
                 "Name",                   // don't group the rows
                 null,                   // don't filter by row groups
