@@ -94,6 +94,7 @@ public class EditItemTypeFragment extends Fragment {
         list = new ArrayList<>();
         for (int i = 0; i < 7; i++)
             list.add(array.getResourceId(i,-1));
+        Log.v("images", list.toString());
     }
 
     @Override

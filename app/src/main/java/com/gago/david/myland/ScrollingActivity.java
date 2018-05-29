@@ -920,9 +920,9 @@ public class ScrollingActivity extends AppCompatActivity implements AddTaskFragm
         if(newTask.completed){
             boolean success = LandOpenHelper.updateTask(newTask, ScrollingActivity.this);
             if (success) {
-                Toast.makeText(ScrollingActivity.this, R.string.update_task_success, Toast.LENGTH_SHORT).show();
+                Toast.makeText(ScrollingActivity.this, R.string.task_close_success, Toast.LENGTH_SHORT).show();
             } else
-                Toast.makeText(ScrollingActivity.this, R.string.update_task_error, Toast.LENGTH_SHORT).show();
+                Toast.makeText(ScrollingActivity.this, R.string.task_close_error, Toast.LENGTH_SHORT).show();
             filter();
         }
         else {

@@ -57,8 +57,10 @@ INSERT INTO 'Priorities' (Name, P_order, Color)
 VALUES ('Alta',1,'#B71C1C'),('Media',3,'#1B5E20'),('Baixa',5,'#0D47A1');
 
 INSERT INTO 'PlantTypes' (Name, Icon, Color)
-VALUES ('Alfarrobeira',2131230872,'#4d2600'),('Amendoeira',2131230872,'#996633'),('Oliveira',2131230872,'#669900');
+VALUES ('Alfarrobeira',2131230872,'#4d2600'),('Amendoeira',2131230872,'#996633'),('Oliveira',2131230872,'#669900')
+,('Figueira',2131230872,'#74258e'),('Medronheiro',2131230872,'#aa0316'),('Mato',2131230857,'#e2db00')
+,('Pedras',2131230868,'#adadad');
 
 INSERT INTO 'TaskTypes' (Name, Description)
-VALUES ('Lavrar', 'texto estupidamente grande para testar o redimensionamento de coisas. akshdjhgklajsdlkjhasjkdjfkljj aksdhflkajdsf akjdshlfkjaçdfklsja'),
-('Apanhar Alfarrobas', 'texto pequeno'), ('Apanhar Amêndoas', 'texto médio. !#$%&() asjdhghfkjlasdfaáé`qàóíú')
+VALUES ('Limpeza', ''),('Poda Simples', 'Cortar rebentos de baixo'),('Poda Completa', 'Cortar pernadas')
+,('Lavrar', ''),('Valados', 'Manutenção'),('Apanhar', '')
