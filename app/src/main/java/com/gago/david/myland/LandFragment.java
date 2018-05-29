@@ -116,7 +116,8 @@ public class LandFragment extends Fragment {
         if (requestCode == 1) {
             if (resultCode == RESULT_OK) {
                 String filename = data.getStringExtra("name");
-                ((MainActivity)getActivity()).addLandDetails(filename);
+                Double area = data.getDoubleExtra("area", 0.0);
+                ((MainActivity)getActivity()).addLandDetails(filename, area);
             }
         }
     }

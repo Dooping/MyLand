@@ -9,14 +9,13 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
-import android.provider.DocumentsContract;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.gago.david.myland.Models.LandObject;
 import com.gago.david.myland.Models.PriorityObject;
 import com.gago.david.myland.Models.TaskObject;
 import com.gago.david.myland.Models.TaskTypeObject;
+import com.gago.david.myland.Utils.Utils;
 
 import org.apache.commons.io.IOUtils;
 
@@ -26,10 +25,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.channels.FileChannel;
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by david on 27/01/2017.
@@ -37,7 +33,7 @@ import java.util.List;
 
 public class LandOpenHelper extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
     private static final String LAND_TABLE_NAME = "myland.db";
 
     private Context context;
@@ -65,20 +61,13 @@ public class LandOpenHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        InputStream inputStream = context.getResources().openRawResource(R.raw.deletedb);
+        if (oldVersion <  2)
+            upgradeVersion2(db);
+    }
 
-        String queries = "";
-        try {
-            queries = IOUtils.toString(inputStream);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        for (String query : queries.split(";")) {
-            db.execSQL(query);
-        }
-
-        onCreate(db);
+    private void upgradeVersion2(SQLiteDatabase db) {
+        db.execSQL("ALTER TABLE Lands ADD COLUMN Area Double DEFAULT 0;");
+        Log.v("DATABASE", "updated to version 2");
     }
 
     @Override

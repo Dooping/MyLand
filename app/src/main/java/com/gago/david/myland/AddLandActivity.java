@@ -15,6 +15,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import com.gago.david.myland.Utils.SphericalUtil;
 import com.mapbox.android.core.location.LocationEngine;
 import com.mapbox.android.core.location.LocationEngineListener;
 import com.mapbox.android.core.location.LocationEnginePriority;
@@ -51,6 +52,7 @@ public class AddLandActivity extends AppCompatActivity implements OnMapReadyCall
     private PermissionsManager permissionsManager;
     private LinkedList<LatLng> poligon;
     private PageLoader pageLoader;
+    private Double area;
     private final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 10;
     private final int MY_PERMISSIONS_REQUEST_LOCATION = 20;
 
@@ -145,6 +147,8 @@ public class AddLandActivity extends AppCompatActivity implements OnMapReadyCall
                     mapboxMap.addPolyline(new PolylineOptions()
                             .addAll(poligon)
                             .color(Color.parseColor("#3bb2d0"))).setWidth(3.0f);
+                    area = SphericalUtil.computeArea(poligon);
+                    Log.i("AREA", "computeArea " + SphericalUtil.computeArea(poligon)+ " m2");
                 }
 
                 Handler myHandler = new Handler();
@@ -155,16 +159,15 @@ public class AddLandActivity extends AppCompatActivity implements OnMapReadyCall
                         mapboxMap.snapshot(new MapboxMap.SnapshotReadyCallback() {
                             @Override
                             public void onSnapshotReady(Bitmap snapshot) {
-                                //askWritingPermission();
                                 String filename = addImage(snapshot);
-
-                                    Intent data = new Intent();
-                                    //---set the data to pass back---
-                                    data.putExtra("name", filename);
-                                    Log.v("MAPBOX", "fileUri: "+filename);
-                                    setResult(RESULT_OK, data);
-                                    //---close the activity---
-                                    finish();
+                                Intent data = new Intent();
+                                //---set the data to pass back---
+                                data.putExtra("name", filename);
+                                data.putExtra("area", area);
+                                Log.v("MAPBOX", "fileUri: "+filename);
+                                setResult(RESULT_OK, data);
+                                //---close the activity---
+                                finish();
                             }
                         });
                     }

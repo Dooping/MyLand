@@ -6,14 +6,16 @@ public class LandObject {
     public String name;
     public String imageUri;
     public String Description;
+    public Double area;
     public int notifications;
     public int priority;
     public ArrayList<PlantObject> plants;
 
-    public LandObject(String name, String imageUri, String description) {
+    public LandObject(String name, String imageUri, String description, Double area) {
         this.name = name;
         this.imageUri = imageUri;
         Description = description;
+        this.area = area;
         plants = new ArrayList<>();
     }
 

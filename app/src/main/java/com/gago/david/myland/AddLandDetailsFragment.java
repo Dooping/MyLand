@@ -48,6 +48,7 @@ public class AddLandDetailsFragment extends Fragment {
     @BindView(R.id.next_button) FloatingActionButton button;
 
     private String imageUri;
+    private Double area;
     private boolean created = false;
 
     private OnFragmentInteractionListener mListener;
@@ -87,6 +88,7 @@ public class AddLandDetailsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         imageUri = getArguments().getString("filename");
+        area = getArguments().getDouble("area");
         Log.v("ADDDETAIL", imageUri);
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_add_land_details, container, false);
@@ -114,6 +116,7 @@ public class AddLandDetailsFragment extends Fragment {
         values.put("Name", name.getText().toString());
         values.put("ImageUri", imageUri);
         values.put("Description", description.getText().toString());
+        values.put("Area", area);
 
 // Insert the new row, returning the primary key value of the new row
         long newRowId = db.insert("Lands", null, values);

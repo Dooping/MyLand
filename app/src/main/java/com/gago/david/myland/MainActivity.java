@@ -158,11 +158,12 @@ public class MainActivity extends AppCompatActivity
         setTitle(title);
     }
 
-    public void addLandDetails(String filename) {
+    public void addLandDetails(String filename, Double area) {
         setActionBarTitle("Land Details");
         Fragment fragment = new AddLandDetailsFragment();
         Bundle args=new Bundle();
         args.putString("filename",filename);
+        args.putDouble("area",area);
         fragment.setArguments(args);
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container, fragment).addToBackStack("main").commit();

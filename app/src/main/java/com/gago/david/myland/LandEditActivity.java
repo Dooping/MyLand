@@ -284,7 +284,7 @@ public class LandEditActivity extends AppCompatActivity implements PopupMenuAdap
                 sortOrder               // The sort order
         );
         cursor.moveToFirst();
-        LandObject l =  new LandObject(landName, cursor.getString(1), cursor.getString(2));
+        LandObject l =  new LandObject(landName, cursor.getString(1), cursor.getString(2), cursor.getDouble(cursor.getColumnIndex("Area")));
         cursor.close();
         // Define a projection that specifies which columns from the database
         // you will actually use after this query.

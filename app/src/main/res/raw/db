@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS Lands(
 	Name VARCHAR PRIMARY KEY,
 	ImageUri VARCHAR,
 	Description TEXT,
+	Area Double DEFAULT 0,
     FOREIGN KEY(ImageUri) REFERENCES Images(Name)
 	);
 

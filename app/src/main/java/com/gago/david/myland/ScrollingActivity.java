@@ -256,7 +256,7 @@ public class ScrollingActivity extends AppCompatActivity implements AddTaskFragm
         });
 
         plantTypeList = readPlantTypes();
-        setTitle(land.name);
+        setTitle(land.name + ((land.area==0) ? "" : " ("+Math.round(land.area)+"m\u00B2)"));
         description = findViewById(R.id.scrolling_description);
         description.setText(land.Description);
         descriptionLayout = findViewById(R.id.description_layout);
@@ -570,7 +570,8 @@ public class ScrollingActivity extends AppCompatActivity implements AddTaskFragm
         String[] projection = {
                 "Name",
                 "ImageUri",
-                "Description"
+                "Description",
+                "Area"
         };
 
         // Filter results WHERE "title" = 'My Title'
@@ -590,7 +591,7 @@ public class ScrollingActivity extends AppCompatActivity implements AddTaskFragm
                 sortOrder               // The sort order
         );
         cursor.moveToFirst();
-        LandObject l =  new LandObject(landName, cursor.getString(1), cursor.getString(2));
+        LandObject l =  new LandObject(landName, cursor.getString(1), cursor.getString(2), cursor.getDouble(cursor.getColumnIndex("Area")));
         cursor.close();
         // Define a projection that specifies which columns from the database
         // you will actually use after this query.
