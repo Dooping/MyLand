@@ -1,5 +1,8 @@
 package com.gago.david.myland;
 
+import android.animation.ObjectAnimator;
+import android.animation.TypeEvaluator;
+import android.animation.ValueAnimator;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
@@ -13,8 +16,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.animation.BounceInterpolator;
 import android.widget.Toast;
 
+import com.gago.david.myland.Utils.LatLngInterpolator;
 import com.gago.david.myland.Utils.SphericalUtil;
 import com.mapbox.android.core.location.LocationEngine;
 import com.mapbox.android.core.location.LocationEngineListener;
@@ -28,11 +35,13 @@ import com.mapbox.mapboxsdk.annotations.PolygonOptions;
 import com.mapbox.mapboxsdk.annotations.PolylineOptions;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLng;
+import com.mapbox.mapboxsdk.geometry.LatLngBounds;
 import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.plugins.locationlayer.LocationLayerPlugin;
+import com.mapbox.mapboxsdk.plugins.locationlayer.camera.LatLngAnimator;
 
 import java.io.ByteArrayOutputStream;
 import java.util.LinkedList;
@@ -139,39 +148,50 @@ public class AddLandActivity extends AppCompatActivity implements OnMapReadyCall
             public void onClick(View v) {
                 pageLoader.startProgress();
                 locationLayerPlugin.setLocationLayerEnabled(false);
+                boolean cancel = false;
                 if(poligon.size()>0) {
-                    mapboxMap.clear();
-                    /*for (Polygon p : mapboxMap.getPolygons())
-                        mapboxMap.removePolygon(p);*/
-                    poligon.add(poligon.getFirst());
-                    mapboxMap.addPolyline(new PolylineOptions()
-                            .addAll(poligon)
-                            .color(Color.parseColor("#3bb2d0"))).setWidth(3.0f);
-                    area = SphericalUtil.computeArea(poligon);
-                    Log.i("AREA", "computeArea " + SphericalUtil.computeArea(poligon)+ " m2");
+                    LatLngBounds latLngBounds = mapboxMap.getProjection().getVisibleRegion().latLngBounds;
+                    for (LatLng p : poligon)
+                        if (!latLngBounds.contains(p)) {
+                            cancel = true;
+                            Toast.makeText(getBaseContext(),R.string.markers_visibility_error, Toast.LENGTH_SHORT).show();
+                            pageLoader.stopProgress();
+                            locationLayerPlugin.setLocationLayerEnabled(true);
+                        }
+                    if(!cancel) {
+                        mapboxMap.clear();
+                        poligon.add(poligon.getFirst());
+                        mapboxMap.addPolyline(new PolylineOptions()
+                                .addAll(poligon)
+                                .color(Color.parseColor("#3bb2d0"))).setWidth(3.0f);
+                        area = SphericalUtil.computeArea(poligon);
+                        Log.i("AREA", "computeArea " + SphericalUtil.computeArea(poligon) + " m2");
+                    }
                 }
 
-                Handler myHandler = new Handler();
+                if(!cancel) {
+                    Handler myHandler = new Handler();
 
-                myHandler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        mapboxMap.snapshot(new MapboxMap.SnapshotReadyCallback() {
-                            @Override
-                            public void onSnapshotReady(Bitmap snapshot) {
-                                String filename = addImage(snapshot);
-                                Intent data = new Intent();
-                                //---set the data to pass back---
-                                data.putExtra("name", filename);
-                                data.putExtra("area", area);
-                                Log.v("MAPBOX", "fileUri: "+filename);
-                                setResult(RESULT_OK, data);
-                                //---close the activity---
-                                finish();
-                            }
-                        });
-                    }
-                }, 50);
+                    myHandler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            mapboxMap.snapshot(new MapboxMap.SnapshotReadyCallback() {
+                                @Override
+                                public void onSnapshotReady(Bitmap snapshot) {
+                                    String filename = addImage(snapshot);
+                                    Intent data = new Intent();
+                                    //---set the data to pass back---
+                                    data.putExtra("name", filename);
+                                    data.putExtra("area", area);
+                                    Log.v("MAPBOX", "fileUri: " + filename);
+                                    setResult(RESULT_OK, data);
+                                    //---close the activity---
+                                    finish();
+                                }
+                            });
+                        }
+                    }, 50);
+                }
 
             }
         });
@@ -357,8 +377,23 @@ public class AddLandActivity extends AppCompatActivity implements OnMapReadyCall
 
     @Override
     public void onMapLongClick(@NonNull LatLng point) {
-        mapboxMap.addMarker(new MarkerOptions()
+        Marker marker = mapboxMap.addMarker(new MarkerOptions()
                 .position(point));
+        Double bearing = mapboxMap.getCameraPosition().bearing;
+        LatLng start = SphericalUtil.computeOffset(marker.getPosition(),5, bearing);
+        marker.setPosition(start);
+        final LatLngInterpolator.Linear interpolator = new LatLngInterpolator.Linear();
+        final BounceInterpolator bounceInterpolator = new BounceInterpolator();
+        ValueAnimator markerAnimator = ObjectAnimator.ofObject(marker, "position",
+                new TypeEvaluator<LatLng>() {
+                    @Override
+                    public LatLng evaluate(float v, LatLng start, LatLng end) {
+                        return interpolator.interpolate(v, start, end);
+                    }
+                }, marker.getPosition(), point);
+        markerAnimator.setInterpolator(bounceInterpolator);
+        markerAnimator.setDuration(1000);
+        markerAnimator.start();
         poligon.add(point);
         if ( mapboxMap.getPolygons().size()>0)
             mapboxMap.getPolygons().get(0).addPoint(point);
