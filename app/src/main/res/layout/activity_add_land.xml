@@ -10,6 +10,52 @@
     tools:context="com.gago.david.myland.AddLandActivity">
 
     <!-- Set the starting camera position and map style using xml-->
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/add_marker"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="false"
+        android:layout_alignParentStart="true"
+        android:layout_gravity="bottom|start"
+        android:layout_margin="20dp"
+        android:alpha="0.8"
+        android:src="@drawable/ic_action_location"
+        android:visibility="invisible"
+        mapbox:borderWidth="0dp"
+        mapbox:elevation="6dp"
+        mapbox:fabSize="normal"
+        mapbox:pressedTranslationZ="12dp" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/remove_marker"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/saveButton"
+        android:layout_alignParentBottom="false"
+        android:layout_alignParentEnd="false"
+        android:layout_alignParentStart="true"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="20dp"
+        android:alpha="0.8"
+        android:src="@drawable/ic_action_location"
+        android:visibility="invisible"
+        app:backgroundTint="@android:color/holo_red_dark"
+        mapbox:borderWidth="0dp"
+        mapbox:elevation="6dp"
+        mapbox:fabSize="normal"
+        mapbox:pressedTranslationZ="12dp" />
+
+    <ImageView
+        android:id="@+id/crosshair"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:contentDescription="Crosshair"
+        android:elevation="1dp"
+        android:visibility="visible"
+        mapbox:srcCompat="@drawable/mapbox_marker_icon_default" />
+
     <com.mapbox.mapboxsdk.maps.MapView
         android:id="@+id/mapView"
         android:layout_width="match_parent"
@@ -23,6 +69,7 @@
         android:id="@+id/pageloader"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:elevation="2dp"
         app:setErrorImage="@drawable/ic_not_found"
         app:setErrorText="Something happened"
         app:setLoadingAnimationMode="flip"

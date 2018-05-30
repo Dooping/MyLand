@@ -264,7 +264,8 @@ public class LandEditActivity extends AppCompatActivity implements PopupMenuAdap
         String[] projection = {
                 "Name",
                 "ImageUri",
-                "Description"
+                "Description",
+                "Area"
         };
 
         // Filter results WHERE "title" = 'My Title'

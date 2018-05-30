@@ -33,7 +33,7 @@ import java.util.ArrayList;
 
 public class LandOpenHelper extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 3;
     private static final String LAND_TABLE_NAME = "myland.db";
 
     private Context context;
@@ -63,11 +63,17 @@ public class LandOpenHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         if (oldVersion <  2)
             upgradeVersion2(db);
+        if (oldVersion < 3)
+            upgradeVersion3(db);
     }
 
     private void upgradeVersion2(SQLiteDatabase db) {
         db.execSQL("ALTER TABLE Lands ADD COLUMN Area Double DEFAULT 0;");
         Log.v("DATABASE", "updated to version 2");
+    }
+
+    private void upgradeVersion3(SQLiteDatabase db){
+        db.execSQL("UPDATE PlantTypes SET Icon = Icon + 1;");
     }
 
     @Override

@@ -38,7 +38,7 @@ public class ImageAdapter extends ArrayAdapter<Integer> {
 
 
         if (convertView == null) {
-            Log.v("adapter", "null");
+            //Log.v("adapter", "null");
 
             viewHolder = new ViewHolder();
             LayoutInflater inflater = LayoutInflater.from(getContext());
@@ -48,12 +48,12 @@ public class ImageAdapter extends ArrayAdapter<Integer> {
 
             convertView.setTag(viewHolder);
         } else {
-            Log.v("adapter", "not null");
+            //Log.v("adapter", "not null");
             viewHolder = (ViewHolder) convertView.getTag();
         }
 
 
-        Log.v("adapter", " "+dataModel);
+        //Log.v("adapter", " "+dataModel);
         viewHolder.image.setImageResource(dataModel);
         viewHolder.image.setColorFilter(tintColor, PorterDuff.Mode.SRC_IN);
         // Return the completed view to render on screen

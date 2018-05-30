@@ -176,6 +176,29 @@ public class AddLandActivity extends AppCompatActivity implements OnMapReadyCall
             }
         });
 
+        FloatingActionButton addMarker = findViewById(R.id.add_marker);
+        addMarker.setVisibility(View.VISIBLE);
+        addMarker.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onMapLongClick(mapboxMap.getCameraPosition().target);
+            }
+        });
+        FloatingActionButton removeMarker = findViewById(R.id.remove_marker);
+        removeMarker.setVisibility(View.VISIBLE);
+        removeMarker.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(poligon.size() > 0) {
+                    poligon.removeLast();
+                    Marker marker = mapboxMap.getMarkers().get(mapboxMap.getMarkers().size() - 1);
+                    marker.remove();
+                    if (mapboxMap.getPolygons().size() > 0)
+                        mapboxMap.getPolygons().get(0).setPoints(poligon);
+                }
+            }
+        });
+
     }
 
     private void enableLocationPlugin() {
