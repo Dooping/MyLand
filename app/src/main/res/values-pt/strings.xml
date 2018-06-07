@@ -83,4 +83,5 @@
     <string name="task_close_success">Tarefa encerrada</string>
     <string name="task_close_error">Aconteceu um erro ao encerrar a tarefa</string>
     <string name="markers_visibility_error">Todos os marcadores devem ser visíveis!</string>
+    <string name="unit">Unidade</string>
 </resources>

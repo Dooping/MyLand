@@ -7,6 +7,7 @@ import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
@@ -256,7 +257,10 @@ public class ScrollingActivity extends AppCompatActivity implements AddTaskFragm
         });
 
         plantTypeList = readPlantTypes();
-        setTitle(land.name + ((land.area==0) ? "" : " ("+Math.round(land.area)+"m\u00B2)"));
+        SharedPreferences prefs = getSharedPreferences(SettingsFragment.MY_PREFS_NAME, MODE_PRIVATE);
+        int unit = prefs.getInt("unit", 0); //0 is the default value.
+        String area = (unit==0) ? " ("+Math.round(land.area)+"m\u00B2)" : " ("+Math.round(land.area/10000)+"ha)";
+        setTitle(land.name + ((land.area==0) ? "" : area));
         description = findViewById(R.id.scrolling_description);
         description.setText(land.Description);
         descriptionLayout = findViewById(R.id.description_layout);

@@ -11,4 +11,9 @@
         <item>@drawable/ic_watering_can</item>
     </integer-array>
 
+    <array name="metrics">
+        <item>"m\u00B2"</item>
+        <item>"ha"</item>
+    </array>
+
 </resources>

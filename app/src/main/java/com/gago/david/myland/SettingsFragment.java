@@ -5,6 +5,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -38,6 +39,9 @@ import java.util.ArrayList;
 import br.com.bloder.magic.view.MagicButton;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import lib.kingja.switchbutton.SwitchMultiButton;
+
+import static android.content.Context.MODE_PRIVATE;
 
 
 /**
@@ -52,6 +56,7 @@ public class SettingsFragment extends Fragment {
     private static final String ARG_PARAM2 = "param2";
     private final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 10;
     private final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 20;
+    public static final String MY_PREFS_NAME = "MyLandSettings";
 
     ItemTypeAdapter itemAdapter;
     TaskTypeAdapter taskAdapter;
@@ -64,6 +69,7 @@ public class SettingsFragment extends Fragment {
 
     @BindView(R.id.import_db) MagicButton importDB;
     @BindView(R.id.export_db) MagicButton exportDB;
+    @BindView(R.id.unit) SwitchMultiButton unitSwitch;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -114,10 +120,14 @@ public class SettingsFragment extends Fragment {
             Context context = view.getContext();
             RecyclerView recyclerView = view.findViewById(R.id.item_list);
             recyclerView.setLayoutManager(new LinearLayoutManager(context));
+            recyclerView.setNestedScrollingEnabled(false);
+            recyclerView.setHasFixedSize(false);
             itemAdapter = new ItemTypeAdapter(items, mListener);
             recyclerView.setAdapter(itemAdapter);
             RecyclerView recyclerView2 = view.findViewById(R.id.task_type_list);
             recyclerView2.setLayoutManager(new LinearLayoutManager(context));
+            recyclerView2.setNestedScrollingEnabled(false);
+            recyclerView2.setHasFixedSize(false);
             taskAdapter = new TaskTypeAdapter(tasks, mListener2);
             recyclerView2.setAdapter(taskAdapter);
             FloatingActionButton addTask = view.findViewById(R.id.add_task_type);
@@ -154,6 +164,18 @@ public class SettingsFragment extends Fragment {
                     i.addCategory(Intent.CATEGORY_OPENABLE);
                     i.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
                     startActivityForResult(Intent.createChooser(i, "Choose directory"), 9999);
+                }
+            });
+            SharedPreferences prefs = getContext().getSharedPreferences(MY_PREFS_NAME, MODE_PRIVATE);
+            int unit = prefs.getInt("unit", 0); //0 is the default value.
+            unitSwitch.setSelectedTab(unit);
+            unitSwitch.setOnSwitchListener(new SwitchMultiButton.OnSwitchListener() {
+                @Override
+                public void onSwitch(int position, String tabText) {
+                    //Toast.makeText(getContext(), tabText, Toast.LENGTH_SHORT).show();
+                    SharedPreferences.Editor editor = getContext().getSharedPreferences(MY_PREFS_NAME, MODE_PRIVATE).edit();
+                    editor.putInt("unit", position);
+                    editor.apply();
                 }
             });
         }
