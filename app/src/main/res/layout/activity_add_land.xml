@@ -71,10 +71,10 @@
         android:layout_height="match_parent"
         android:elevation="2dp"
         app:setErrorImage="@drawable/ic_not_found"
-        app:setErrorText="Something happened"
+        app:setErrorText="@string/something_happened"
         app:setLoadingAnimationMode="flip"
         app:setLoadingImage="@drawable/laucher_icon"
-        app:setLoadingText="Please wait..." />
+        app:setLoadingText="@string/please_wait" />
 
     <!-- Implementation of find my location button -->
 

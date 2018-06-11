@@ -182,4 +182,7 @@
     <string name="task_close_error">Some error occurred while closing the task</string>
     <string name="markers_visibility_error">All markers should be visible!</string>
     <string name="unit">Unit</string>
+    <string name="create_profile">Create new user</string>
+    <string name="insert_name">Insert a name</string>
+    <string name="switch_user_message">Tap to switch user</string>
 </resources>

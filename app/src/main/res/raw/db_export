@@ -14,11 +14,12 @@ CREATE TABLE IF NOT EXISTS Images(
 	);
 
 CREATE TABLE IF NOT EXISTS Lands(
-	Name VARCHAR PRIMARY KEY,
+	Name VARCHAR,
 	ImageUri VARCHAR,
 	Description TEXT,
 	Area Double DEFAULT 0,
 	User VARCHAR DEFAULT null,
+	PRIMARY KEY (Name, User),
     FOREIGN KEY(ImageUri) REFERENCES Images(Name),
     FOREIGN KEY(User) REFERENCES Users(Name) ON DELETE CASCADE
 	);
@@ -59,15 +60,3 @@ CREATE TABLE IF NOT EXISTS Tasks(
     FOREIGN KEY(TaskType) REFERENCES TaskTypes(Name) ON DELETE CASCADE,
     FOREIGN KEY(Priority) REFERENCES Priorities(P_order)
 	);
-
-INSERT INTO 'Priorities' (Name, P_order, Color)
-VALUES ('Alta',1,'#B71C1C'),('Media',3,'#f6ff05'),('Baixa',5,'#12d800');
-
-INSERT INTO 'PlantTypes' (Name, Icon, Color)
-VALUES ('Alfarrobeira',2131230874,'#4d2600'),('Amendoeira',2131230874,'#996633'),('Oliveira',2131230874,'#669900')
-,('Figueira',2131230874,'#74258e'),('Medronheiro',2131230874,'#aa0316'),('Mato',2131230859,'#e2db00')
-,('Pedras',2131230870,'#adadad');
-
-INSERT INTO 'TaskTypes' (Name, Description)
-VALUES ('Limpeza', ''),('Poda Simples', 'Cortar rebentos de baixo'),('Poda Completa', 'Cortar pernadas')
-,('Lavrar', ''),('Valados', 'Manutenção'),('Apanhar', '')

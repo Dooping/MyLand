@@ -207,6 +207,6 @@ public class EditItemTypeFragment extends Fragment {
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(PlantTypeObject itemType);
-        long addItem(PlantTypeObject item);
+        void addItem(PlantTypeObject item);
     }
 }

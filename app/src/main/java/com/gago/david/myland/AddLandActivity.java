@@ -48,6 +48,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 
+import butterknife.BindView;
 import id.arieridwan.lib.PageLoader;
 
 
@@ -179,14 +180,16 @@ public class AddLandActivity extends AppCompatActivity implements OnMapReadyCall
                                 @Override
                                 public void onSnapshotReady(Bitmap snapshot) {
                                     String filename = addImage(snapshot);
-                                    Intent data = new Intent();
-                                    //---set the data to pass back---
-                                    data.putExtra("name", filename);
-                                    data.putExtra("area", area);
-                                    Log.v("MAPBOX", "fileUri: " + filename);
-                                    setResult(RESULT_OK, data);
-                                    //---close the activity---
-                                    finish();
+                                    if(filename != null) {
+                                        Intent data = new Intent();
+                                        //---set the data to pass back---
+                                        data.putExtra("name", filename);
+                                        data.putExtra("area", area);
+                                        Log.v("MAPBOX", "fileUri: " + filename);
+                                        setResult(RESULT_OK, data);
+                                        //---close the activity---
+                                        finish();
+                                    }
                                 }
                             });
                         }
@@ -252,35 +255,10 @@ public class AddLandActivity extends AppCompatActivity implements OnMapReadyCall
                 new LatLng(location.getLatitude(), location.getLongitude()), 16), 3000);
     }
 
-    public static byte[] getBitmapAsByteArray(Bitmap bitmap) {
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.PNG, 0, outputStream);
-        return outputStream.toByteArray();
-    }
-
-    public String addImage(Bitmap image) {
-        LandOpenHelper mDbHelper = new LandOpenHelper(this);
-
-        // Gets the data repository in write mode
-        SQLiteDatabase db = mDbHelper.getWritableDatabase();
-
-        String name = UUID.randomUUID().toString()+".png";
-
-        ContentValues values = new ContentValues();
-        values.put("Name", name);
-        values.put("Image", getBitmapAsByteArray(image));
-
-// Insert the new row, returning the primary key value of the new row
-        long newRowId = db.insert("Images", null, values);
-        if (newRowId == -1) {
+    private String addImage(Bitmap bitmap){
+        String name = LandOpenHelper.addImage(this, bitmap);
+        if(name == null)
             Toast.makeText(this,R.string.image_add_error, Toast.LENGTH_SHORT).show();
-            Log.v("Add Image", "Failed to insert item: " + name);
-        }
-        else {
-            Log.v("Add Image", "row inserted: " + newRowId);
-        }
-
-        db.close();
         return name;
     }
 

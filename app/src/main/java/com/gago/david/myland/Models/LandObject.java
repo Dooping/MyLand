@@ -19,13 +19,14 @@ public class LandObject {
         plants = new ArrayList<>();
     }
 
-    public LandObject(String name, String imageUri, String description, int notifications, int priority) {
+    public LandObject(String name, String imageUri, String description, int notifications, int priority, Double area) {
         this.name = name;
         this.imageUri = imageUri;
         Description = description;
         plants = new ArrayList<>();
         this.notifications = notifications;
         this.priority = priority;
+        this.area = area;
     }
 
     public void addPlant(PlantObject plant){

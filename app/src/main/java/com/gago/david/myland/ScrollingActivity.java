@@ -116,8 +116,22 @@ public class ScrollingActivity extends AppCompatActivity implements AddTaskFragm
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
+        SharedPreferences prefs = getSharedPreferences(SettingsFragment.MY_PREFS_NAME, MODE_PRIVATE);
+        String user = prefs.getString("user", "");
+
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+        View headerView = navigationView.getHeaderView(0);
+        TextView userView = headerView.findViewById(R.id.user);
+        userView.setText(user);
+        LinearLayout navLayout = headerView.findViewById(R.id.nav_layout);
+        navLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(ScrollingActivity.this, Login.class);
+                startActivity(intent);
+            }
+        });
 
         editButton = findViewById(R.id.fab);
         editButton.setOnClickListener(new View.OnClickListener() {
@@ -212,7 +226,7 @@ public class ScrollingActivity extends AppCompatActivity implements AddTaskFragm
 
         toolbarLayout = findViewById(R.id.toolbar_layout);
         layers = new Drawable[2];
-        layers[0] = new BitmapDrawable(getResources(), new LandOpenHelper(this).getImage(land.imageUri));
+        layers[0] = new BitmapDrawable(getResources(), LandOpenHelper.getImage(this, land.imageUri));
         toolbarLayout.setBackground(layers[0]);
         /*try {
             InputStream inputStream = getContentResolver().openInputStream(Uri.parse(land.imageUri));
@@ -235,7 +249,7 @@ public class ScrollingActivity extends AppCompatActivity implements AddTaskFragm
 
         RecyclerView recyclerView = findViewById(R.id.task_list);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        tasks = readTasks(land.name);
+        tasks = LandOpenHelper.readTasks(this, land.name);
         mAdapter = new TaskListAdapter(tasks, this, priorities);
         recyclerView.setAdapter(mAdapter);
 
@@ -257,7 +271,6 @@ public class ScrollingActivity extends AppCompatActivity implements AddTaskFragm
         });
 
         plantTypeList = readPlantTypes();
-        SharedPreferences prefs = getSharedPreferences(SettingsFragment.MY_PREFS_NAME, MODE_PRIVATE);
         int unit = prefs.getInt("unit", 0); //0 is the default value.
         String area = (unit==0) ? " ("+Math.round(land.area)+"m\u00B2)" : " ("+Math.round(land.area/10000)+"ha)";
         setTitle(land.name + ((land.area==0) ? "" : area));
@@ -717,71 +730,7 @@ public class ScrollingActivity extends AppCompatActivity implements AddTaskFragm
         db.close();
     }
 
-    private ArrayList<TaskObject> readTasks(String land){
-        ArrayList<TaskObject> tasks = new ArrayList<>();
-        LandOpenHelper mDbHelper = new LandOpenHelper(getApplicationContext());
 
-        SQLiteDatabase db = mDbHelper.getReadableDatabase();
-
-        // Define a projection that specifies which columns from the database
-        // you will actually use after this query.
-        String[] projection = {
-                "Land",
-                "PlantIndex",
-                "TaskType",
-                "Priority",
-                "CreationDate",
-                "ExpirationDate",
-                "Completed",
-                "Observations",
-                "rowid"
-        };
-
-        // How you want the results sorted in the resulting Cursor
-        String sortOrder = "Priority ASC";
-
-        String selection = "Land = ? AND Completed = 0";
-        String[] selectionArgs = new String[]{land};
-
-        Cursor cursor = db.query(
-                "Tasks",   // The table to query
-                projection,             // The array of columns to return (pass null to get all)
-                selection,              // The columns for the WHERE clause
-                selectionArgs,          // The values for the WHERE clause
-                null,                   // don't group the rows
-                null,                   // don't filter by row groups
-                sortOrder               // The sort order
-        );
-
-        //ArrayList<TaskObject> tasks = new ArrayList<>();
-        tasks.clear();
-
-        while(cursor.moveToNext()) {
-            Calendar cl = Calendar.getInstance();
-            cl.setTimeInMillis(cursor.getLong(cursor.getColumnIndex("CreationDate")));
-
-            Calendar cl2 = (cursor.isNull(cursor.getColumnIndex("ExpirationDate"))) ? null : Calendar.getInstance();
-            if(cl2 != null)
-                cl2.setTimeInMillis(cursor.getLong(cursor.getColumnIndex("ExpirationDate")));
-            Date targetDate = cl2 == null ? null : cl2.getTime();
-            TaskObject o = new TaskObject(
-                    cursor.getLong(cursor.getColumnIndex("rowid"))
-                    , cursor.getString(cursor.getColumnIndex("Land"))
-                    , cursor.isNull(cursor.getColumnIndex("PlantIndex")) ? null : cursor.getInt(cursor.getColumnIndex("PlantIndex"))
-                    , cursor.getString(cursor.getColumnIndex("TaskType"))
-                    , cursor.getInt(cursor.getColumnIndex("Priority"))
-                    , cl.getTime()
-                    , targetDate
-                    , cursor.getInt(cursor.getColumnIndex("Completed")) > 0
-                    , cursor.getString(cursor.getColumnIndex("Observations")));
-            tasks.add(o);
-            Log.v("read tasks", "task: "+o.toString());
-        }
-
-        cursor.close();
-        db.close();
-        return tasks;
-    }
 
     private void updateLand(){
 

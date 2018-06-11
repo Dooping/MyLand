@@ -3,6 +3,7 @@ package com.gago.david.myland;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -18,10 +19,14 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.gago.david.myland.Models.LandObject;
+
 import java.io.File;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+
+import static android.content.Context.MODE_PRIVATE;
 
 
 /**
@@ -93,7 +98,7 @@ public class AddLandDetailsFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_add_land_details, container, false);
         ButterKnife.bind(this, view);
-        image.setImageBitmap(new LandOpenHelper(getContext()).getImage(imageUri));
+        image.setImageBitmap(new LandOpenHelper(getContext()).getImage(getContext(), imageUri));
 
         button.setOnClickListener(new View.OnClickListener() {
                                       @Override
@@ -106,22 +111,9 @@ public class AddLandDetailsFragment extends Fragment {
     }
 
     private void addLandQuery(){
-        LandOpenHelper mDbHelper = new LandOpenHelper(getContext());
+        boolean success = LandOpenHelper.addLand(getContext(), new LandObject(name.getText().toString(),imageUri, description.getText().toString(), area));
 
-        // Gets the data repository in write mode
-        SQLiteDatabase db = mDbHelper.getWritableDatabase();
-
-// Create a new map of values, where column names are the keys
-        ContentValues values = new ContentValues();
-        values.put("Name", name.getText().toString());
-        values.put("ImageUri", imageUri);
-        values.put("Description", description.getText().toString());
-        values.put("Area", area);
-
-// Insert the new row, returning the primary key value of the new row
-        long newRowId = db.insert("Lands", null, values);
-        Log.v("ADDDETAIL", "row inserted: "+newRowId);
-        if (newRowId == -1)
+        if (!success)
             Toast.makeText(getContext(),"Land already exists, choose a different name", Toast.LENGTH_SHORT).show();
         else {
             created = true;
@@ -132,7 +124,6 @@ public class AddLandDetailsFragment extends Fragment {
             startActivity(intent);
             ((MainActivity)getActivity()).removeLandDetails();
         }
-        db.close();
     }
 
     // TODO: Rename method, update argument and hook method into UI event

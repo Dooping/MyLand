@@ -1,6 +1,7 @@
 package com.gago.david.myland;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
@@ -18,6 +19,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.gago.david.myland.Adapters.ItemTypeAdapter;
@@ -35,6 +39,8 @@ public class MainActivity extends AppCompatActivity
             SettingsFragment.OnTaskListFragmentInteractionListener, EditTaskTypeFragment.OnFragmentInteractionListener,
         EditItemTypeFragment.OnFragmentInteractionListener, ColorPickerDialogListener{
 
+    private static final String INTENT_USER = "user";
+
     private boolean logout = false;
     private ArrayList<TaskTypeObject> tasks;
     private TaskTypeAdapter taskTypeAdapter;
@@ -42,11 +48,22 @@ public class MainActivity extends AppCompatActivity
     private ItemTypeAdapter itemTypeAdapter;
     private Fragment fragment;
 
+    public static Intent newIntent(final Context context, final String user) {
+        final Intent intent = new Intent(context, MainActivity.class);
+        intent.putExtra(INTENT_USER, user);
+        return intent;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //deleteDatabase("myland.db");
         //Log.v("tree", ""+R.drawable.ic_tree);
+
+        final String user = getIntent().getStringExtra(INTENT_USER);
+        if (user == null) {
+            throw new IllegalStateException("field " + INTENT_USER + " missing in Intent");
+        }
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -59,6 +76,17 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+        View headerView = navigationView.getHeaderView(0);
+        TextView userView = headerView.findViewById(R.id.user);
+        userView.setText(user);
+        LinearLayout navLayout = headerView.findViewById(R.id.nav_layout);
+        navLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, Login.class);
+                startActivity(intent);
+            }
+        });
 
         LandFragment fragment = new LandFragment();
         getSupportFragmentManager()
@@ -276,19 +304,9 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public long addItem(TaskTypeObject item) {
-        LandOpenHelper mDbHelper = new LandOpenHelper(this);
-
-        // Gets the data repository in write mode
-        SQLiteDatabase db = mDbHelper.getWritableDatabase();
-
-        ContentValues values = new ContentValues();
-        values.put("Name", item.name);
-        values.put("Description", item.description);
-
-// Insert the new row, returning the primary key value of the new row
-        long newRowId = db.insert("TaskTypes", null, values);
-        if (newRowId == -1) {
+    public void addItem(TaskTypeObject item) {
+        boolean success = LandOpenHelper.addTaskType(this, item);
+        if (!success) {
             Toast.makeText(this,R.string.task_type_add_error, Toast.LENGTH_SHORT).show();
             Log.v("Add TaskType", "Failed to insert task type: " + item.toString());
         }
@@ -298,7 +316,7 @@ public class MainActivity extends AppCompatActivity
                 taskTypeAdapter.notifyDataSetChanged();
             }
             Toast.makeText(this,R.string.task_type_add_success, Toast.LENGTH_SHORT).show();
-            Log.v("Add TaskType", "row inserted: " + newRowId);
+            Log.v("Add TaskType", "row inserted");
             Fragment fragment = new EditTaskTypeFragment();
             FragmentManager manager = getSupportFragmentManager();
             FragmentTransaction trans = manager.beginTransaction();
@@ -306,9 +324,6 @@ public class MainActivity extends AppCompatActivity
             trans.commit();
             manager.popBackStack();
         }
-
-        db.close();
-        return newRowId;
     }
 
     @Override
@@ -375,20 +390,9 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public long addItem(PlantTypeObject item) {
-        LandOpenHelper mDbHelper = new LandOpenHelper(this);
-
-        // Gets the data repository in write mode
-        SQLiteDatabase db = mDbHelper.getWritableDatabase();
-
-        ContentValues values = new ContentValues();
-        values.put("Name", item.name);
-        values.put("Icon", item.icon);
-        values.put("Color", item.color);
-
-// Insert the new row, returning the primary key value of the new row
-        long newRowId = db.insert("PlantTypes", null, values);
-        if (newRowId == -1) {
+    public void addItem(PlantTypeObject item) {
+        boolean success = LandOpenHelper.addItemType(this, item);
+        if (!success) {
             Toast.makeText(this,R.string.item_type_add_error, Toast.LENGTH_SHORT).show();
             Log.v("Add Item", "Failed to insert item: " + item.toString());
         }
@@ -398,7 +402,7 @@ public class MainActivity extends AppCompatActivity
                 itemTypeAdapter.notifyDataSetChanged();
             }
             Toast.makeText(this,R.string.item_type_add_success, Toast.LENGTH_SHORT).show();
-            Log.v("Add Item", "row inserted: " + newRowId);
+            Log.v("Add Item", "row inserted");
 
             Fragment fragment = new EditItemTypeFragment();
             FragmentManager manager = getSupportFragmentManager();
@@ -407,9 +411,6 @@ public class MainActivity extends AppCompatActivity
             trans.commit();
             manager.popBackStack();
         }
-
-        db.close();
-        return newRowId;
     }
 
     @Override

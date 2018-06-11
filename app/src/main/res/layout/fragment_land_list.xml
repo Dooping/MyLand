@@ -36,9 +36,9 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:setErrorImage="@drawable/ic_not_found"
-        app:setErrorText="Something happened"
+        app:setErrorText="@string/something_happened"
         app:setLoadingAnimationMode="flip"
-        app:setLoadingImage="@drawable/ic_search"
-        app:setLoadingText="Please wait..." />
+        app:setLoadingImage="@drawable/laucher_icon"
+        app:setLoadingText="@string/please_wait" />
 
 </FrameLayout>

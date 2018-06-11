@@ -130,6 +130,6 @@ public class EditTaskTypeFragment extends Fragment {
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(TaskTypeObject taskType);
-        long addItem(TaskTypeObject item);
+        void addItem(TaskTypeObject item);
     }
 }

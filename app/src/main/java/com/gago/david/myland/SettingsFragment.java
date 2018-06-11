@@ -10,13 +10,12 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.provider.DocumentFile;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -32,13 +31,13 @@ import com.gago.david.myland.Adapters.TaskTypeAdapter;
 import com.gago.david.myland.Models.PlantTypeObject;
 import com.gago.david.myland.Models.TaskTypeObject;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
 import br.com.bloder.magic.view.MagicButton;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import id.arieridwan.lib.PageLoader;
 import lib.kingja.switchbutton.SwitchMultiButton;
 
 import static android.content.Context.MODE_PRIVATE;
@@ -70,6 +69,7 @@ public class SettingsFragment extends Fragment {
     @BindView(R.id.import_db) MagicButton importDB;
     @BindView(R.id.export_db) MagicButton exportDB;
     @BindView(R.id.unit) SwitchMultiButton unitSwitch;
+    @BindView(R.id.pageloader) PageLoader pageLoader;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -105,7 +105,7 @@ public class SettingsFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
-        items = readPlantTypes();
+        items = LandOpenHelper.readPlantTypes(getContext());
         tasks = readTaskTypes();
         askReadingPermission();
         askWritingPermission();
@@ -183,16 +183,18 @@ public class SettingsFragment extends Fragment {
         return view;
     }
 
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+    public void onActivityResult(int requestCode, int resultCode, final Intent data) {
         if(resultCode == Activity.RESULT_OK)
             switch(requestCode) {
                 case 9999:
                     Log.i("Test", "Result 9999 URI " + data.getData().getPath());
-                    exportDB(data.getData());
+                    //exportDB(data.getData());
+                    new ExportDB(getContext()).execute(data.getData());
                     break;
                 case 9998:
                     Log.i("Test", "Result 9998 URI " + data.getData().getPath());
-                    importDB(data.getData());
+                    //importDB(data.getData());
+                    new ImportDB(getContext()).execute(data.getData());
                     break;
             }
     }
@@ -247,43 +249,7 @@ public class SettingsFragment extends Fragment {
         void addTaskType(TaskTypeAdapter taskAdapter, ArrayList<TaskTypeObject> tasks);
     }
 
-    private ArrayList<PlantTypeObject> readPlantTypes(){
-        LandOpenHelper mDbHelper = new LandOpenHelper(getContext());
 
-        SQLiteDatabase db = mDbHelper.getReadableDatabase();
-
-        // Define a projection that specifies which columns from the database
-        // you will actually use after this query.
-        String[] projection = {
-                "Name",
-                "Icon",
-                "Color"
-        };
-
-        // How you want the results sorted in the resulting Cursor
-        String sortOrder = null;
-
-        Cursor cursor = db.query(
-                "PlantTypes",   // The table to query
-                projection,             // The array of columns to return (pass null to get all)
-                null,              // The columns for the WHERE clause
-                null,          // The values for the WHERE clause
-                null,                   // don't group the rows
-                null,                   // don't filter by row groups
-                sortOrder               // The sort order
-        );
-
-        ArrayList<PlantTypeObject> plants = new ArrayList<>();
-
-        while(cursor.moveToNext()) {
-            PlantTypeObject o = new PlantTypeObject(cursor.getString(0), cursor.getInt(1), cursor.getString(2));
-            plants.add(o);
-        }
-
-        cursor.close();
-        db.close();
-        return plants;
-    }
 
     private ArrayList<TaskTypeObject> readTaskTypes(){
         LandOpenHelper mDbHelper = new LandOpenHelper(getContext());
@@ -323,7 +289,7 @@ public class SettingsFragment extends Fragment {
     }
 
     private void importDB(Uri s){
-        LandOpenHelper mDbHelper = new LandOpenHelper(getContext());
+        LandImporterHelper mDbHelper = new LandImporterHelper(getContext());
         try {
             if (mDbHelper.importDatabase(s))
                 Toast.makeText(getContext(), R.string.import_success, Toast.LENGTH_SHORT);
@@ -333,10 +299,11 @@ public class SettingsFragment extends Fragment {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        getActivity().deleteDatabase(LandImporterHelper.LAND_TABLE_NAME);
     }
 
     private void exportDB(Uri s){
-        LandOpenHelper mDbHelper = new LandOpenHelper(getContext());
+        LandExporterHelper mDbHelper = new LandExporterHelper(getContext());
         try {
             if (mDbHelper.exportDatabase(s))
                 Toast.makeText(getContext(), R.string.export_success, Toast.LENGTH_SHORT);
@@ -345,6 +312,7 @@ public class SettingsFragment extends Fragment {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        getActivity().deleteDatabase(LandExporterHelper.LAND_TABLE_NAME);
     }
 
     private void askWritingPermission(){
@@ -402,6 +370,75 @@ public class SettingsFragment extends Fragment {
                 // app-defined int constant. The callback method gets the
                 // result of the request.
             }
+        }
+    }
+
+    private class ExportDB extends AsyncTask<Uri, Void, Boolean> {
+        private Context mContext;
+
+        public ExportDB(Context context){
+            this.mContext = context;
+        }
+
+        protected void onPreExecute (){
+            pageLoader.startProgress();
+        }
+
+        protected Boolean doInBackground(Uri... path) {
+            boolean success = false;
+            LandExporterHelper mDbHelper = new LandExporterHelper(getContext());
+            try {
+                if (mDbHelper.exportDatabase(path[0]))
+                    success = true;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return success;
+        }
+
+        protected void onPostExecute(Boolean result) {
+            if (result)
+                Toast.makeText(mContext, R.string.export_success, Toast.LENGTH_SHORT);
+            else
+                Toast.makeText(mContext, R.string.export_error, Toast.LENGTH_SHORT);
+            mContext.deleteDatabase(LandExporterHelper.LAND_TABLE_NAME);
+            Log.v("Export", "aqui");
+            pageLoader.stopProgress();
+        }
+    }
+
+    private class ImportDB extends AsyncTask<Uri, Void, Boolean> {
+        private Context mContext;
+
+        public ImportDB(Context context){
+            this.mContext = context;
+        }
+
+        protected void onPreExecute (){
+            pageLoader.startProgress();
+        }
+
+        protected Boolean doInBackground(Uri... path) {
+            boolean success = false;
+            LandImporterHelper mDbHelper = new LandImporterHelper(getContext());
+            try {
+                if (mDbHelper.importDatabase(path[0]))
+                    success=true;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            return success;
+        }
+
+        protected void onPostExecute(Boolean result) {
+            if (result)
+                Toast.makeText(mContext, R.string.import_success, Toast.LENGTH_SHORT);
+            else
+                Toast.makeText(mContext, R.string.import_error, Toast.LENGTH_SHORT);
+            mContext.deleteDatabase(LandImporterHelper.LAND_TABLE_NAME);
+            Log.v("Import", "aqui");
+            pageLoader.stopProgress();
         }
     }
 

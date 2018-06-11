@@ -2,6 +2,7 @@ package com.gago.david.myland;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
@@ -28,6 +29,7 @@ import java.util.List;
 import id.arieridwan.lib.PageLoader;
 
 import static android.app.Activity.RESULT_OK;
+import static android.content.Context.MODE_PRIVATE;
 
 /**
  * A fragment representing a list of Items.
@@ -81,7 +83,7 @@ public class LandFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_land_list, container, false);
 
-        lands = readLands();
+        lands = LandOpenHelper.readLands(getContext());
         if (view instanceof FrameLayout) {
             Context context = view.getContext();
             RecyclerView recyclerView = view.findViewById(R.id.list);
@@ -122,57 +124,7 @@ public class LandFragment extends Fragment {
         }
     }
 
-    private List<LandObject> readLands(){
-        LandOpenHelper mDbHelper = new LandOpenHelper(getContext());
 
-        SQLiteDatabase db = mDbHelper.getReadableDatabase();
-
-        // Define a projection that specifies which columns from the database
-        // you will actually use after this query.
-        String[] projection = {
-                "Lands.Name as 'Name'",
-                "Lands.ImageUri as 'ImageUri'",
-                "Lands.Description as 'Description'",
-                "count('Tasks'.Land) as 'Notification'",
-                "min('Tasks'.Priority) as 'Priority'"
-        };
-
-        // How you want the results sorted in the resulting Cursor
-
-        Cursor cursor = db.query(
-                "Lands left outer join (select * from tasks where completed = 0) as 'Tasks' on Lands.Name = 'Tasks'.Land",   // The table to query
-                projection,             // The array of columns to return (pass null to get all)
-                null,              // The columns for the WHERE clause
-                null,          // The values for the WHERE clause
-                "Name",                   // don't group the rows
-                null,                   // don't filter by row groups
-                "Lands.rowid asc"               // The sort order
-        );
-        /*Cursor cursor = db.rawQuery("select Name, ImageUri, Description, count(Tasks.Land) as 'Notification' \n" +
-                "from Lands left outer join Tasks on Lands.Name = Tasks.Land\n" +
-                "where Priority is null or Priority = 1\n" +
-                "group by Tasks.Land", null
-        );*/
-
-        List<LandObject> lands = new ArrayList<>();
-
-        while(cursor.moveToNext()) {
-            int priority = cursor.isNull(cursor.getColumnIndex("Priority")) ? 0 : cursor.getInt(cursor.getColumnIndex("Priority"));
-            LandObject o = new LandObject(cursor.getString(cursor.getColumnIndex("Name"))
-                    , cursor.getString(cursor.getColumnIndex("ImageUri"))
-                    , cursor.getString(cursor.getColumnIndex("Description"))
-                    , cursor.getInt(cursor.getColumnIndex("Notification"))
-                    , priority);
-            lands.add(o);
-        }
-
-        Log.v("Lands", lands.toString());
-
-        cursor.close();
-        db.close();
-
-        return lands;
-    }
 
 
     @Override
@@ -202,7 +154,7 @@ public class LandFragment extends Fragment {
     public void onResume() {
         super.onResume();
         lands.clear();
-        lands.addAll(readLands());
+        lands.addAll(LandOpenHelper.readLands(getContext()));
         adapter.notifyDataSetChanged();
     }
 

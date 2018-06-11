@@ -2,6 +2,7 @@ package com.gago.david.myland;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -10,8 +11,12 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
+import android.widget.Toast;
 
+import com.gago.david.myland.Models.LandContract;
 import com.gago.david.myland.Models.LandObject;
+import com.gago.david.myland.Models.PlantObject;
+import com.gago.david.myland.Models.PlantTypeObject;
 import com.gago.david.myland.Models.PriorityObject;
 import com.gago.david.myland.Models.TaskObject;
 import com.gago.david.myland.Models.TaskTypeObject;
@@ -19,6 +24,7 @@ import com.gago.david.myland.Utils.Utils;
 
 import org.apache.commons.io.IOUtils;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -26,6 +32,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
+
+import static android.content.Context.MODE_PRIVATE;
 
 /**
  * Created by david on 27/01/2017.
@@ -33,7 +45,7 @@ import java.util.ArrayList;
 
 public class LandOpenHelper extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION = 5;
     private static final String LAND_TABLE_NAME = "myland.db";
 
     private Context context;
@@ -65,6 +77,10 @@ public class LandOpenHelper extends SQLiteOpenHelper {
             upgradeVersion2(db);
         if (oldVersion < 3)
             upgradeVersion3(db);
+        if (oldVersion < 4)
+            upgradeVersion4(db);
+//        if (oldVersion < 5)
+//            upgradeVersion5(db);
     }
 
     private void upgradeVersion2(SQLiteDatabase db) {
@@ -76,56 +92,39 @@ public class LandOpenHelper extends SQLiteOpenHelper {
         db.execSQL("UPDATE PlantTypes SET Icon = Icon + 1;");
     }
 
+    private void upgradeVersion4(SQLiteDatabase db){
+        db.execSQL("create table if not exists Users (Name VARCHAR PRIMARY KEY);");
+        db.execSQL("alter table Lands ADD COLUMN User varchar default null REFERENCES Users(Name) on delete cascade;");
+        db.execSQL("UPDATE PlantTypes SET Icon = Icon + 1;");
+    }
+
+    private void upgradeVersion5(SQLiteDatabase db){
+        db.execSQL("create table my_table_copy (Name VARCHAR,\n" +
+                "ImageUri VARCHAR,\n" +
+                "Description TEXT,\n" +
+                "Area Double DEFAULT 0,\n" +
+                "User VARCHAR DEFAULT null,\n" +
+                "PRIMARY KEY (Name, User),\n" +
+                "FOREIGN KEY(ImageUri) REFERENCES Images(Name),\n" +
+                "FOREIGN KEY(User) REFERENCES Users(Name) ON DELETE CASCADE);");
+        db.execSQL("INSERT INTO my_table_copy (Name, ImageUri, Description, Area, User)\n" +
+                "   SELECT Name, ImageUri, Description, Area, User FROM Lands;");
+        db.execSQL("PRAGMA foreign_keys=OFF;");
+        db.execSQL("DROP TABLE Lands;");
+        db.execSQL("ALTER TABLE my_table_copy RENAME TO Lands;");
+        db.execSQL("PRAGMA foreign_keys=ON;");
+    }
+
     @Override
     public void onConfigure(SQLiteDatabase db){
         db.setForeignKeyConstraintsEnabled(true);
     }
 
-    /**
-     * Copies the database file at the specified location over the current
-     * internal application database.
-     * */
-    public boolean exportDatabase(Uri dbPath) throws IOException {
-        close();
-        File newDb = new File("//data/data/com.gago.david.myland/databases/",LAND_TABLE_NAME);
-        ParcelFileDescriptor pfd = context.getContentResolver().openFileDescriptor(dbPath, "w");
-        try {
-            InputStream is = new FileInputStream(newDb);
-            FileOutputStream os = new FileOutputStream(pfd.getFileDescriptor());
-            byte[] buffer = new byte[1024];
-            int length;
-            while ((length = is.read(buffer)) > 0) {
-                os.write(buffer, 0, length);
-            }
-            return true;
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
-
-    public boolean importDatabase(Uri dbPath) throws IOException {
-        File f = Utils.getFileForUri(dbPath);
-        Log.v("file", f.getPath() + " " + f.exists());
-        File oldDb = new File("//data/data/com.gago.david.myland/databases/",LAND_TABLE_NAME);
-        if(f.exists())
-            try (InputStream is = new FileInputStream(f); FileOutputStream os = new FileOutputStream(oldDb)) {
-                byte[] buffer = new byte[1024];
-                int length;
-                while ((length = is.read(buffer)) > 0) {
-                    os.write(buffer, 0, length);
-                }
-            }
-            else
-                return false;
-        return true;
-    }
-
-    public Bitmap getImage(String name){
+    public static Bitmap getImage(Context context, String name){
         LandOpenHelper mDbHelper = new LandOpenHelper(context);
 
         // Gets the data repository in write mode
-        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+        SQLiteDatabase db = mDbHelper.getReadableDatabase();
 
         String[] projection = {
                 "Name",
@@ -165,6 +164,62 @@ public class LandOpenHelper extends SQLiteOpenHelper {
         return null ;
     }
 
+    private static byte[] getBitmapAsByteArray(Bitmap bitmap) {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 0, outputStream);
+        return outputStream.toByteArray();
+    }
+
+    public static String addImage(Context context, Bitmap image) {
+        LandOpenHelper mDbHelper = new LandOpenHelper(context);
+
+        // Gets the data repository in write mode
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+
+        String name = UUID.randomUUID().toString()+".png";
+
+        ContentValues values = new ContentValues();
+        values.put("Name", name);
+        values.put("Image", getBitmapAsByteArray(image));
+
+// Insert the new row, returning the primary key value of the new row
+        long newRowId = db.insert("Images", null, values);
+        if (newRowId == -1) {
+            Log.v("Add Image", "Failed to insert item: " + name);
+            return null;
+        }
+        else {
+            Log.v("Add Image", "row inserted: " + newRowId);
+        }
+
+        db.close();
+        return name;
+    }
+
+    public static String addImage(Context context, Bitmap image, String name) {
+        LandOpenHelper mDbHelper = new LandOpenHelper(context);
+
+        // Gets the data repository in write mode
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put("Name", name);
+        values.put("Image", getBitmapAsByteArray(image));
+
+// Insert the new row, returning the primary key value of the new row
+        long newRowId = db.insert("Images", null, values);
+        if (newRowId == -1) {
+            Log.v("Add Image", "Failed to insert item: " + name);
+            return null;
+        }
+        else {
+            Log.v("Add Image", "row inserted: " + newRowId);
+        }
+
+        db.close();
+        return name;
+    }
+
     public static ArrayList<TaskTypeObject> readTaskTypes(Context context){
         LandOpenHelper mDbHelper = new LandOpenHelper(context);
 
@@ -198,7 +253,7 @@ public class LandOpenHelper extends SQLiteOpenHelper {
         }
 
         cursor.close();
-
+        db.close();
         return taskTypes;
     }
 
@@ -236,6 +291,7 @@ public class LandOpenHelper extends SQLiteOpenHelper {
         }
 
         cursor.close();
+        db.close();
 
         return priorities;
     }
@@ -299,8 +355,11 @@ public class LandOpenHelper extends SQLiteOpenHelper {
         // Gets the data repository in write mode
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
 
-        String whereClause = "name = ?";
-        String[] whereArgs = new String[]{""+l.name};
+        SharedPreferences prefs = context.getSharedPreferences(SettingsFragment.MY_PREFS_NAME, MODE_PRIVATE);
+        String user = prefs.getString("user", "");
+
+        String whereClause = "Name = ? AND User = ?";
+        String[] whereArgs = new String[]{l.name, user};
         long newRowId = db.delete("Lands", whereClause, whereArgs);
         if (newRowId == 0)
             success = false;
@@ -314,6 +373,8 @@ public class LandOpenHelper extends SQLiteOpenHelper {
     }
 
     public static boolean deleteImage(String image, Context context){
+        if (isImageUsed(context, image))
+            return false;
         LandOpenHelper mDbHelper = new LandOpenHelper(context);
         boolean success = true;
 
@@ -332,5 +393,386 @@ public class LandOpenHelper extends SQLiteOpenHelper {
 
         db.close();
         return success;
+    }
+
+    private static boolean isImageUsed(Context context, String image){
+        SQLiteDatabase db = new LandOpenHelper(context).getReadableDatabase();
+        // Filter results WHERE "title" = 'My Title'
+        String selection = "ImageUri = ?";
+
+        String[] selectionArgs = new String[]{image};
+        Cursor cursor = db.query(
+                "Lands",   // The table to query
+                null,             // The array of columns to return (pass null to get all)
+                selection,              // The columns for the WHERE clause
+                selectionArgs,          // The values for the WHERE clause
+                null,                   // don't group the rows
+                null,                   // don't filter by row groups
+                null               // The sort order
+        );
+        return cursor.getCount()>0;
+    }
+
+    public static ArrayList<String> readUsers(Context context){
+        LandOpenHelper mDbHelper = new LandOpenHelper(context);
+
+        SQLiteDatabase db = mDbHelper.getReadableDatabase();
+
+        // Define a projection that specifies which columns from the database
+        // you will actually use after this query.
+        String[] projection = {
+                "Name"
+        };
+
+        // How you want the results sorted in the resulting Cursor
+
+        Cursor cursor = db.query(
+                "Users",   // The table to query
+                projection,             // The array of columns to return (pass null to get all)
+                null,              // The columns for the WHERE clause
+                null,          // The values for the WHERE clause
+                null,                   // don't group the rows
+                null,                   // don't filter by row groups
+                null               // The sort order
+        );
+
+        ArrayList<String> users = new ArrayList<>();
+
+        while(cursor.moveToNext())
+            users.add(cursor.getString(cursor.getColumnIndex("Name")));
+
+        cursor.close();
+        db.close();
+
+        return users;
+    }
+
+    public static void createUser(Context context, String user){
+        LandOpenHelper mDbHelper = new LandOpenHelper(context);
+
+        // Gets the data repository in write mode
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+
+// Create a new map of values, where column names are the keys
+        ContentValues values = new ContentValues();
+        values.put("Name", user);
+
+// Insert the new row, returning the primary key value of the new row
+        long newRowId = db.insert("Users", null, values);
+        Log.v("ADDDETAIL", "row inserted: "+newRowId);
+        if (newRowId == -1)
+            Toast.makeText(context,"Land already exists, choose a different name", Toast.LENGTH_SHORT).show();
+        db.close();
+    }
+
+    public static void updateLands(Context context){
+        LandOpenHelper mDbHelper = new LandOpenHelper(context);
+
+        // Gets the data repository in write mode
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+        db.execSQL("update Lands set User = (select Name from Users) where User is null;");
+    }
+
+    public static List<LandObject> readLands(Context context){
+        LandOpenHelper mDbHelper = new LandOpenHelper(context);
+
+        SQLiteDatabase db = mDbHelper.getReadableDatabase();
+
+        // Define a projection that specifies which columns from the database
+        // you will actually use after this query.
+        String[] projection = {
+                "Lands.Name as 'Name'",
+                "Lands.ImageUri as 'ImageUri'",
+                "Lands.Description as 'Description'",
+                "count('Tasks'.Land) as 'Notification'",
+                "min('Tasks'.Priority) as 'Priority'",
+                LandContract.LandEntry.COLUMN_AREA
+        };
+
+        // How you want the results sorted in the resulting Cursor
+
+        SharedPreferences prefs = context.getSharedPreferences(SettingsFragment.MY_PREFS_NAME, MODE_PRIVATE);
+        String user = prefs.getString("user", "");
+
+        Cursor cursor = db.query(
+                "Lands left outer join (select * from tasks where completed = 0) as 'Tasks' on Lands.Name = 'Tasks'.Land",   // The table to query
+                projection,             // The array of columns to return (pass null to get all)
+                "User = ?",              // The columns for the WHERE clause
+                new String[]{user},          // The values for the WHERE clause
+                "Name",                   // don't group the rows
+                null,                   // don't filter by row groups
+                "Lands.rowid asc"               // The sort order
+        );
+        /*Cursor cursor = db.rawQuery("select Name, ImageUri, Description, count(Tasks.Land) as 'Notification' \n" +
+                "from Lands left outer join Tasks on Lands.Name = Tasks.Land\n" +
+                "where Priority is null or Priority = 1\n" +
+                "group by Tasks.Land", null
+        );*/
+
+        List<LandObject> lands = new ArrayList<>();
+
+        while(cursor.moveToNext()) {
+            int priority = cursor.isNull(cursor.getColumnIndex("Priority")) ? 0 : cursor.getInt(cursor.getColumnIndex("Priority"));
+            LandObject o = new LandObject(cursor.getString(cursor.getColumnIndex("Name"))
+                    , cursor.getString(cursor.getColumnIndex("ImageUri"))
+                    , cursor.getString(cursor.getColumnIndex("Description"))
+                    , cursor.getInt(cursor.getColumnIndex("Notification"))
+                    , priority
+                    , cursor.getDouble(cursor.getColumnIndex(LandContract.LandEntry.COLUMN_AREA)));
+            lands.add(o);
+        }
+
+        Log.v("Lands", lands.toString());
+
+        cursor.close();
+        db.close();
+
+        return lands;
+    }
+
+    public static ArrayList<PlantTypeObject> readPlantTypes(Context context){
+        LandOpenHelper mDbHelper = new LandOpenHelper(context);
+
+        SQLiteDatabase db = mDbHelper.getReadableDatabase();
+
+        // Define a projection that specifies which columns from the database
+        // you will actually use after this query.
+        String[] projection = {
+                "Name",
+                "Icon",
+                "Color"
+        };
+
+        // How you want the results sorted in the resulting Cursor
+        String sortOrder = null;
+
+        Cursor cursor = db.query(
+                "PlantTypes",   // The table to query
+                projection,             // The array of columns to return (pass null to get all)
+                null,              // The columns for the WHERE clause
+                null,          // The values for the WHERE clause
+                null,                   // don't group the rows
+                null,                   // don't filter by row groups
+                sortOrder               // The sort order
+        );
+
+        ArrayList<PlantTypeObject> plants = new ArrayList<>();
+
+        while(cursor.moveToNext()) {
+            PlantTypeObject o = new PlantTypeObject(cursor.getString(0), cursor.getInt(1), cursor.getString(2));
+            plants.add(o);
+        }
+
+        cursor.close();
+        db.close();
+        return plants;
+    }
+
+    public static ArrayList<PlantObject> readPlants(Context context, String name){
+        LandOpenHelper mDbHelper = new LandOpenHelper(context);
+
+        SQLiteDatabase db = mDbHelper.getReadableDatabase();
+        String[] projection2 = {
+                "rowid",
+                "Land",
+                "PlantType",
+                "Description",
+                "x",
+                "y"
+        };
+
+        // Filter results WHERE "title" = 'My Title'
+        String selection2 = "Land" + " = ?";
+
+        // How you want the results sorted in the resulting Cursor
+        String sortOrder2 = "Id ASC";
+
+        String[] selectionArgs = new String[]{name};
+
+        Cursor cur = db.query(
+                "Plants",   // The table to query
+                projection2,             // The array of columns to return (pass null to get all)
+                selection2,              // The columns for the WHERE clause
+                selectionArgs,          // The values for the WHERE clause
+                null,                   // don't group the rows
+                null,                   // don't filter by row groups
+                sortOrder2               // The sort order
+        );
+        ArrayList<PlantObject> plants = new ArrayList<>();
+        while (cur.moveToNext())
+            plants.add(new PlantObject(cur.getInt(cur.getColumnIndex(LandContract.ItemEntry.COLUMN_ID))
+                    , cur.getString(cur.getColumnIndex(LandContract.ItemEntry.COLUMN_PLANT_TYPE))
+                    , cur.getString(cur.getColumnIndex(LandContract.ItemEntry.COLUMN_DESCRIPTION))
+                    , cur.getFloat(cur.getColumnIndex(LandContract.ItemEntry.COLUMN_X))
+                    , cur.getFloat(cur.getColumnIndex(LandContract.ItemEntry.COLUMN_Y))));
+        cur.close();
+        db.close();
+        return plants;
+    }
+
+    public static ArrayList<TaskObject> readTasks(Context context, String land){
+        ArrayList<TaskObject> tasks = new ArrayList<>();
+        LandOpenHelper mDbHelper = new LandOpenHelper(context);
+
+        SQLiteDatabase db = mDbHelper.getReadableDatabase();
+
+        // Define a projection that specifies which columns from the database
+        // you will actually use after this query.
+        String[] projection = {
+                "Land",
+                "PlantIndex",
+                "TaskType",
+                "Priority",
+                "CreationDate",
+                "ExpirationDate",
+                "Completed",
+                "Observations",
+                "rowid"
+        };
+
+        // How you want the results sorted in the resulting Cursor
+        String sortOrder = "Priority ASC";
+
+        String selection = "Land = ? AND Completed = 0";
+        String[] selectionArgs = new String[]{land};
+
+        Cursor cursor = db.query(
+                "Tasks",   // The table to query
+                projection,             // The array of columns to return (pass null to get all)
+                selection,              // The columns for the WHERE clause
+                selectionArgs,          // The values for the WHERE clause
+                null,                   // don't group the rows
+                null,                   // don't filter by row groups
+                sortOrder               // The sort order
+        );
+
+        //ArrayList<TaskObject> tasks = new ArrayList<>();
+        tasks.clear();
+
+        while(cursor.moveToNext()) {
+            Calendar cl = Calendar.getInstance();
+            cl.setTimeInMillis(cursor.getLong(cursor.getColumnIndex("CreationDate")));
+
+            Calendar cl2 = (cursor.isNull(cursor.getColumnIndex("ExpirationDate"))) ? null : Calendar.getInstance();
+            if(cl2 != null)
+                cl2.setTimeInMillis(cursor.getLong(cursor.getColumnIndex("ExpirationDate")));
+            Date targetDate = cl2 == null ? null : cl2.getTime();
+            TaskObject o = new TaskObject(
+                    cursor.getLong(cursor.getColumnIndex("rowid"))
+                    , cursor.getString(cursor.getColumnIndex("Land"))
+                    , cursor.isNull(cursor.getColumnIndex("PlantIndex")) ? null : cursor.getInt(cursor.getColumnIndex("PlantIndex"))
+                    , cursor.getString(cursor.getColumnIndex("TaskType"))
+                    , cursor.getInt(cursor.getColumnIndex("Priority"))
+                    , cl.getTime()
+                    , targetDate
+                    , cursor.getInt(cursor.getColumnIndex("Completed")) > 0
+                    , cursor.getString(cursor.getColumnIndex("Observations")));
+            tasks.add(o);
+            Log.v("read tasks", "task: "+o.toString());
+        }
+
+        cursor.close();
+        db.close();
+        return tasks;
+    }
+
+    public static boolean addLand(Context context, LandObject l){
+        LandOpenHelper mDbHelper = new LandOpenHelper(context);
+
+        // Gets the data repository in write mode
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+
+        SharedPreferences prefs = context.getSharedPreferences(SettingsFragment.MY_PREFS_NAME, MODE_PRIVATE);
+        String user = prefs.getString("user", "");
+
+// Create a new map of values, where column names are the keys
+        ContentValues values = new ContentValues();
+        values.put("Name", l.name);
+        values.put("ImageUri", l.imageUri);
+        values.put("Description", l.Description);
+        values.put("Area", l.area);
+        values.put("User", user);
+
+// Insert the new row, returning the primary key value of the new row
+        long newRowId = db.insert("Lands", null, values);
+        db.close();
+        Log.v("Importer", "land inserted: "+newRowId);
+        return newRowId > -1;
+    }
+
+    public static boolean addPlant(Context context, PlantObject p, String land){
+        LandOpenHelper mDbHelper = new LandOpenHelper(context);
+
+        // Gets the data repository in write mode
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+
+// Create a new map of values, where column names are the keys
+        ContentValues values = new ContentValues();
+        values.put("Land", land);
+        values.put("PlantType", p.plantType);
+        values.put("Description", p.description);
+        values.put("x", p.x);
+        values.put("y", p.y);
+
+// Insert the new row, returning the primary key value of the new row
+        long newRowId = db.insert("Plants", null, values);
+        p.id = (int)newRowId;
+        Log.v("ADDDETAIL", "row inserted: "+newRowId);
+        return newRowId > -1;
+    }
+
+    public static boolean addTask(Context context, TaskObject t){
+        LandOpenHelper mDbHelper = new LandOpenHelper(context);
+
+        // Gets the data repository in write mode
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("Land", t.land);
+        values.put("PlantIndex", t.plantIndex);
+        values.put("TaskType", t.taskType);
+        values.put("Priority", t.priority);
+        values.put("CreationDate", t.creationDate.getTime());
+        if (t.targetDate != null)
+            values.put("ExpirationDate", t.targetDate.getTime());
+        values.put("Completed", t.completed);
+        values.put("Observations", t.observations);
+
+// Insert the new row, returning the primary key value of the new row
+        long newRowId = db.insert("Tasks", null, values);
+
+        db.close();
+        return newRowId > -1;
+    }
+
+    public static boolean addItemType(Context context, PlantTypeObject item) {
+        LandOpenHelper mDbHelper = new LandOpenHelper(context);
+
+        // Gets the data repository in write mode
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put("Name", item.name);
+        values.put("Icon", item.icon);
+        values.put("Color", item.color);
+
+// Insert the new row, returning the primary key value of the new row
+        long newRowId = db.insert("PlantTypes", null, values);
+        return newRowId > -1;
+    }
+
+    public static boolean addTaskType(Context context, TaskTypeObject item) {
+        LandOpenHelper mDbHelper = new LandOpenHelper(context);
+
+        // Gets the data repository in write mode
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put("Name", item.name);
+        values.put("Description", item.description);
+
+// Insert the new row, returning the primary key value of the new row
+        long newRowId = db.insert("TaskTypes", null, values);
+        db.close();
+        return newRowId > -1;
     }
 }

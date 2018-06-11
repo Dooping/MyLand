@@ -105,6 +105,8 @@
                 android:background="@drawable/button_shape"
                 android:backgroundTint="@android:color/holo_red_dark"
                 android:onClick="deleteLand"
+                android:paddingEnd="16dp"
+                android:paddingStart="16dp"
                 android:text="@string/button_remove"
                 android:textColor="@android:color/background_light"
                 android:textSize="12sp" />

@@ -12,6 +12,14 @@
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
+    <style name="AppTheme.NoActionBar2">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="colorPrimary">#fff</item>
+        <item name="colorPrimaryDark">#fff</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 

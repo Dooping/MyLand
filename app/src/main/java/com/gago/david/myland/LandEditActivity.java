@@ -161,7 +161,7 @@ public class LandEditActivity extends AppCompatActivity implements PopupMenuAdap
 
         //photo.setImageURI(Uri.parse(land.imageUri));
         layers = new Drawable[2];
-        layers[0] = new BitmapDrawable(getResources(), new LandOpenHelper(this).getImage(land.imageUri));
+        layers[0] = new BitmapDrawable(getResources(),LandOpenHelper.getImage(this, land.imageUri));
         layers[1] = new ColorDrawable(Color.TRANSPARENT);
         photo.setImageDrawable(new LayerDrawable(layers));
         photo.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -497,6 +497,7 @@ public class LandEditActivity extends AppCompatActivity implements PopupMenuAdap
         long newRowId = db.insert("Plants", null, values);
         p.id = (int)newRowId;
         Log.v("ADDDETAIL", "row inserted: "+newRowId);
+        Log.v("ADDDETAIL", "row inserted: "+p.id);
         if (newRowId == -1)
             Toast.makeText(this,R.string.item_add_error, Toast.LENGTH_SHORT).show();
         else {

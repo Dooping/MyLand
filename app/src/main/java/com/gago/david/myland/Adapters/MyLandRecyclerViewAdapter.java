@@ -50,7 +50,7 @@ public class MyLandRecyclerViewAdapter extends RecyclerView.Adapter<MyLandRecycl
         holder.mItem = mValues.get(position);
         holder.mIdView.setText(holder.mItem.name);
         holder.mContentView.setText(holder.mItem.Description);
-        holder.landImage.setImageBitmap(new LandOpenHelper((Context) mListener).getImage(holder.mItem.imageUri));
+        holder.landImage.setImageBitmap(LandOpenHelper.getImage((Context) mListener, holder.mItem.imageUri));
         holder.number.setText(String.format("%d",holder.mItem.notifications));
         boolean colorChanged = false;
         for (PriorityObject p : priorities)
