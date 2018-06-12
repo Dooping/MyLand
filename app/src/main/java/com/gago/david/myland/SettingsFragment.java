@@ -221,12 +221,12 @@ public class SettingsFragment extends Fragment {
                 case 9999:
                     Log.i("Test", "Result 9999 URI " + data.getData().getPath());
                     //exportDB(data.getData());
-                    new ExportDB(getContext()).execute(data.getData());
+                    new ExportDB(getActivity()).execute(data.getData());
                     break;
                 case 9998:
                     Log.i("Test", "Result 9998 URI " + data.getData().getPath());
                     //importDB(data.getData());
-                    new ImportDB(getContext()).execute(data.getData());
+                    new ImportDB(getActivity()).execute(data.getData());
                     break;
             }
     }
@@ -320,33 +320,6 @@ public class SettingsFragment extends Fragment {
         return taskTypes;
     }
 
-    private void importDB(Uri s){
-        LandImporterHelper mDbHelper = new LandImporterHelper(getContext());
-        try {
-            if (mDbHelper.importDatabase(s))
-                Toast.makeText(getContext(), R.string.import_success, Toast.LENGTH_SHORT);
-            else
-                Toast.makeText(getContext(), R.string.import_error, Toast.LENGTH_SHORT);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        getActivity().deleteDatabase(LandImporterHelper.LAND_TABLE_NAME);
-    }
-
-    private void exportDB(Uri s){
-        LandExporterHelper mDbHelper = new LandExporterHelper(getContext());
-        try {
-            if (mDbHelper.exportDatabase(s))
-                Toast.makeText(getContext(), R.string.export_success, Toast.LENGTH_SHORT);
-            else
-                Toast.makeText(getContext(), R.string.export_error, Toast.LENGTH_SHORT);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        getActivity().deleteDatabase(LandExporterHelper.LAND_TABLE_NAME);
-    }
-
     private void askWritingPermission(){
         // Here, thisActivity is the current activity
         if (ContextCompat.checkSelfPermission(getContext(),
@@ -408,7 +381,7 @@ public class SettingsFragment extends Fragment {
     private class ExportDB extends AsyncTask<Uri, Void, Boolean> {
         private Context mContext;
 
-        public ExportDB(Context context){
+        ExportDB(Context context){
             this.mContext = context;
         }
 
@@ -429,20 +402,19 @@ public class SettingsFragment extends Fragment {
         }
 
         protected void onPostExecute(Boolean result) {
-            if (result)
-                Toast.makeText(mContext, R.string.export_success, Toast.LENGTH_SHORT);
-            else
-                Toast.makeText(mContext, R.string.export_error, Toast.LENGTH_SHORT);
             mContext.deleteDatabase(LandExporterHelper.LAND_TABLE_NAME);
-            Log.v("Export", "aqui");
             pageLoader.stopProgress();
+            if (result)
+                Toast.makeText(mContext, R.string.export_success, Toast.LENGTH_SHORT).show();
+            else
+                Toast.makeText(mContext, R.string.export_error, Toast.LENGTH_SHORT).show();
         }
     }
 
     private class ImportDB extends AsyncTask<Uri, Void, Boolean> {
         private Context mContext;
 
-        public ImportDB(Context context){
+        ImportDB(Context context){
             this.mContext = context;
         }
 
@@ -464,13 +436,12 @@ public class SettingsFragment extends Fragment {
         }
 
         protected void onPostExecute(Boolean result) {
-            if (result)
-                Toast.makeText(mContext, R.string.import_success, Toast.LENGTH_SHORT);
-            else
-                Toast.makeText(mContext, R.string.import_error, Toast.LENGTH_SHORT);
             mContext.deleteDatabase(LandImporterHelper.LAND_TABLE_NAME);
-            Log.v("Import", "aqui");
             pageLoader.stopProgress();
+            if (result)
+                Toast.makeText(mContext, R.string.import_success, Toast.LENGTH_SHORT).show();
+            else
+                Toast.makeText(mContext, R.string.import_error, Toast.LENGTH_SHORT).show();
         }
     }
 
