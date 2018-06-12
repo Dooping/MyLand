@@ -87,4 +87,6 @@
     <string name="create_profile">Criar novo utilizador</string>
     <string name="insert_name">Insira um nome</string>
     <string name="switch_user_message">Toque para mudar de utilizador</string>
+    <string name="delete_user">Apagar perfil</string>
+    <string name="delete_user_message">Tem a certeza que quer apagar este perfil?</string>
 </resources>

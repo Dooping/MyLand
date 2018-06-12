@@ -508,6 +508,25 @@ public class LandOpenHelper extends SQLiteOpenHelper {
         db.close();
     }
 
+    public static boolean deleteUser(Context context, String user){
+        LandOpenHelper mDbHelper = new LandOpenHelper(context);
+        boolean success = true;
+
+        // Gets the data repository in write mode
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+
+        String whereClause = "name = ?";
+        String[] whereArgs = new String[]{user};
+        long newRowId = db.delete("Users", whereClause, whereArgs);
+        if (newRowId == 0)
+            success = false;
+        else
+            Log.v("DeleteUser", "rows deleted: " + newRowId);
+
+        db.close();
+        return success;
+    }
+
     public static void updateLands(Context context){
         LandOpenHelper mDbHelper = new LandOpenHelper(context);
 

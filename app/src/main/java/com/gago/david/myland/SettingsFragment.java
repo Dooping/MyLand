@@ -3,7 +3,9 @@ package com.gago.david.myland;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -68,6 +70,7 @@ public class SettingsFragment extends Fragment {
 
     @BindView(R.id.import_db) MagicButton importDB;
     @BindView(R.id.export_db) MagicButton exportDB;
+    @BindView(R.id.delete_user) MagicButton deleteUser;
     @BindView(R.id.unit) SwitchMultiButton unitSwitch;
     @BindView(R.id.pageloader) PageLoader pageLoader;
 
@@ -176,6 +179,33 @@ public class SettingsFragment extends Fragment {
                     SharedPreferences.Editor editor = getContext().getSharedPreferences(MY_PREFS_NAME, MODE_PRIVATE).edit();
                     editor.putInt("unit", position);
                     editor.apply();
+                }
+            });
+            final String user = prefs.getString("user","");
+            deleteUser.setMagicButtonClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    AlertDialog.Builder alertDialog = new AlertDialog.Builder(view.getRootView().getContext());
+                    alertDialog.setTitle(R.string.delete_user);
+                    alertDialog.setMessage(R.string.delete_user_message);
+
+                    alertDialog.setPositiveButton(R.string.yes,
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    if (LandOpenHelper.deleteUser(getContext(), user)){
+                                        Intent intent = new Intent(getContext(), Login.class);
+                                        startActivity(intent);
+                                    }
+                                }
+                            });
+
+                    alertDialog.setNegativeButton(R.string.no,
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.cancel();
+                                }
+                            });
+                    alertDialog.show();
                 }
             });
         }

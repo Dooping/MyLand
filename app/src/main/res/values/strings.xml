@@ -185,4 +185,6 @@
     <string name="create_profile">Create new user</string>
     <string name="insert_name">Insert a name</string>
     <string name="switch_user_message">Tap to switch user</string>
+    <string name="delete_user">Delete user</string>
+    <string name="delete_user_message">Are you sure you want to delete this profile?</string>
 </resources>
