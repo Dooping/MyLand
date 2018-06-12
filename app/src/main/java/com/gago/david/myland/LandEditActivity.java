@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
@@ -38,6 +39,7 @@ import android.widget.PopupWindow;
 import android.widget.Toast;
 
 import com.gago.david.myland.Adapters.PopupMenuAdapter;
+import com.gago.david.myland.Models.LandContract;
 import com.gago.david.myland.Models.LandObject;
 import com.gago.david.myland.Models.PlantObject;
 import com.gago.david.myland.Models.PlantTypeObject;
@@ -485,9 +487,13 @@ public class LandEditActivity extends AppCompatActivity implements PopupMenuAdap
         // Gets the data repository in write mode
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
 
+        SharedPreferences prefs = getSharedPreferences(SettingsFragment.MY_PREFS_NAME, MODE_PRIVATE);
+        String user = prefs.getString("user", "");
+
 // Create a new map of values, where column names are the keys
         ContentValues values = new ContentValues();
         values.put("Land", land.name);
+        values.put(LandContract.ItemEntry.COLUMN_USER, user);
         values.put("PlantType", p.plantType);
         values.put("Description", p.description);
         values.put("x", p.x);

@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS Lands(
 	Description TEXT,
 	Area Double DEFAULT 0,
 	User VARCHAR DEFAULT null,
-	PRIMARY KEY (Name, User),
+	primary key (Name, User),
     FOREIGN KEY(ImageUri) REFERENCES Images(Name),
     FOREIGN KEY(User) REFERENCES Users(Name) ON DELETE CASCADE
 	);
@@ -27,11 +27,12 @@ CREATE TABLE IF NOT EXISTS Lands(
 CREATE TABLE IF NOT EXISTS Plants(
 	Id INTEGER primary key autoincrement,
     Land VARCHAR,
+	User VARCHAR,
     PlantType VARCHAR,
     description TEXT,
 	x FLOAT,
 	y FLOAT,
-    FOREIGN KEY(Land) REFERENCES Lands(Name) ON DELETE CASCADE,
+    FOREIGN KEY(Land, User) REFERENCES Lands(Name, User) ON DELETE CASCADE,
     FOREIGN KEY(PlantType) REFERENCES PlantTypes(Name)
 	);
 
@@ -48,6 +49,7 @@ CREATE TABLE IF NOT EXISTS Priorities(
 
 CREATE TABLE IF NOT EXISTS Tasks(
     Land VARCHAR NOT NULL,
+    User VARCHAR,
 	PlantIndex INTEGER,
     TaskType VARCHAR NOT NULL,
     Priority INTEGER NOT NULL,
@@ -56,7 +58,7 @@ CREATE TABLE IF NOT EXISTS Tasks(
 	Completed BOOLEAN NOT NULL CHECK (Completed IN (0,1)),
 	Observations TEXT,
 	FOREIGN KEY(PlantIndex) REFERENCES Plants(Id) ON DELETE CASCADE,
-    FOREIGN KEY(Land) REFERENCES Lands(Name) ON DELETE CASCADE,
+    FOREIGN KEY(Land, User) REFERENCES Lands(Name, User) ON DELETE CASCADE,
     FOREIGN KEY(TaskType) REFERENCES TaskTypes(Name) ON DELETE CASCADE,
     FOREIGN KEY(Priority) REFERENCES Priorities(P_order)
 	);

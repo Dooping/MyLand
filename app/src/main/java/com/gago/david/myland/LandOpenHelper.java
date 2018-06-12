@@ -20,6 +20,7 @@ import com.gago.david.myland.Models.PlantTypeObject;
 import com.gago.david.myland.Models.PriorityObject;
 import com.gago.david.myland.Models.TaskObject;
 import com.gago.david.myland.Models.TaskTypeObject;
+import com.gago.david.myland.Models.LandContract.*;
 import com.gago.david.myland.Utils.Utils;
 
 import org.apache.commons.io.IOUtils;
@@ -45,7 +46,7 @@ import static android.content.Context.MODE_PRIVATE;
 
 public class LandOpenHelper extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION = 5;
+    private static final int DATABASE_VERSION = 6;
     private static final String LAND_TABLE_NAME = "myland.db";
 
     private Context context;
@@ -79,8 +80,8 @@ public class LandOpenHelper extends SQLiteOpenHelper {
             upgradeVersion3(db);
         if (oldVersion < 4)
             upgradeVersion4(db);
-//        if (oldVersion < 5)
-//            upgradeVersion5(db);
+        if (oldVersion < 6)
+            upgradeVersion6(db);
     }
 
     private void upgradeVersion2(SQLiteDatabase db) {
@@ -98,8 +99,13 @@ public class LandOpenHelper extends SQLiteOpenHelper {
         db.execSQL("UPDATE PlantTypes SET Icon = Icon + 1;");
     }
 
-    private void upgradeVersion5(SQLiteDatabase db){
-        db.execSQL("create table my_table_copy (Name VARCHAR,\n" +
+    private void upgradeVersion6(SQLiteDatabase db){
+        db.endTransaction();
+        db.setForeignKeyConstraintsEnabled(false);
+        db.beginTransaction();
+        db = getWritableDatabase();
+        db.execSQL("create table my_table_copy (" +
+                "Name VARCHAR,\n" +
                 "ImageUri VARCHAR,\n" +
                 "Description TEXT,\n" +
                 "Area Double DEFAULT 0,\n" +
@@ -109,10 +115,47 @@ public class LandOpenHelper extends SQLiteOpenHelper {
                 "FOREIGN KEY(User) REFERENCES Users(Name) ON DELETE CASCADE);");
         db.execSQL("INSERT INTO my_table_copy (Name, ImageUri, Description, Area, User)\n" +
                 "   SELECT Name, ImageUri, Description, Area, User FROM Lands;");
-        db.execSQL("PRAGMA foreign_keys=OFF;");
         db.execSQL("DROP TABLE Lands;");
         db.execSQL("ALTER TABLE my_table_copy RENAME TO Lands;");
-        db.execSQL("PRAGMA foreign_keys=ON;");
+
+        db.execSQL("CREATE TABLE my_table_copy(\n" +
+                "Id INTEGER primary key autoincrement,\n" +
+                "Land VARCHAR,\n" +
+                "User VARCHAR,\n" +
+                "PlantType VARCHAR,\n" +
+                "description TEXT,\n" +
+                "x FLOAT,\n" +
+                "y FLOAT,\n" +
+                "FOREIGN KEY(Land, User) REFERENCES Lands(Name, User) ON DELETE CASCADE,\n" +
+                "FOREIGN KEY(PlantType) REFERENCES PlantTypes(Name));");
+        db.execSQL("INSERT INTO my_table_copy (Id,Land,User,PlantType, description,x,y) \n" +
+                "SELECT Id,Land,User,PlantType, Plants.description,x,y \n" +
+                "FROM Plants inner join Lands on (Land=Name);");
+        db.execSQL("DROP TABLE Plants;");
+        db.execSQL("ALTER TABLE my_table_copy RENAME TO Plants;");
+
+        db.execSQL("CREATE TABLE my_table_copy(\n" +
+                "Land VARCHAR NOT NULL,\n" +
+                "    User VARCHAR,\n" +
+                "\tPlantIndex INTEGER,\n" +
+                "    TaskType VARCHAR NOT NULL,\n" +
+                "    Priority INTEGER NOT NULL,\n" +
+                "\tCreationDate LONG NOT NULL,\n" +
+                "\tExpirationDate LONG,\n" +
+                "\tCompleted BOOLEAN NOT NULL CHECK (Completed IN (0,1)),\n" +
+                "\tObservations TEXT,\n" +
+                "\tFOREIGN KEY(PlantIndex) REFERENCES Plants(Id) ON DELETE CASCADE,\n" +
+                "    FOREIGN KEY(Land, User) REFERENCES Lands(Name, User) ON DELETE CASCADE,\n" +
+                "    FOREIGN KEY(TaskType) REFERENCES TaskTypes(Name) ON DELETE CASCADE,\n" +
+                "    FOREIGN KEY(Priority) REFERENCES Priorities(P_order));");
+        db.execSQL("INSERT INTO my_table_copy (Land,User,PlantIndex, TaskType, Priority, CreationDate, ExpirationDate, Completed, Observations) \n" +
+                "SELECT Land,User,PlantIndex, TaskType, Priority, CreationDate, ExpirationDate, Completed, Observations \n" +
+                "FROM Tasks inner join Lands on (Land=Name);");
+        db.execSQL("DROP TABLE Tasks;");
+        db.execSQL("ALTER TABLE my_table_copy RENAME TO Tasks;");
+        db.endTransaction();
+        db.setForeignKeyConstraintsEnabled(true);
+        db.beginTransaction();
     }
 
     @Override
@@ -495,9 +538,9 @@ public class LandOpenHelper extends SQLiteOpenHelper {
         String user = prefs.getString("user", "");
 
         Cursor cursor = db.query(
-                "Lands left outer join (select * from tasks where completed = 0) as 'Tasks' on Lands.Name = 'Tasks'.Land",   // The table to query
+                "Lands left outer join (select * from tasks where completed = 0) as 'Tasks' on (Lands.Name = 'Tasks'.Land AND Lands.User = 'Tasks'.User)" ,   // The table to query
                 projection,             // The array of columns to return (pass null to get all)
-                "User = ?",              // The columns for the WHERE clause
+                "Lands.User = ?",              // The columns for the WHERE clause
                 new String[]{user},          // The values for the WHERE clause
                 "Name",                   // don't group the rows
                 null,                   // don't filter by row groups
@@ -572,6 +615,10 @@ public class LandOpenHelper extends SQLiteOpenHelper {
         LandOpenHelper mDbHelper = new LandOpenHelper(context);
 
         SQLiteDatabase db = mDbHelper.getReadableDatabase();
+
+        SharedPreferences prefs = context.getSharedPreferences(SettingsFragment.MY_PREFS_NAME, MODE_PRIVATE);
+        String user = prefs.getString("user", "");
+
         String[] projection2 = {
                 "rowid",
                 "Land",
@@ -582,12 +629,12 @@ public class LandOpenHelper extends SQLiteOpenHelper {
         };
 
         // Filter results WHERE "title" = 'My Title'
-        String selection2 = "Land" + " = ?";
+        String selection2 = "Land = ? and User = ?";
 
         // How you want the results sorted in the resulting Cursor
         String sortOrder2 = "Id ASC";
 
-        String[] selectionArgs = new String[]{name};
+        String[] selectionArgs = new String[]{name, user};
 
         Cursor cur = db.query(
                 "Plants",   // The table to query
@@ -616,6 +663,9 @@ public class LandOpenHelper extends SQLiteOpenHelper {
 
         SQLiteDatabase db = mDbHelper.getReadableDatabase();
 
+        SharedPreferences prefs = context.getSharedPreferences(SettingsFragment.MY_PREFS_NAME, MODE_PRIVATE);
+        String user = prefs.getString("user", "");
+
         // Define a projection that specifies which columns from the database
         // you will actually use after this query.
         String[] projection = {
@@ -633,8 +683,8 @@ public class LandOpenHelper extends SQLiteOpenHelper {
         // How you want the results sorted in the resulting Cursor
         String sortOrder = "Priority ASC";
 
-        String selection = "Land = ? AND Completed = 0";
-        String[] selectionArgs = new String[]{land};
+        String selection = "Land = ? AND User = ? AND Completed = 0";
+        String[] selectionArgs = new String[]{land, user};
 
         Cursor cursor = db.query(
                 "Tasks",   // The table to query
@@ -700,15 +750,19 @@ public class LandOpenHelper extends SQLiteOpenHelper {
         return newRowId > -1;
     }
 
-    public static boolean addPlant(Context context, PlantObject p, String land){
+    public static boolean addPlant(Context context, PlantObject p, String land) {
         LandOpenHelper mDbHelper = new LandOpenHelper(context);
 
         // Gets the data repository in write mode
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
 
+        SharedPreferences prefs = context.getSharedPreferences(SettingsFragment.MY_PREFS_NAME, MODE_PRIVATE);
+        String user = prefs.getString("user", "");
+
 // Create a new map of values, where column names are the keys
         ContentValues values = new ContentValues();
         values.put("Land", land);
+        values.put("User", user);
         values.put("PlantType", p.plantType);
         values.put("Description", p.description);
         values.put("x", p.x);
@@ -726,8 +780,13 @@ public class LandOpenHelper extends SQLiteOpenHelper {
 
         // Gets the data repository in write mode
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
+
+        SharedPreferences prefs = context.getSharedPreferences(SettingsFragment.MY_PREFS_NAME, MODE_PRIVATE);
+        String user = prefs.getString("user", "");
+
         ContentValues values = new ContentValues();
         values.put("Land", t.land);
+        values.put("User", user);
         values.put("PlantIndex", t.plantIndex);
         values.put("TaskType", t.taskType);
         values.put("Priority", t.priority);

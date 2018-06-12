@@ -16,6 +16,7 @@ object LandContract {
         const val TABLE_NAME = "Plants"
         const val COLUMN_ID = "Id"
         const val COLUMN_LAND = "Land"
+        const val COLUMN_USER = "User"
         const val COLUMN_PLANT_TYPE = "PlantType"
         const val COLUMN_DESCRIPTION = "description"
         const val COLUMN_X = "x"
@@ -38,6 +39,7 @@ object LandContract {
     object TaskEntry : BaseColumns {
         const val TABLE_NAME = "Tasks"
         const val COLUMN_LAND = "Land"
+        const val COLUMN_USER = "User"
         const val COLUMN_PLANT_INDEX = "PlantIndex"
         const val COLUMN_TASK_TYPE = "TaskType"
         const val COLUMN_PRIORITY = "Priority"

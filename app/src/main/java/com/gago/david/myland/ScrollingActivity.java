@@ -52,6 +52,7 @@ import android.widget.Toast;
 
 
 import com.gago.david.myland.Adapters.TaskListAdapter;
+import com.gago.david.myland.Models.LandContract;
 import com.gago.david.myland.Models.LandObject;
 import com.gago.david.myland.Models.PlantObject;
 import com.gago.david.myland.Models.PlantTypeObject;
@@ -699,9 +700,13 @@ public class ScrollingActivity extends AppCompatActivity implements AddTaskFragm
         // Gets the data repository in write mode
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
 
+        SharedPreferences prefs = getSharedPreferences(SettingsFragment.MY_PREFS_NAME, MODE_PRIVATE);
+        String user = prefs.getString("user", "");
+
         for(TaskObject t : tasks) {
             ContentValues values = new ContentValues();
             values.put("Land", t.land);
+            values.put(LandContract.TaskEntry.COLUMN_USER, user);
             values.put("PlantIndex", t.plantIndex);
             values.put("TaskType", t.taskType);
             values.put("Priority", t.priority);
