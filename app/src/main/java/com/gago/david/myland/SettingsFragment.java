@@ -194,7 +194,9 @@ public class SettingsFragment extends Fragment {
                                 public void onClick(DialogInterface dialog, int which) {
                                     if (LandOpenHelper.deleteUser(getContext(), user)){
                                         Intent intent = new Intent(getContext(), Login.class);
+                                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
                                         startActivity(intent);
+                                        getActivity().finish();
                                     }
                                 }
                             });
