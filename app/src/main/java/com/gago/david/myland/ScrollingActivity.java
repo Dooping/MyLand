@@ -227,7 +227,7 @@ public class ScrollingActivity extends AppCompatActivity implements AddTaskFragm
 
         toolbarLayout = findViewById(R.id.toolbar_layout);
         layers = new Drawable[2];
-        layers[0] = new BitmapDrawable(getResources(), LandOpenHelper.getImage(this, land.imageUri));
+        layers[0] = new BitmapDrawable(getResources(), LandOpenHelper.getImage(land.imageUri));
         toolbarLayout.setBackground(layers[0]);
         /*try {
             InputStream inputStream = getContentResolver().openInputStream(Uri.parse(land.imageUri));

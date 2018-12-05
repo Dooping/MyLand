@@ -44,11 +44,9 @@ import butterknife.ButterKnife;
  * create an instance of this fragment.
  */
 public class TaskEditFragment extends Fragment implements AdapterView.OnItemSelectedListener {
-    // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "task";
 
-    // TODO: Rename and change types of parameters
     private TaskObject task;
     private ArrayList<TaskTypeObject> taskTypes;
     ArrayList<PriorityObject> priorities;
@@ -75,7 +73,6 @@ public class TaskEditFragment extends Fragment implements AdapterView.OnItemSele
      * @param task Task to edit.
      * @return A new instance of fragment TaskEditFragment.
      */
-    // TODO: Rename and change types and number of parameters
     public static TaskEditFragment newInstance(TaskObject task) {
         TaskEditFragment fragment = new TaskEditFragment();
         Bundle args = new Bundle();
@@ -137,7 +134,6 @@ public class TaskEditFragment extends Fragment implements AdapterView.OnItemSele
             @Override
             public void onDateSet(DatePicker view, int year, int monthOfYear,
                                   int dayOfMonth) {
-                // TODO Auto-generated method stub
                 myCalendar.set(Calendar.YEAR, year);
                 myCalendar.set(Calendar.MONTH, monthOfYear);
                 myCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
@@ -150,7 +146,6 @@ public class TaskEditFragment extends Fragment implements AdapterView.OnItemSele
 
             @Override
             public void onClick(View v) {
-                // TODO Auto-generated method stub
                 new DatePickerDialog(getContext(), date, myCalendar
                         .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
                         myCalendar.get(Calendar.DAY_OF_MONTH)).show();
@@ -185,7 +180,6 @@ public class TaskEditFragment extends Fragment implements AdapterView.OnItemSele
         return task;
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed() {
         if (mListener != null && !deleted) {
             TaskObject task = this.task.clone();
@@ -305,7 +299,6 @@ public class TaskEditFragment extends Fragment implements AdapterView.OnItemSele
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
         void selectTask(TaskObject task);
         void updateTask(TaskObject newTask, TaskObject oldTask);
         void notUpdateTask();

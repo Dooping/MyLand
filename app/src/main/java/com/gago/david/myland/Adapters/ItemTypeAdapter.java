@@ -24,7 +24,6 @@ import de.hdodenhof.circleimageview.CircleImageView;
 /**
  * {@link RecyclerView.Adapter} that can display a {@link PlantTypeObject} and makes a call to the
  * specified {@link OnListFragmentInteractionListener}.
- * TODO: Replace the implementation with code for your data type.
  */
 public class ItemTypeAdapter extends RecyclerView.Adapter<ItemTypeAdapter.ViewHolder> {
 

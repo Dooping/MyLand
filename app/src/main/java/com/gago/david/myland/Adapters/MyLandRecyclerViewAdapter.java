@@ -24,7 +24,6 @@ import de.hdodenhof.circleimageview.CircleImageView;
 /**
  * {@link RecyclerView.Adapter} that can display a {@link LandObject} and makes a call to the
  * specified {@link OnListFragmentInteractionListener}.
- * TODO: Replace the implementation with code for your data type.
  */
 public class MyLandRecyclerViewAdapter extends RecyclerView.Adapter<MyLandRecyclerViewAdapter.ViewHolder> {
 
@@ -50,7 +49,7 @@ public class MyLandRecyclerViewAdapter extends RecyclerView.Adapter<MyLandRecycl
         holder.mItem = mValues.get(position);
         holder.mIdView.setText(holder.mItem.name);
         holder.mContentView.setText(holder.mItem.Description);
-        holder.landImage.setImageBitmap(LandOpenHelper.getImage((Context) mListener, holder.mItem.imageUri));
+        holder.landImage.setImageBitmap(LandOpenHelper.getImage(holder.mItem.imageUri));
         holder.number.setText(String.format("%d",holder.mItem.notifications));
         boolean colorChanged = false;
         for (PriorityObject p : priorities)

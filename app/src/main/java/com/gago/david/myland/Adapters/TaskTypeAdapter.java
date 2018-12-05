@@ -19,7 +19,6 @@ import com.gago.david.myland.SettingsFragment.OnTaskListFragmentInteractionListe
 /**
  * {@link RecyclerView.Adapter} that can display a {@link TaskTypeObject} and makes a call to the
  * specified {@link OnTaskListFragmentInteractionListener}.
- * TODO: Replace the implementation with code for your data type.
  */
 public class TaskTypeAdapter extends RecyclerView.Adapter<TaskTypeAdapter.ViewHolder> {
 

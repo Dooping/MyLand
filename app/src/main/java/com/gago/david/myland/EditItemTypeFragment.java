@@ -39,12 +39,10 @@ import butterknife.ButterKnife;
  * create an instance of this fragment.
  */
 public class EditItemTypeFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "name";
     private static final String ARG_PARAM2 = "create";
 
-    // TODO: Rename and change types of parameters
     private PlantTypeObject item;
     private boolean create = false;
     private ArrayList<Integer> list;
@@ -70,7 +68,6 @@ public class EditItemTypeFragment extends Fragment {
      * @param item Parameter 1.
      * @return A new instance of fragment EditTaskTypeFragment.
      */
-    // TODO: Rename and change types and number of parameters
     public static EditItemTypeFragment newInstance(PlantTypeObject item, boolean create) {
         EditItemTypeFragment fragment = new EditItemTypeFragment();
         Bundle args = new Bundle();
@@ -162,7 +159,6 @@ public class EditItemTypeFragment extends Fragment {
         alertDialog.show();
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(PlantTypeObject item) {
         if (mListener != null) {
             if (create)
@@ -205,7 +201,6 @@ public class EditItemTypeFragment extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
         void onFragmentInteraction(PlantTypeObject itemType);
         void addItem(PlantTypeObject item);
     }

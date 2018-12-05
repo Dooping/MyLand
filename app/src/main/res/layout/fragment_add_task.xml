@@ -7,7 +7,6 @@
     tools:context=".AddTaskFragment"
     android:orientation="vertical">
 
-    <!-- TODO: Update blank fragment layout -->
 
     <LinearLayout
         android:id="@+id/task_type_layout"

@@ -163,7 +163,7 @@ public class LandEditActivity extends AppCompatActivity implements PopupMenuAdap
 
         //photo.setImageURI(Uri.parse(land.imageUri));
         layers = new Drawable[2];
-        layers[0] = new BitmapDrawable(getResources(),LandOpenHelper.getImage(this, land.imageUri));
+        layers[0] = new BitmapDrawable(getResources(),LandOpenHelper.getImage(land.imageUri));
         layers[1] = new ColorDrawable(Color.TRANSPARENT);
         photo.setImageDrawable(new LayerDrawable(layers));
         photo.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {

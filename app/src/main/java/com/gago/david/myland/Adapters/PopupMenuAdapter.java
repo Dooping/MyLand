@@ -55,7 +55,6 @@ public class PopupMenuAdapter extends ArrayAdapter<PlantTypeObject> {
 
 
     public interface OnMenuItemInteractionListener {
-        // TODO: Update argument type and name
         void onMenuItemInteraction(PlantTypeObject item);
     }
 }

@@ -2,6 +2,7 @@ package com.gago.david.myland;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -46,7 +47,7 @@ import static android.content.Context.MODE_PRIVATE;
 
 public class LandOpenHelper extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION = 6;
+    private static final int DATABASE_VERSION = 7;
     private static final String LAND_TABLE_NAME = "myland.db";
 
     private Context context;
@@ -74,7 +75,7 @@ public class LandOpenHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        if (oldVersion <  2)
+        /*if (oldVersion <  2)
             upgradeVersion2(db);
         if (oldVersion < 3)
             upgradeVersion3(db);
@@ -82,6 +83,28 @@ public class LandOpenHelper extends SQLiteOpenHelper {
             upgradeVersion4(db);
         if (oldVersion < 6)
             upgradeVersion6(db);
+        if (oldVersion < 7)
+            upgradeVersion7(db);*/
+        if (oldVersion < newVersion){
+            dropDatabase(db);
+            onCreate(db);
+        }
+
+    }
+
+    private void dropDatabase(SQLiteDatabase db){
+        InputStream inputStream = context.getResources().openRawResource(R.raw.deletedb);
+
+        String queries = "";
+        try {
+            queries = IOUtils.toString(inputStream);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        for (String query : queries.split(";")) {
+            db.execSQL(query);
+        }
     }
 
     private void upgradeVersion2(SQLiteDatabase db) {
@@ -158,12 +181,54 @@ public class LandOpenHelper extends SQLiteOpenHelper {
         db.beginTransaction();
     }
 
+    private void upgradeVersion7(SQLiteDatabase db){
+        List<LandObject> list = readLands(context);
+        for(LandObject l : list){
+            Bitmap b = oldGetImage(context, l.imageUri);
+            l.imageUri = saveToInternalStorage(context, b, l.imageUri);
+            updateLand(context, l);
+        }
+        db.endTransaction();
+        db.setForeignKeyConstraintsEnabled(false);
+        db.beginTransaction();
+        db = getWritableDatabase();
+        db.execSQL("CREATE TABLE IF NOT EXISTS Lands2(\n" +
+                "\tName VARCHAR,\n" +
+                "\tImageUri VARCHAR,\n" +
+                "\tDescription TEXT,\n" +
+                "\tArea Double DEFAULT 0,\n" +
+                "\tUser VARCHAR DEFAULT null,\n" +
+                "\tprimary key (Name, User),\n" +
+                "    FOREIGN KEY(User) REFERENCES Users(Name) ON DELETE CASCADE\n" +
+                "\t);");
+        db.execSQL("INSERT INTO Lands2 (Name, ImageUri, Description, Area, User)\n" +
+                "   SELECT Name, ImageUri, Description, Area, User FROM Lands;");
+        db.execSQL("DROP TABLE Lands;");
+        db.execSQL("ALTER TABLE Lands2 RENAME TO Lands;");
+        db.endTransaction();
+        db.setForeignKeyConstraintsEnabled(true);
+        db.beginTransaction();
+    }
+
     @Override
     public void onConfigure(SQLiteDatabase db){
         db.setForeignKeyConstraintsEnabled(true);
     }
 
-    public static Bitmap getImage(Context context, String name){
+    public static Bitmap getImage(String uri){
+        Log.v("GETIMAGE", uri);
+        try {
+            File f = new File(uri);
+            return BitmapFactory.decodeStream(new FileInputStream(f));
+        }
+        catch (FileNotFoundException e)
+        {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static Bitmap oldGetImage(Context context, String name){
         LandOpenHelper mDbHelper = new LandOpenHelper(context);
 
         // Gets the data repository in write mode
@@ -180,6 +245,8 @@ public class LandOpenHelper extends SQLiteOpenHelper {
         String whereClause = "Name = ?";
         String[] whereArgs = new String[]{name};
 
+        Log.v("GETIMAGE", name);
+
         Cursor cur = db.query(
                 "Images",   // The table to query
                 projection,             // The array of columns to return (pass null to get all)
@@ -187,17 +254,20 @@ public class LandOpenHelper extends SQLiteOpenHelper {
                 whereArgs,          // The values for the WHERE clause
                 null,                   // don't group the rows
                 null,                   // don't filter by row groups
-                sortOrder               // The sort order
+                null               // The sort order
         );
 
         if (cur.moveToFirst()){
+
+            Log.v("GETIMAGE", cur.getString(cur.getColumnIndex("Name")) );
+            Log.v("GETIMAGE", "column index: "+cur.getColumnIndex("Image") );
             byte[] imgByte = cur.getBlob(cur.getColumnIndex("Image"));
             Bitmap bitmap = BitmapFactory.decodeByteArray(imgByte, 0, imgByte.length);
             cur.close();
             db.close();
             return bitmap;
         }
-        if (cur != null && !cur.isClosed()) {
+        if (!cur.isClosed()) {
             cur.close();
             db.close();
         }
@@ -207,60 +277,38 @@ public class LandOpenHelper extends SQLiteOpenHelper {
         return null ;
     }
 
-    private static byte[] getBitmapAsByteArray(Bitmap bitmap) {
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.PNG, 0, outputStream);
-        return outputStream.toByteArray();
+    private static String saveToInternalStorage(Context context, Bitmap bitmapImage, String name){
+        ContextWrapper cw = new ContextWrapper(context);
+        // path to /data/data/yourapp/app_data/imageDir
+        File directory = cw.getDir("imageDir", Context.MODE_PRIVATE);
+        // Create imageDir
+        File mypath=new File(directory,name);
+
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(mypath);
+            // Use the compress method on the BitMap object to write image to the OutputStream
+            bitmapImage.compress(Bitmap.CompressFormat.PNG, 100, fos);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                fos.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return mypath.getAbsolutePath();
     }
 
     public static String addImage(Context context, Bitmap image) {
-        LandOpenHelper mDbHelper = new LandOpenHelper(context);
-
-        // Gets the data repository in write mode
-        SQLiteDatabase db = mDbHelper.getWritableDatabase();
-
         String name = UUID.randomUUID().toString()+".png";
-
-        ContentValues values = new ContentValues();
-        values.put("Name", name);
-        values.put("Image", getBitmapAsByteArray(image));
-
-// Insert the new row, returning the primary key value of the new row
-        long newRowId = db.insert("Images", null, values);
-        if (newRowId == -1) {
-            Log.v("Add Image", "Failed to insert item: " + name);
-            return null;
-        }
-        else {
-            Log.v("Add Image", "row inserted: " + newRowId);
-        }
-
-        db.close();
-        return name;
+        return addImage(context,image,name);
     }
 
     public static String addImage(Context context, Bitmap image, String name) {
-        LandOpenHelper mDbHelper = new LandOpenHelper(context);
-
-        // Gets the data repository in write mode
-        SQLiteDatabase db = mDbHelper.getWritableDatabase();
-
-        ContentValues values = new ContentValues();
-        values.put("Name", name);
-        values.put("Image", getBitmapAsByteArray(image));
-
-// Insert the new row, returning the primary key value of the new row
-        long newRowId = db.insert("Images", null, values);
-        if (newRowId == -1) {
-            Log.v("Add Image", "Failed to insert item: " + name);
-            return null;
-        }
-        else {
-            Log.v("Add Image", "row inserted: " + newRowId);
-        }
-
-        db.close();
-        return name;
+        Log.v("ADDIMAGE", name);
+        return saveToInternalStorage(context, image, name);
     }
 
     public static ArrayList<TaskTypeObject> readTaskTypes(Context context){
@@ -418,24 +466,8 @@ public class LandOpenHelper extends SQLiteOpenHelper {
     public static boolean deleteImage(String image, Context context){
         if (isImageUsed(context, image))
             return false;
-        LandOpenHelper mDbHelper = new LandOpenHelper(context);
-        boolean success = true;
-
-        // Gets the data repository in write mode
-        SQLiteDatabase db = mDbHelper.getWritableDatabase();
-
-        String whereClause = "name = ?";
-        String[] whereArgs = new String[]{""+image};
-        long newRowId = db.delete("Images", whereClause, whereArgs);
-        if (newRowId == 0)
-            success = false;
-        else {
-            Log.v("DeleteImage", "rows deleted: " + newRowId);
-
-        }
-
-        db.close();
-        return success;
+        File f=new File(image);
+        return f.delete();
     }
 
     private static boolean isImageUsed(Context context, String image){
@@ -767,6 +799,35 @@ public class LandOpenHelper extends SQLiteOpenHelper {
         db.close();
         Log.v("Importer", "land inserted: "+newRowId);
         return newRowId > -1;
+    }
+
+    public static boolean updateLand(Context context, LandObject l){
+        LandOpenHelper mDbHelper = new LandOpenHelper(context);
+        boolean success = true;
+        Log.v("Land to update", l.toString());
+
+        SharedPreferences prefs = context.getSharedPreferences(SettingsFragment.MY_PREFS_NAME, MODE_PRIVATE);
+        String user = prefs.getString("user", "");
+
+        // Gets the data repository in write mode
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("ImageUri", l.imageUri);
+        values.put("Description", l.Description);
+        values.put("Area", l.area);
+
+
+        String whereClause = "Name = ? AND User = ?";
+        String[] whereArgs = new String[]{l.name, user};
+        long newRowId = db.update("Tasks", values, whereClause, whereArgs);
+        if (newRowId == -1)
+            success = false;
+        else {
+            Log.v("UpdateLand", "row updated: " + newRowId);
+        }
+
+        db.close();
+        return success;
     }
 
     public static boolean addPlant(Context context, PlantObject p, String land) {

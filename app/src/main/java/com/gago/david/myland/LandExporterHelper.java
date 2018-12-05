@@ -82,7 +82,7 @@ public class LandExporterHelper extends SQLiteOpenHelper {
         List<PlantTypeObject> itemTypes = LandOpenHelper.readPlantTypes(context);
         List<TaskObject> tasks = new ArrayList<>();
         for (LandObject land : lands) {
-            addImage(LandOpenHelper.getImage(context, land.imageUri), land.imageUri);
+            addImage(LandOpenHelper.getImage(land.imageUri), land.imageUri);
             writePlants(LandOpenHelper.readPlants(context, land.name), land.name);
             tasks.addAll(LandOpenHelper.readTasks(context, land.name));
         }

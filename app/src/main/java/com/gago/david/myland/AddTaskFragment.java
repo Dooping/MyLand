@@ -44,12 +44,10 @@ import java.util.Date;
  * create an instance of this fragment.
  */
 public class AddTaskFragment extends Fragment implements AdapterView.OnItemSelectedListener {
-    // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
-    // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
 
@@ -78,7 +76,6 @@ public class AddTaskFragment extends Fragment implements AdapterView.OnItemSelec
      * @param param2 Parameter 2.
      * @return A new instance of fragment AddTaskFragment.
      */
-    // TODO: Rename and change types and number of parameters
     public static AddTaskFragment newInstance(String param1, String param2) {
         AddTaskFragment fragment = new AddTaskFragment();
         Bundle args = new Bundle();
@@ -138,7 +135,6 @@ public class AddTaskFragment extends Fragment implements AdapterView.OnItemSelec
             @Override
             public void onDateSet(DatePicker view, int year, int monthOfYear,
                                   int dayOfMonth) {
-                // TODO Auto-generated method stub
                 myCalendar.set(Calendar.YEAR, year);
                 myCalendar.set(Calendar.MONTH, monthOfYear);
                 myCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
@@ -151,7 +147,6 @@ public class AddTaskFragment extends Fragment implements AdapterView.OnItemSelec
 
             @Override
             public void onClick(View v) {
-                // TODO Auto-generated method stub
                 new DatePickerDialog(getContext(), date, myCalendar
                         .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
                         myCalendar.get(Calendar.DAY_OF_MONTH)).show();
@@ -204,7 +199,6 @@ public class AddTaskFragment extends Fragment implements AdapterView.OnItemSelec
         targetDate.setText(s);
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(ArrayList<TaskObject> tasks) {
         if (mListener != null) {
             mListener.onFragmentInteraction(tasks);
@@ -290,7 +284,6 @@ public class AddTaskFragment extends Fragment implements AdapterView.OnItemSelec
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
         void onFragmentInteraction(ArrayList<TaskObject> tasks);
     }
 

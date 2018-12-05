@@ -8,11 +8,6 @@ CREATE TABLE IF NOT EXISTS PlantTypes(
 	Color VARCHAR
 	);
 
-CREATE TABLE IF NOT EXISTS Images(
-	Name VARCHAR PRIMARY KEY,
-	Image BLOB
-	);
-
 CREATE TABLE IF NOT EXISTS Lands(
 	Name VARCHAR,
 	ImageUri VARCHAR,
@@ -20,7 +15,6 @@ CREATE TABLE IF NOT EXISTS Lands(
 	Area Double DEFAULT 0,
 	User VARCHAR DEFAULT null,
 	primary key (Name, User),
-    FOREIGN KEY(ImageUri) REFERENCES Images(Name),
     FOREIGN KEY(User) REFERENCES Users(Name) ON DELETE CASCADE
 	);
 
@@ -67,9 +61,9 @@ INSERT INTO 'Priorities' (Name, P_order, Color)
 VALUES ('Alta',1,'#B71C1C'),('Media',3,'#f6ff05'),('Baixa',5,'#12d800');
 
 INSERT INTO 'PlantTypes' (Name, Icon, Color)
-VALUES ('Alfarrobeira',2131230874,'#4d2600'),('Amendoeira',2131230874,'#996633'),('Oliveira',2131230874,'#669900')
-,('Figueira',2131230874,'#74258e'),('Medronheiro',2131230874,'#aa0316'),('Mato',2131230859,'#e2db00')
-,('Pedras',2131230870,'#adadad');
+VALUES ('Alfarrobeira',2131230878,'#4d2600'),('Amendoeira',2131230878,'#996633'),('Oliveira',2131230878,'#669900')
+,('Figueira',2131230878,'#74258e'),('Medronheiro',2131230878,'#aa0316'),('Mato',2131230860,'#e2db00')
+,('Pedras',2131230874,'#adadad');
 
 INSERT INTO 'TaskTypes' (Name, Description)
 VALUES ('Limpeza', ''),('Poda Simples', 'Cortar rebentos de baixo'),('Poda Completa', 'Cortar pernadas')

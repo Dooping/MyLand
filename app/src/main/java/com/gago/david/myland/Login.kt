@@ -23,7 +23,7 @@ class Login : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        deleteDatabase("myland.db")
+        deleteDatabase("myland.db")
         users = LandOpenHelper.readUsers(this)
         setContentView(R.layout.activity_login)
         var reciclerView: RecyclerView? = findViewById(R.id.users)

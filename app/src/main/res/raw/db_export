@@ -8,11 +8,6 @@ CREATE TABLE IF NOT EXISTS PlantTypes(
 	Color VARCHAR
 	);
 
-CREATE TABLE IF NOT EXISTS Images(
-	Name VARCHAR PRIMARY KEY,
-	Image BLOB
-	);
-
 CREATE TABLE IF NOT EXISTS Lands(
 	Name VARCHAR,
 	ImageUri VARCHAR,
@@ -20,7 +15,6 @@ CREATE TABLE IF NOT EXISTS Lands(
 	Area Double DEFAULT 0,
 	User VARCHAR DEFAULT null,
 	primary key (Name, User),
-    FOREIGN KEY(ImageUri) REFERENCES Images(Name),
     FOREIGN KEY(User) REFERENCES Users(Name) ON DELETE CASCADE
 	);
 
