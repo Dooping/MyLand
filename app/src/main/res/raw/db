@@ -1,4 +1,4 @@
-create table if not exists Users (
+CREATE TABLE IF NOT EXISTS Users (
 	Name VARCHAR PRIMARY KEY
 );
 
@@ -58,7 +58,7 @@ CREATE TABLE IF NOT EXISTS Tasks(
 	);
 
 INSERT INTO 'Priorities' (Name, P_order, Color)
-VALUES ('Alta',1,'#B71C1C'),('Media',3,'#f6ff05'),('Baixa',5,'#12d800');
+VALUES ('Alta',1,'#B71C1C'),('Media',3,'#fff305'),('Baixa',5,'#12d800');
 
 INSERT INTO 'PlantTypes' (Name, Icon, Color)
 VALUES ('Alfarrobeira',2131230878,'#4d2600'),('Amendoeira',2131230878,'#996633'),('Oliveira',2131230878,'#669900')

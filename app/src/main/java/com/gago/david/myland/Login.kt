@@ -14,7 +14,6 @@ import android.widget.EditText
 import android.widget.LinearLayout
 import com.gago.david.myland.Adapters.UserAdapter
 import android.view.inputmethod.EditorInfo
-import kotlinx.android.synthetic.main.user_name.*
 
 
 class Login : AppCompatActivity() {
@@ -23,12 +22,12 @@ class Login : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        deleteDatabase("myland.db")
+        //deleteDatabase("myland.db")
         users = LandOpenHelper.readUsers(this)
         setContentView(R.layout.activity_login)
-        var reciclerView: RecyclerView? = findViewById(R.id.users)
-        reciclerView!!.layoutManager = LinearLayoutManager(this)
-        reciclerView.adapter = UserAdapter(users, this){
+        val recyclerView: RecyclerView? = findViewById(R.id.users)
+        recyclerView!!.layoutManager = LinearLayoutManager(this)
+        recyclerView.adapter = UserAdapter(users, this){
             selectUser(it)
         }
     }
@@ -68,14 +67,14 @@ class Login : AppCompatActivity() {
             users!!.add(name)
             selectUser(name)
         }
-        input.setOnEditorActionListener({ v, actionId, _ ->
+        input.setOnEditorActionListener { v, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
                 //do stuff here
                 createUser2(v.text.toString())
                 dialog!!.dismiss()
                 false
             } else false
-        })
+        }
 
         alertDialog.setPositiveButton("OK"
         ) { _, _ ->
@@ -85,7 +84,7 @@ class Login : AppCompatActivity() {
         alertDialog.setNegativeButton(R.string.cancel
         ) { dialog2, _ -> dialog2.cancel() }
         dialog = alertDialog.create()
-        dialog.window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
+        dialog.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
         dialog.show()
     }
 }
