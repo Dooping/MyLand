@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">My Land</string>
-    <string name="mapbox_access_token" translatable="false">pk.eyJ1IjoiZG9waW5nIiwiYSI6ImNqMGdqNmpqYTAybXAyd3A0YmFva3l5ejcifQ.SOw47Lm8xtZxc6XTZHhOXw</string>
+    <string name="mapbox_access_token" translatable="false">pk.eyJ1IjoiZG9waW5nIiwiYSI6ImNqcGJxZ2M1bDBkY3UzcXBobGduNGp0ZTMifQ.7MpBiXSBuWhWwkO50Lfncg</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -11,8 +11,8 @@
     <string name="menu_exit">Exit</string>
     <string name="please_wait">Please wait...</string>
     <string name="something_happened">Something happened</string>
-    <string name="title_activity_scrolling">ScrollingActivity</string>
-    <string name="large_text">
+    <string name="title_activity_scrolling" translatable="false">ScrollingActivity</string>
+    <string name="large_text" translatable="false">
         "Material is the metaphor.\n\n"
 
         "A material metaphor is the unifying theory of a rationalized space and a system of motion."

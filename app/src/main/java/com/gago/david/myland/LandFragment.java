@@ -17,10 +17,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
-import com.gago.david.myland.Adapters.MyLandRecyclerViewAdapter;
-import com.gago.david.myland.Models.LandObject;
-import com.gago.david.myland.Models.PriorityObject;
-import com.gago.david.myland.Models.TaskTypeObject;
+import com.gago.david.myland.adapters.MyLandRecyclerViewAdapter;
+import com.gago.david.myland.models.LandObject;
+import com.gago.david.myland.models.PriorityObject;
+import com.gago.david.myland.models.TaskTypeObject;
 
 
 import java.util.ArrayList;

@@ -1,4 +1,4 @@
-package com.gago.david.myland.Models;
+package com.gago.david.myland.models;
 
 import java.io.Serializable;
 

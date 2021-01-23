@@ -22,9 +22,9 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.gago.david.myland.Models.PriorityObject;
-import com.gago.david.myland.Models.TaskObject;
-import com.gago.david.myland.Models.TaskTypeObject;
+import com.gago.david.myland.models.PriorityObject;
+import com.gago.david.myland.models.TaskObject;
+import com.gago.david.myland.models.TaskTypeObject;
 
 import java.text.DateFormat;
 import java.util.ArrayList;

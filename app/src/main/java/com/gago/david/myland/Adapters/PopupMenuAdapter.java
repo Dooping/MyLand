@@ -1,4 +1,4 @@
-package com.gago.david.myland.Adapters;
+package com.gago.david.myland.adapters;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -10,7 +10,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.gago.david.myland.Models.PlantTypeObject;
+import com.gago.david.myland.models.PlantTypeObject;
 import com.gago.david.myland.R;
 
 import java.util.List;

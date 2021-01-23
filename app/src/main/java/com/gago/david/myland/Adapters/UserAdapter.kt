@@ -1,4 +1,4 @@
-package com.gago.david.myland.Adapters
+package com.gago.david.myland.adapters
 
 import android.content.Context
 import android.support.v7.widget.RecyclerView

@@ -2,22 +2,19 @@ package com.gago.david.myland;
 
 import android.content.ContentValues;
 import android.content.Context;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
-import android.widget.Toast;
 
-import com.gago.david.myland.Models.LandContract.*;
-import com.gago.david.myland.Models.LandObject;
-import com.gago.david.myland.Models.PlantObject;
-import com.gago.david.myland.Models.PlantTypeObject;
-import com.gago.david.myland.Models.TaskObject;
-import com.gago.david.myland.Models.TaskTypeObject;
+import com.gago.david.myland.models.LandContract.*;
+import com.gago.david.myland.models.LandObject;
+import com.gago.david.myland.models.PlantObject;
+import com.gago.david.myland.models.PlantTypeObject;
+import com.gago.david.myland.models.TaskObject;
+import com.gago.david.myland.models.TaskTypeObject;
 
 import org.apache.commons.io.IOUtils;
 

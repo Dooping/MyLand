@@ -5,6 +5,7 @@ import android.animation.TypeEvaluator;
 import android.animation.ValueAnimator;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -12,6 +13,8 @@ import android.location.Location;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -148,7 +151,7 @@ public class AddLandActivity extends AppCompatActivity implements OnMapReadyCall
             @Override
             public void onClick(View v) {
                 pageLoader.startProgress();
-                locationLayerPlugin.setLocationLayerEnabled(false);
+//                locationLayerPlugin.setLocationLayerEnabled(false);
                 boolean cancel = false;
                 if(poligon.size()>0) {
                     LatLngBounds latLngBounds = mapboxMap.getProjection().getVisibleRegion().latLngBounds;
@@ -157,7 +160,7 @@ public class AddLandActivity extends AppCompatActivity implements OnMapReadyCall
                             cancel = true;
                             Toast.makeText(getBaseContext(),R.string.markers_visibility_error, Toast.LENGTH_SHORT).show();
                             pageLoader.stopProgress();
-                            locationLayerPlugin.setLocationLayerEnabled(true);
+//                            locationLayerPlugin.setLocationLayerEnabled(true);
                         }
                     if(!cancel) {
                         mapboxMap.clear();
@@ -225,12 +228,22 @@ public class AddLandActivity extends AppCompatActivity implements OnMapReadyCall
     }
 
     private void enableLocationPlugin() {
+//        if (ContextCompat.checkSelfPermission( this,android.Manifest.permission.ACCESS_COARSE_LOCATION ) != PackageManager.PERMISSION_GRANTED )
+//        {
+//            ActivityCompat.requestPermissions(
+//                    this,
+//                    new String [] { android.Manifest.permission.ACCESS_COARSE_LOCATION },
+//                    LocationService.MY_PERMISSION_ACCESS_COURSE_LOCATION
+//            );
+//        }
+
+
         // Check if permissions are enabled and if not request
         if (PermissionsManager.areLocationPermissionsGranted(this)) {
             // Create a location engine instance
             initializeLocationEngine();
             locationLayerPlugin = new LocationLayerPlugin(mapView, mapboxMap, locationEngine);
-            locationLayerPlugin.setLocationLayerEnabled(true);
+//            locationLayerPlugin.setLocationLayerEnabled(true);
             getLifecycle().addObserver(locationLayerPlugin);
         } else {
             permissionsManager = new PermissionsManager(this);
@@ -243,12 +256,12 @@ public class AddLandActivity extends AppCompatActivity implements OnMapReadyCall
         locationEngine.setPriority(LocationEnginePriority.HIGH_ACCURACY);
         locationEngine.addLocationEngineListener(this);
         locationEngine.activate();
-        Location lastLocation = locationEngine.getLastLocation();
-        if (lastLocation != null) {
-            setCameraPosition(lastLocation);
-        } else {
-            locationEngine.addLocationEngineListener(this);
-        }
+//        Location lastLocation = locationEngine.getLastLocation();
+//        if (lastLocation != null) {
+//            setCameraPosition(lastLocation);
+//        } else {
+//            locationEngine.addLocationEngineListener(this);
+//        }
     }
     private void setCameraPosition(Location location) {
         mapboxMap.animateCamera(CameraUpdateFactory.newLatLngZoom(
@@ -264,8 +277,8 @@ public class AddLandActivity extends AppCompatActivity implements OnMapReadyCall
 
     @Override
     public void onConnected() {
-        if (locationEngine != null)
-            locationEngine.requestLocationUpdates();
+//        if (locationEngine != null)
+//            locationEngine.requestLocationUpdates();
     }
 
     @Override
@@ -295,10 +308,10 @@ public class AddLandActivity extends AppCompatActivity implements OnMapReadyCall
     public void onStart(){
         super.onStart();
         mapView.onStart();
-        if (locationEngine != null) {
-            locationEngine.requestLocationUpdates();
-            locationEngine.addLocationEngineListener(this);
-        }
+//        if (locationEngine != null) {
+//            locationEngine.requestLocationUpdates();
+//            locationEngine.addLocationEngineListener(this);
+//        }
     }
 
     @Override

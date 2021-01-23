@@ -19,7 +19,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.gago.david.myland.Models.LandObject;
+import com.gago.david.myland.models.LandObject;
 
 import java.io.File;
 

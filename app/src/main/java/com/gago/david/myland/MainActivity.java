@@ -24,11 +24,11 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.gago.david.myland.Adapters.ItemTypeAdapter;
-import com.gago.david.myland.Adapters.TaskTypeAdapter;
-import com.gago.david.myland.Models.LandObject;
-import com.gago.david.myland.Models.PlantTypeObject;
-import com.gago.david.myland.Models.TaskTypeObject;
+import com.gago.david.myland.adapters.ItemTypeAdapter;
+import com.gago.david.myland.adapters.TaskTypeAdapter;
+import com.gago.david.myland.models.LandObject;
+import com.gago.david.myland.models.PlantTypeObject;
+import com.gago.david.myland.models.TaskTypeObject;
 import com.jaredrummler.android.colorpicker.ColorPickerDialogListener;
 
 import java.util.ArrayList;

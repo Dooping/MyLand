@@ -3,6 +3,7 @@ package com.gago.david.myland;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.DialogInterface;
@@ -21,7 +22,6 @@ import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.CollapsingToolbarLayout;
@@ -33,7 +33,6 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -51,20 +50,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
-import com.gago.david.myland.Adapters.TaskListAdapter;
-import com.gago.david.myland.Models.LandContract;
-import com.gago.david.myland.Models.LandObject;
-import com.gago.david.myland.Models.PlantObject;
-import com.gago.david.myland.Models.PlantTypeObject;
-import com.gago.david.myland.Models.PriorityObject;
-import com.gago.david.myland.Models.TaskObject;
+import com.gago.david.myland.adapters.TaskListAdapter;
+import com.gago.david.myland.models.LandContract;
+import com.gago.david.myland.models.LandObject;
+import com.gago.david.myland.models.PlantObject;
+import com.gago.david.myland.models.PlantTypeObject;
+import com.gago.david.myland.models.PriorityObject;
+import com.gago.david.myland.models.TaskObject;
 import com.lantouzi.wheelview.WheelView;
 
-import java.io.FileNotFoundException;
-import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -162,6 +157,7 @@ public class ScrollingActivity extends AppCompatActivity implements AddTaskFragm
 
                 alertDialog.setPositiveButton(R.string.yes,
                         new DialogInterface.OnClickListener() {
+                            @SuppressLint("RestrictedApi")
                             public void onClick(DialogInterface dialog, int which) {
                                 if (fragment instanceof TaskEditFragment) {
                                     TaskObject task = ((TaskEditFragment) fragment).closeTask();
@@ -194,6 +190,7 @@ public class ScrollingActivity extends AppCompatActivity implements AddTaskFragm
 
                 alertDialog.setPositiveButton(R.string.yes,
                         new DialogInterface.OnClickListener() {
+                            @SuppressLint("RestrictedApi")
                             public void onClick(DialogInterface dialog, int which) {
                                 if(fragment instanceof TaskEditFragment){
                                     TaskObject task = ((TaskEditFragment) fragment).deleteTask();
@@ -339,6 +336,7 @@ public class ScrollingActivity extends AppCompatActivity implements AddTaskFragm
         //scrollView.fullScroll(NestedScrollView.FOCUS_UP);
     }
 
+    @SuppressLint("RestrictedApi")
     private void filter(){
         if(selected == 0)
             mAdapter.getFilter().filter("all");
@@ -673,6 +671,7 @@ public class ScrollingActivity extends AppCompatActivity implements AddTaskFragm
             drawTrees();
     }
 
+    @SuppressLint("RestrictedApi")
     public void showButtons(){
         editButton.setVisibility(View.VISIBLE);
         addTaskButton.setVisibility(View.VISIBLE);
@@ -856,6 +855,7 @@ public class ScrollingActivity extends AppCompatActivity implements AddTaskFragm
         return true;
     }
 
+    @SuppressLint("RestrictedApi")
     @Override
     public void selectTask(TaskObject task) {
         fragment = TaskEditFragment.newInstance(task);
@@ -913,6 +913,7 @@ public class ScrollingActivity extends AppCompatActivity implements AddTaskFragm
         }
     }
 
+    @SuppressLint("RestrictedApi")
     @Override
     public void notUpdateTask() {
         doneButton.setVisibility(View.GONE);

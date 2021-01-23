@@ -1,4 +1,4 @@
-package com.gago.david.myland.Adapters;
+package com.gago.david.myland.adapters;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -14,9 +14,9 @@ import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.TextView;
 
-import com.gago.david.myland.Models.PriorityObject;
+import com.gago.david.myland.models.PriorityObject;
 import com.gago.david.myland.R;
-import com.gago.david.myland.Models.TaskObject;
+import com.gago.david.myland.models.TaskObject;
 import com.gago.david.myland.TaskEditFragment;
 
 import java.text.DateFormat;

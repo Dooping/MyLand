@@ -19,8 +19,8 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
 
-import com.gago.david.myland.Adapters.ImageAdapter;
-import com.gago.david.myland.Models.PlantTypeObject;
+import com.gago.david.myland.adapters.ImageAdapter;
+import com.gago.david.myland.models.PlantTypeObject;
 import com.jaredrummler.android.colorpicker.ColorPickerDialog;
 
 import java.util.ArrayList;

@@ -10,7 +10,7 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.gago.david.myland.Models.TaskTypeObject;
+import com.gago.david.myland.models.TaskTypeObject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;

@@ -1,4 +1,4 @@
-package com.gago.david.myland.Adapters;
+package com.gago.david.myland.adapters;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -13,7 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.gago.david.myland.Models.PlantTypeObject;
+import com.gago.david.myland.models.PlantTypeObject;
 import com.gago.david.myland.R;
 import com.gago.david.myland.SettingsFragment.OnListFragmentInteractionListener;
 

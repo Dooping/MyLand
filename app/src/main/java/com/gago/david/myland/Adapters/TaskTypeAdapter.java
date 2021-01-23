@@ -1,4 +1,4 @@
-package com.gago.david.myland.Adapters;
+package com.gago.david.myland.adapters;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.gago.david.myland.R;
-import com.gago.david.myland.Models.TaskTypeObject;
+import com.gago.david.myland.models.TaskTypeObject;
 
 import java.util.List;
 

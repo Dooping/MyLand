@@ -19,7 +19,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
-import android.net.Uri;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -38,11 +37,11 @@ import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.Toast;
 
-import com.gago.david.myland.Adapters.PopupMenuAdapter;
-import com.gago.david.myland.Models.LandContract;
-import com.gago.david.myland.Models.LandObject;
-import com.gago.david.myland.Models.PlantObject;
-import com.gago.david.myland.Models.PlantTypeObject;
+import com.gago.david.myland.adapters.PopupMenuAdapter;
+import com.gago.david.myland.models.LandContract;
+import com.gago.david.myland.models.LandObject;
+import com.gago.david.myland.models.PlantObject;
+import com.gago.david.myland.models.PlantTypeObject;
 import com.github.chrisbanes.photoview.PhotoView;
 
 import java.util.ArrayList;

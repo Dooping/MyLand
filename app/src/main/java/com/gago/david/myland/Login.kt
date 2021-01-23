@@ -12,7 +12,7 @@ import android.view.Gravity
 import android.view.WindowManager
 import android.widget.EditText
 import android.widget.LinearLayout
-import com.gago.david.myland.Adapters.UserAdapter
+import com.gago.david.myland.adapters.UserAdapter
 import android.view.inputmethod.EditorInfo
 
 

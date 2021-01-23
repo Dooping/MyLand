@@ -1,4 +1,4 @@
-package com.gago.david.myland.Adapters;
+package com.gago.david.myland.adapters;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -12,9 +12,9 @@ import android.widget.TextView;
 
 import com.gago.david.myland.LandFragment.OnListFragmentInteractionListener;
 import com.gago.david.myland.LandOpenHelper;
-import com.gago.david.myland.Models.LandObject;
-import com.gago.david.myland.Models.PriorityObject;
-import com.gago.david.myland.Models.TaskTypeObject;
+import com.gago.david.myland.models.LandObject;
+import com.gago.david.myland.models.PriorityObject;
+import com.gago.david.myland.models.TaskTypeObject;
 import com.gago.david.myland.R;
 
 import java.util.List;
