@@ -28,7 +28,6 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
@@ -172,7 +171,7 @@ public class LandEditActivity extends AppCompatActivity implements PopupMenuAdap
 
         // Set up the user interaction to manually show or hide the system UI.
         mContentView.setOnClickListener(view -> {
-            //toggle();
+            toggle();
         });
 
         mContentView.setOnLongClickListener(view -> {
@@ -197,7 +196,9 @@ public class LandEditActivity extends AppCompatActivity implements PopupMenuAdap
         // Upon interacting with UI controls, delay any scheduled hide()
         // operations to prevent the jarring behavior of controls going away
         // while interacting with the UI.
-        findViewById(R.id.dummy_button).setOnTouchListener(mDelayHideTouchListener);
+        findViewById(R.id.exit_button).setOnClickListener(v -> finish());
+
+        setTitle(R.string.edit_land_title);
     }
 
     private void drawTrees(){

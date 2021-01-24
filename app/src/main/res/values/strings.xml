@@ -189,4 +189,6 @@
     <string name="satellite">Satellite</string>
     <string name="satellite_roads">Satellite with roads</string>
     <string name="map_type">Map Type</string>
+    <string name="exit_button">Exit</string>
+    <string name="edit_land_title">Edit land</string>
 </resources>

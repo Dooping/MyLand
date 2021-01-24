@@ -92,4 +92,6 @@
     <string name="satellite">Satélite</string>
     <string name="satellite_roads">Satélite com estradas</string>
     <string name="map_type">Tipo de mapa</string>
+    <string name="exit_button">Sair</string>
+    <string name="edit_land_title">Editar terreno</string>
 </resources>
