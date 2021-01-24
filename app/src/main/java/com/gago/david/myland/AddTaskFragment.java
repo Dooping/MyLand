@@ -110,7 +110,7 @@ public class AddTaskFragment extends Fragment implements AdapterView.OnItemSelec
 
         ArrayList<String> list = new ArrayList<>();
         for(TaskTypeObject task : taskTypes)
-            list.add(task.name);
+            list.add(task.getName());
         ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), R.layout.support_simple_spinner_dropdown_item, list);
         adapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
@@ -122,7 +122,7 @@ public class AddTaskFragment extends Fragment implements AdapterView.OnItemSelec
         final Spinner prioritySpinner = view.findViewById(R.id.priority_spinner);
         ArrayList<String> list2 = new ArrayList<>();
         for (PriorityObject p : priorities)
-            list2.add(p.name);
+            list2.add(p.getName());
         ArrayAdapter<String> adapter2 = new ArrayAdapter<>(getContext(), R.layout.support_simple_spinner_dropdown_item, list2);
         adapter2.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
         prioritySpinner.setAdapter(adapter2);
@@ -163,8 +163,8 @@ public class AddTaskFragment extends Fragment implements AdapterView.OnItemSelec
                 ArrayList<TaskObject> tasks = new ArrayList<>();
                 switch (type){
                     case "land":
-                        tasks.add(new TaskObject(land, null, taskTypes.get(spinner.getSelectedItemPosition()).name
-                                , priorities.get(prioritySpinner.getSelectedItemPosition()).p_order, new Date(), time
+                        tasks.add(new TaskObject(land, null, taskTypes.get(spinner.getSelectedItemPosition()).getName()
+                                , priorities.get(prioritySpinner.getSelectedItemPosition()).getP_order(), new Date(), time
                                 , false, description.getText().toString()));
                         onButtonPressed(tasks);
                         break;
@@ -176,8 +176,8 @@ public class AddTaskFragment extends Fragment implements AdapterView.OnItemSelec
                             break;
                         }
                         for (Integer i: plantIndexes)
-                            tasks.add(new TaskObject(land, Integer.valueOf(i), taskTypes.get(spinner.getSelectedItemPosition()).name
-                                    , priorities.get(prioritySpinner.getSelectedItemPosition()).p_order, new Date(), time
+                            tasks.add(new TaskObject(land, Integer.valueOf(i), taskTypes.get(spinner.getSelectedItemPosition()).getName()
+                                    , priorities.get(prioritySpinner.getSelectedItemPosition()).getP_order(), new Date(), time
                                     , false, description.getText().toString()));
 
                         onButtonPressed(tasks);
@@ -225,7 +225,7 @@ public class AddTaskFragment extends Fragment implements AdapterView.OnItemSelec
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, final int i, long l) {
         if (taskTypes != null && !first) {
-            int measuredTextHeight = getHeight(getContext(), taskTypes.get(i).description, 14, taskDescription.getWidth(), Typeface.DEFAULT);
+            int measuredTextHeight = getHeight(getContext(), taskTypes.get(i).getDescription(), 14, taskDescription.getWidth(), Typeface.DEFAULT);
             ValueAnimator anim = ValueAnimator.ofInt(taskDescription.getMeasuredHeight(), measuredTextHeight);
             anim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
                 @Override
@@ -241,7 +241,7 @@ public class AddTaskFragment extends Fragment implements AdapterView.OnItemSelec
                 @Override
                 public void onAnimationEnd(Animator animation)
                 {
-                    taskDescription.setText(taskTypes.get(i).description);
+                    taskDescription.setText(taskTypes.get(i).getDescription());
                     AlphaAnimation fadeIn = new AlphaAnimation(0.0f , 1.0f ) ;
                     taskDescription.startAnimation(fadeIn);
                     fadeIn.setDuration(500);
@@ -263,7 +263,7 @@ public class AddTaskFragment extends Fragment implements AdapterView.OnItemSelec
         }
         else if(taskTypes != null) {
             first = false;
-            taskDescription.setText(taskTypes.get(i).description);
+            taskDescription.setText(taskTypes.get(i).getDescription());
         }
     }
 
@@ -294,7 +294,7 @@ public class AddTaskFragment extends Fragment implements AdapterView.OnItemSelec
 
         ArrayList<String> list = new ArrayList<>();
         for(TaskTypeObject task : taskTypes)
-            list.add(task.name);
+            list.add(task.getName());
         ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), R.layout.support_simple_spinner_dropdown_item, list);
         adapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);

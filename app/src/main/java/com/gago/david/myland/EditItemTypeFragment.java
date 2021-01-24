@@ -83,8 +83,8 @@ public class EditItemTypeFragment extends Fragment {
         if (getArguments() != null) {
             item = (PlantTypeObject) getArguments().getSerializable(ARG_PARAM1);
             create = getArguments().getBoolean(ARG_PARAM2);
-            tintColor = item.color.equals("") ? "#669900" :  item.color;
-            drawable = item.icon;
+            tintColor = item.getColor().equals("") ? "#669900" :  item.getColor();
+            drawable = item.getIcon();
         }
 
         TypedArray array = getResources().obtainTypedArray(R.array.imageList);
@@ -100,7 +100,7 @@ public class EditItemTypeFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_edit_item_type, container, false);
         ButterKnife.bind(this, view);
-        nameView.setText(item.name);
+        nameView.setText(item.getName());
         imageView.setImageResource(drawable);
         imageView.setColorFilter(Color.parseColor(tintColor), PorterDuff.Mode.SRC_IN);
 
@@ -126,9 +126,9 @@ public class EditItemTypeFragment extends Fragment {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                item.name = nameView.getText().toString();
-                item.icon = drawable;
-                item.color = tintColor;
+                item.setName(nameView.getText().toString());
+                item.setIcon(drawable);
+                item.setColor(tintColor);
                 onButtonPressed(item);
             }
         });

@@ -73,15 +73,12 @@ public class EditTaskTypeFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_edit_task_type, container, false);
         ButterKnife.bind(this, view);
-        nameView.setText(task.name);
-        descriptionView.setText(task.description);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                task.description = descriptionView.getText().toString();
-                task.name = nameView.getText().toString();
-                onButtonPressed(task);
-            }
+        nameView.setText(task.getName());
+        descriptionView.setText(task.getDescription());
+        button.setOnClickListener(view1 -> {
+            task.setDescription(descriptionView.getText().toString());
+            task.setName(nameView.getText().toString());
+            onButtonPressed(task);
         });
 
         return view;

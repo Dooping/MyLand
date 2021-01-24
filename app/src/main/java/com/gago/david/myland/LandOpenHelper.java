@@ -885,9 +885,9 @@ public class LandOpenHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
 
         ContentValues values = new ContentValues();
-        values.put("Name", item.name);
-        values.put("Icon", item.icon);
-        values.put("Color", item.color);
+        values.put("Name", item.getName());
+        values.put("Icon", item.getIcon());
+        values.put("Color", item.getColor());
 
 // Insert the new row, returning the primary key value of the new row
         long newRowId = db.insert("PlantTypes", null, values);
@@ -901,8 +901,8 @@ public class LandOpenHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
 
         ContentValues values = new ContentValues();
-        values.put("Name", item.name);
-        values.put("Description", item.description);
+        values.put("Name", item.getName());
+        values.put("Description", item.getDescription());
 
 // Insert the new row, returning the primary key value of the new row
         long newRowId = db.insert("TaskTypes", null, values);

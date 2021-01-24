@@ -257,7 +257,7 @@ public class MainActivity extends AppCompatActivity
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
 
         String whereClause = "Name = ?";
-        String[] whereArgs = new String[]{item.name};
+        String[] whereArgs = new String[]{item.getName()};
 
         int i = db.delete("PlantTypes", whereClause, whereArgs);
         Log.v("Remove item", i+" rows removed");
@@ -287,7 +287,7 @@ public class MainActivity extends AppCompatActivity
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
 
         String whereClause = "Name = ?";
-        String[] whereArgs = new String[]{item.name};
+        String[] whereArgs = new String[]{item.getName()};
 
         int i = db.delete("TaskTypes", whereClause, whereArgs);
         Log.v("Remove TaskType", i+" rows removed");
@@ -335,12 +335,12 @@ public class MainActivity extends AppCompatActivity
 
 // Create a new map of values, where column names are the keys
         ContentValues values = new ContentValues();
-        values.put("Name", taskType.name);
-        values.put("Description", taskType.description);
+        values.put("Name", taskType.getName());
+        values.put("Description", taskType.getDescription());
 
 // Insert the new row, returning the primary key value of the new row
         String whereClause = "Name = ?";
-        String[] whereArgs = new String[]{taskType.name};
+        String[] whereArgs = new String[]{taskType.getName()};
         long newRowId = db.update("TaskTypes", values, whereClause, whereArgs);
         Log.v("Update TaskType", "row updated: "+newRowId);
         if (newRowId == -1)
@@ -366,13 +366,13 @@ public class MainActivity extends AppCompatActivity
 
 // Create a new map of values, where column names are the keys
         ContentValues values = new ContentValues();
-        values.put("Name", itemType.name);
-        values.put("Icon", itemType.icon);
-        values.put("Color", itemType.color);
+        values.put("Name", itemType.getName());
+        values.put("Icon", itemType.getIcon());
+        values.put("Color", itemType.getColor());
 
 // Insert the new row, returning the primary key value of the new row
         String whereClause = "Name = ?";
-        String[] whereArgs = new String[]{itemType.name};
+        String[] whereArgs = new String[]{itemType.getName()};
         long newRowId = db.update("PlantTypes", values, whereClause, whereArgs);
         Log.v("Update PlantType", "row updated: "+newRowId);
         if (newRowId == -1)

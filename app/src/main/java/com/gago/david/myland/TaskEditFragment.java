@@ -100,8 +100,8 @@ public class TaskEditFragment extends Fragment implements AdapterView.OnItemSele
         ArrayList<String> list = new ArrayList<>();
         int index = 0;
         for(int i = 0; i < taskTypes.size(); i++) {
-            list.add(taskTypes.get(i).name);
-            if(taskTypes.get(i).name.equals(task.taskType))
+            list.add(taskTypes.get(i).getName());
+            if(taskTypes.get(i).getName().equals(task.taskType))
                 index = i;
         }
         ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), R.layout.support_simple_spinner_dropdown_item, list);
@@ -114,8 +114,8 @@ public class TaskEditFragment extends Fragment implements AdapterView.OnItemSele
         ArrayList<String> list2 = new ArrayList<>();
         int index2 = 0;
         for (int i = 0; i < priorities.size(); i++) {
-            list2.add(priorities.get(i).name);
-            if(priorities.get(i).p_order == task.priority)
+            list2.add(priorities.get(i).getName());
+            if(priorities.get(i).getP_order() == task.priority)
                 index2 = i;
         }
         ArrayAdapter<String> adapter2 = new ArrayAdapter<>(getContext(), R.layout.support_simple_spinner_dropdown_item, list2);
@@ -129,28 +129,16 @@ public class TaskEditFragment extends Fragment implements AdapterView.OnItemSele
             myCalendar.setTime(task.targetDate);
             updateLabel();
         }
-        final DatePickerDialog.OnDateSetListener date = new DatePickerDialog.OnDateSetListener() {
-
-            @Override
-            public void onDateSet(DatePicker view, int year, int monthOfYear,
-                                  int dayOfMonth) {
-                myCalendar.set(Calendar.YEAR, year);
-                myCalendar.set(Calendar.MONTH, monthOfYear);
-                myCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-                updateLabel();
-            }
-
+        final DatePickerDialog.OnDateSetListener date = (view1, year, monthOfYear, dayOfMonth) -> {
+            myCalendar.set(Calendar.YEAR, year);
+            myCalendar.set(Calendar.MONTH, monthOfYear);
+            myCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+            updateLabel();
         };
 
-        targetDate.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                new DatePickerDialog(getContext(), date, myCalendar
-                        .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
-                        myCalendar.get(Calendar.DAY_OF_MONTH)).show();
-            }
-        });
+        targetDate.setOnClickListener(v -> new DatePickerDialog(getContext(), date, myCalendar
+                .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
+                myCalendar.get(Calendar.DAY_OF_MONTH)).show());
 
         taskDescription.setText(task.observations);
 
@@ -184,13 +172,13 @@ public class TaskEditFragment extends Fragment implements AdapterView.OnItemSele
         if (mListener != null && !deleted) {
             TaskObject task = this.task.clone();
             boolean changed = false;
-            if ( !taskTypes.get(taskSpinner.getSelectedItemPosition()).name.equals(task.taskType)){
+            if ( !taskTypes.get(taskSpinner.getSelectedItemPosition()).getName().equals(task.taskType)){
                 changed = true;
-                task.taskType = taskTypes.get(taskSpinner.getSelectedItemPosition()).name;
+                task.taskType = taskTypes.get(taskSpinner.getSelectedItemPosition()).getName();
             }
-            if ( priorities.get(prioritySpinner.getSelectedItemPosition()).p_order != task.priority ){
+            if ( priorities.get(prioritySpinner.getSelectedItemPosition()).getP_order() != task.priority ){
                 changed = true;
-                task.priority = priorities.get(prioritySpinner.getSelectedItemPosition()).p_order;
+                task.priority = priorities.get(prioritySpinner.getSelectedItemPosition()).getP_order();
             }
             if ( !taskDescription.getText().toString().equals(task.observations) ){
                 changed = true;
@@ -240,23 +228,20 @@ public class TaskEditFragment extends Fragment implements AdapterView.OnItemSele
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, final int i, long l) {
         if (taskTypes != null && !first) {
-            int measuredTextHeight = AddTaskFragment.getHeight(getContext(), taskTypes.get(i).description, 14, taskTypeDescription.getWidth(), Typeface.DEFAULT);
+            int measuredTextHeight = AddTaskFragment.getHeight(getContext(), taskTypes.get(i).getDescription(), 14, taskTypeDescription.getWidth(), Typeface.DEFAULT);
             ValueAnimator anim = ValueAnimator.ofInt(taskTypeDescription.getMeasuredHeight(), measuredTextHeight);
-            anim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                @Override
-                public void onAnimationUpdate(ValueAnimator valueAnimator) {
-                    int val = (Integer) valueAnimator.getAnimatedValue();
-                    ViewGroup.LayoutParams layoutParams = taskTypeDescription.getLayoutParams();
-                    layoutParams.height = val;
-                    taskTypeDescription.setLayoutParams(layoutParams);
-                }
+            anim.addUpdateListener(valueAnimator -> {
+                int val = (Integer) valueAnimator.getAnimatedValue();
+                ViewGroup.LayoutParams layoutParams = taskTypeDescription.getLayoutParams();
+                layoutParams.height = val;
+                taskTypeDescription.setLayoutParams(layoutParams);
             });
             anim.addListener(new AnimatorListenerAdapter()
             {
                 @Override
                 public void onAnimationEnd(Animator animation)
                 {
-                    taskTypeDescription.setText(taskTypes.get(i).description);
+                    taskTypeDescription.setText(taskTypes.get(i).getDescription());
                     AlphaAnimation fadeIn = new AlphaAnimation(0.0f , 1.0f ) ;
                     taskTypeDescription.startAnimation(fadeIn);
                     fadeIn.setDuration(500);
@@ -278,7 +263,7 @@ public class TaskEditFragment extends Fragment implements AdapterView.OnItemSele
         }
         else if(taskTypes != null) {
             first = false;
-            taskTypeDescription.setText(taskTypes.get(i).description);
+            taskTypeDescription.setText(taskTypes.get(i).getDescription());
         }
     }
 

@@ -130,17 +130,14 @@ public class ScrollingActivity extends AppCompatActivity implements AddTaskFragm
         });
 
         editButton = findViewById(R.id.fab);
-        editButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                //        .setAction("Action", null).show();
-                Intent intent = new Intent(getApplicationContext(), LandEditActivity.class);
-                Bundle b = new Bundle();
-                b.putString("name", name); //Your id
-                intent.putExtras(b); //Put your id to your next Intent
-                startActivity(intent);
-            }
+        editButton.setOnClickListener(view -> {
+            //Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+            //        .setAction("Action", null).show();
+            Intent intent = new Intent(getApplicationContext(), LandEditActivity.class);
+            Bundle b1 = new Bundle();
+            b1.putString("name", name); //Your id
+            intent.putExtras(b1); //Put your id to your next Intent
+            startActivity(intent);
         });
 
         removeButton = findViewById(R.id.remove);
@@ -156,27 +153,20 @@ public class ScrollingActivity extends AppCompatActivity implements AddTaskFragm
                 alertDialog.setMessage(R.string.close_task_ask);
 
                 alertDialog.setPositiveButton(R.string.yes,
-                        new DialogInterface.OnClickListener() {
-                            @SuppressLint("RestrictedApi")
-                            public void onClick(DialogInterface dialog, int which) {
-                                if (fragment instanceof TaskEditFragment) {
-                                    TaskObject task = ((TaskEditFragment) fragment).closeTask();
-                                    getSupportFragmentManager().popBackStack();
-                                    tasks.remove(task);
-                                    filter();
+                        (dialog, which) -> {
+                            if (fragment instanceof TaskEditFragment) {
+                                TaskObject task = ((TaskEditFragment) fragment).closeTask();
+                                getSupportFragmentManager().popBackStack();
+                                tasks.remove(task);
+                                filter();
 
-                                    doneButton.setVisibility(View.GONE);
-                                    deleteButton.setVisibility(View.GONE);
-                                }
+                                doneButton.setVisibility(View.GONE);
+                                deleteButton.setVisibility(View.GONE);
                             }
                         });
 
                 alertDialog.setNegativeButton(R.string.no,
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.cancel();
-                            }
-                        });
+                        (dialog, which) -> dialog.cancel());
                 alertDialog.show();
             }
         });
@@ -189,27 +179,20 @@ public class ScrollingActivity extends AppCompatActivity implements AddTaskFragm
                 alertDialog.setMessage(R.string.delete_task);
 
                 alertDialog.setPositiveButton(R.string.yes,
-                        new DialogInterface.OnClickListener() {
-                            @SuppressLint("RestrictedApi")
-                            public void onClick(DialogInterface dialog, int which) {
-                                if(fragment instanceof TaskEditFragment){
-                                    TaskObject task = ((TaskEditFragment) fragment).deleteTask();
-                                    getSupportFragmentManager().popBackStack();
-                                    tasks.remove(task);
-                                    filter();
+                        (dialog, which) -> {
+                            if(fragment instanceof TaskEditFragment){
+                                TaskObject task = ((TaskEditFragment) fragment).deleteTask();
+                                getSupportFragmentManager().popBackStack();
+                                tasks.remove(task);
+                                filter();
 
-                                    doneButton.setVisibility(View.GONE);
-                                    deleteButton.setVisibility(View.GONE);
-                                }
+                                doneButton.setVisibility(View.GONE);
+                                deleteButton.setVisibility(View.GONE);
                             }
                         });
 
                 alertDialog.setNegativeButton(R.string.no,
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.cancel();
-                            }
-                        });
+                        (dialog, which) -> dialog.cancel());
                 alertDialog.show();
             }
         });
@@ -302,26 +285,20 @@ public class ScrollingActivity extends AppCompatActivity implements AddTaskFragm
                 alertDialog.setIcon(icon);
 
                 alertDialog.setPositiveButton("OK",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                description.setText(input.getText());
-                                if (selected < plantTypeList.size()+2) {
-                                    land.Description = input.getText().toString();
-                                    updateLand();
-                                }
-                                else {
-                                    land.plants.get(selected-2-plantTypeList.size()).description = input.getText().toString();
-                                    updateItem(land.plants.get(selected-2-plantTypeList.size()));
-                                }
+                        (dialog, which) -> {
+                            description.setText(input.getText());
+                            if (selected < plantTypeList.size()+2) {
+                                land.Description = input.getText().toString();
+                                updateLand();
+                            }
+                            else {
+                                land.plants.get(selected-2-plantTypeList.size()).description = input.getText().toString();
+                                updateItem(land.plants.get(selected-2-plantTypeList.size()));
                             }
                         });
 
                 alertDialog.setNegativeButton(getResources().getString(R.string.cancel),
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.cancel();
-                            }
-                        });
+                        (dialog, which) -> dialog.cancel());
 
                 alertDialog.show();
             }
@@ -345,7 +322,7 @@ public class ScrollingActivity extends AppCompatActivity implements AddTaskFragm
         else if (selected < plantTypeList.size()+2){
             String filter = "group";
             for (PlantObject p : land.plants)
-                if(plantTypeList.get(selected-2).name.equals(p.plantType))
+                if(plantTypeList.get(selected-2).getName().equals(p.plantType))
                     filter = filter.concat(" "+p.id);
             mAdapter.getFilter().filter(filter);
         }
@@ -368,6 +345,7 @@ public class ScrollingActivity extends AppCompatActivity implements AddTaskFragm
             setDescription(land.plants.get(selected-2-plantTypeList.size()).description, R.string.item_state);
     }
 
+    @SuppressLint("RestrictedApi")
     private void addTaskPressed() {
         AddTaskFragment fragment = new AddTaskFragment();
         Bundle args=new Bundle();
@@ -381,7 +359,7 @@ public class ScrollingActivity extends AppCompatActivity implements AddTaskFragm
             type = "land";
         else if (wheel.getSelectedPosition()-2 < plantTypeList.size()){
             for (PlantObject p : land.plants)
-                if(plantTypeList.get(wheel.getSelectedPosition()-2).name.equals(p.plantType))
+                if(plantTypeList.get(wheel.getSelectedPosition()-2).getName().equals(p.plantType))
                     list.add(p.id);
             type = "group";
         }
@@ -439,15 +417,15 @@ public class ScrollingActivity extends AppCompatActivity implements AddTaskFragm
         for ( int i = 0; i < land.plants.size(); i++ ) {
             PlantObject p = land.plants.get(i);
             for (PlantTypeObject type : plantTypeList)
-                if (type.name.equals(p.plantType)) {
-                    Drawable d = ContextCompat.getDrawable(this, type.icon);
+                if (type.getName().equals(p.plantType)) {
+                    Drawable d = ContextCompat.getDrawable(this, type.getIcon());
                     d.setBounds(Math.round(p.x * canvas.getWidth()) - d.getIntrinsicWidth() / 8, Math.round(p.y * canvas.getHeight() - d.getIntrinsicHeight() / 8),
                             Math.round(p.x * canvas.getWidth()) + d.getIntrinsicWidth() / 8, Math.round(p.y * canvas.getHeight()) + d.getIntrinsicHeight() / 8);
-                    d.setColorFilter(new PorterDuffColorFilter(Color.parseColor(type.color), PorterDuff.Mode.SRC_IN));
+                    d.setColorFilter(new PorterDuffColorFilter(Color.parseColor(type.getColor()), PorterDuff.Mode.SRC_IN));
                     //And draw it...
                     d.draw(canvas);
 
-                    if ((i + 2 + plantTypeList.size() == selected) || selected == 0 || ((selected-2 < plantTypeList.size()) && selected > 1 && p.plantType.equals(plantTypeList.get(selected-2).name)))
+                    if ((i + 2 + plantTypeList.size() == selected) || selected == 0 || ((selected-2 < plantTypeList.size()) && selected > 1 && p.plantType.equals(plantTypeList.get(selected-2).getName())))
                         canvas.drawCircle(p.x * canvas.getWidth(), p.y * canvas.getHeight(), r, mPaint);
                     break;
                 }
@@ -464,7 +442,7 @@ public class ScrollingActivity extends AppCompatActivity implements AddTaskFragm
         PlantObject p = land.plants.get(selected-2-plantTypeList.size());
         PlantTypeObject plantTypeObject = null;
         for (PlantTypeObject pl : plantTypeList)
-            if(pl.name.equals(p.plantType)){
+            if(pl.getName().equals(p.plantType)){
                 plantTypeObject= pl;
                 break;
             }
@@ -473,44 +451,38 @@ public class ScrollingActivity extends AppCompatActivity implements AddTaskFragm
         alertDialog.setTitle(p.plantType);
         alertDialog.setMessage(R.string.remove_tree);
 
-        ColorFilter filter = new PorterDuffColorFilter(Color.parseColor(plantTypeObject.color), PorterDuff.Mode.SRC_IN);
-        Drawable icon = view.getRootView().getContext().getResources().getDrawable(plantTypeObject.icon);
+        ColorFilter filter = new PorterDuffColorFilter(Color.parseColor(plantTypeObject.getColor()), PorterDuff.Mode.SRC_IN);
+        Drawable icon = view.getRootView().getContext().getResources().getDrawable(plantTypeObject.getIcon());
         icon.setColorFilter(filter);
         alertDialog.setIcon(icon);
 
         alertDialog.setPositiveButton(R.string.yes,
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        LandOpenHelper mDbHelper = new LandOpenHelper(ScrollingActivity.this);
+                (dialog, which) -> {
+                    LandOpenHelper mDbHelper = new LandOpenHelper(ScrollingActivity.this);
 
-                        // Gets the data repository in write mode
-                        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+                    // Gets the data repository in write mode
+                    SQLiteDatabase db = mDbHelper.getWritableDatabase();
 
-                        int id = land.plants.get(selected-2-plantTypeList.size()).id;
-                        String whereClause = "Id = ?";
-                        String[] whereArgs = new String[]{""+id};
+                    int id = land.plants.get(selected-2-plantTypeList.size()).id;
+                    String whereClause = "Id = ?";
+                    String[] whereArgs = new String[]{""+id};
 
 // Create a new map of values, where column names are the keys
-                        int i = db.delete("Plants", whereClause, whereArgs);
-                        Log.v("Remove Plant", i+" rows removed");
-                        db.close();
-                        selected--;
-                        for (Iterator<TaskObject> iterator = tasks.iterator(); iterator.hasNext();) {
-                            TaskObject t = iterator.next();
-                            if(t.plantIndex != null && t.plantIndex == id)
-                                iterator.remove();
-                        }
-                        filter();
-                        initiateStuff();
+                    int i = db.delete("Plants", whereClause, whereArgs);
+                    Log.v("Remove Plant", i+" rows removed");
+                    db.close();
+                    selected--;
+                    for (Iterator<TaskObject> iterator = tasks.iterator(); iterator.hasNext();) {
+                        TaskObject t = iterator.next();
+                        if(t.plantIndex != null && t.plantIndex == id)
+                            iterator.remove();
                     }
+                    filter();
+                    initiateStuff();
                 });
 
         alertDialog.setNegativeButton(R.string.no,
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                });
+                (dialog, which) -> dialog.cancel());
         alertDialog.show();
 
 
@@ -522,19 +494,13 @@ public class ScrollingActivity extends AppCompatActivity implements AddTaskFragm
         alertDialog.setMessage(R.string.remove_land);
 
         alertDialog.setPositiveButton(R.string.yes,
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        LandOpenHelper.deleteLand(land, ScrollingActivity.this);
-                        finish();
-                    }
+                (dialog, which) -> {
+                    LandOpenHelper.deleteLand(land, ScrollingActivity.this);
+                    finish();
                 });
 
         alertDialog.setNegativeButton(R.string.no,
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                });
+                (dialog, which) -> dialog.cancel());
         alertDialog.show();
     }
 
@@ -658,7 +624,7 @@ public class ScrollingActivity extends AppCompatActivity implements AddTaskFragm
         strings.add(getResources().getString(R.string.all_tasks));
         strings.add(getResources().getString(R.string.land));
         for (PlantTypeObject p : plantTypeList)
-            strings.add(p.name + " (" + getResources().getString(R.string.all) + ")");
+            strings.add(p.getName() + " (" + getResources().getString(R.string.all) + ")");
         for (PlantObject p : land.plants)
             strings.add(p.plantType);
 
@@ -890,24 +856,20 @@ public class ScrollingActivity extends AppCompatActivity implements AddTaskFragm
             alertDialog.setMessage(R.string.save_changes);
 
             alertDialog.setPositiveButton(R.string.yes,
-                    new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            boolean success = LandOpenHelper.updateTask(newTask, ScrollingActivity.this);
-                            if (success) {
-                                Toast.makeText(ScrollingActivity.this, R.string.update_task_success, Toast.LENGTH_SHORT).show();
-                                tasks.set(tasks.indexOf(oldTask), newTask);
-                            } else
-                                Toast.makeText(ScrollingActivity.this, R.string.update_task_error, Toast.LENGTH_SHORT).show();
-                            filter();
-                        }
+                    (dialog, which) -> {
+                        boolean success = LandOpenHelper.updateTask(newTask, ScrollingActivity.this);
+                        if (success) {
+                            Toast.makeText(ScrollingActivity.this, R.string.update_task_success, Toast.LENGTH_SHORT).show();
+                            tasks.set(tasks.indexOf(oldTask), newTask);
+                        } else
+                            Toast.makeText(ScrollingActivity.this, R.string.update_task_error, Toast.LENGTH_SHORT).show();
+                        filter();
                     });
 
             alertDialog.setNegativeButton(R.string.no,
-                    new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.cancel();
-                            filter();
-                        }
+                    (dialog, which) -> {
+                        dialog.cancel();
+                        filter();
                     });
             alertDialog.show();
         }

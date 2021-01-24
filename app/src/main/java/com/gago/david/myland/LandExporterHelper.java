@@ -139,8 +139,8 @@ public class LandExporterHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = getWritableDatabase();
         for (TaskTypeObject t : taskTypes){
             ContentValues values = new ContentValues();
-            values.put(TaskTypeEntry.COLUMN_NAME, t.name);
-            values.put(TaskTypeEntry.COLUMN_DESCRIPTION, t.description);
+            values.put(TaskTypeEntry.COLUMN_NAME, t.getName());
+            values.put(TaskTypeEntry.COLUMN_DESCRIPTION, t.getDescription());
             db.insert(TaskTypeEntry.TABLE_NAME, null, values);
         }
         close();
@@ -150,9 +150,9 @@ public class LandExporterHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = getWritableDatabase();
         for (PlantTypeObject p : itemTypes){
             ContentValues values = new ContentValues();
-            values.put(ItemTypeEntry.COLUMN_NAME, p.name);
-            values.put(ItemTypeEntry.COLUMN_ICON, p.icon);
-            values.put(ItemTypeEntry.COLUMN_COLOR, p.color);
+            values.put(ItemTypeEntry.COLUMN_NAME, p.getName());
+            values.put(ItemTypeEntry.COLUMN_ICON, p.getIcon());
+            values.put(ItemTypeEntry.COLUMN_COLOR, p.getColor());
             db.insert(ItemTypeEntry.TABLE_NAME, null, values);
         }
         close();

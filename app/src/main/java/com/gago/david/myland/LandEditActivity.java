@@ -143,15 +143,12 @@ public class LandEditActivity extends AppCompatActivity implements PopupMenuAdap
         mControlsView = findViewById(R.id.fullscreen_content_controls);
         mContentView = findViewById(R.id.photo_view);
         View layout = findViewById(R.id.frame_layout);
-        layout.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                if (motionEvent.getActionMasked() == MotionEvent.ACTION_DOWN) {
-                    lastX = motionEvent.getX();
-                    lastY = motionEvent.getY();
-                }
-                return false;
+        layout.setOnTouchListener((view, motionEvent) -> {
+            if (motionEvent.getActionMasked() == MotionEvent.ACTION_DOWN) {
+                lastX = motionEvent.getX();
+                lastY = motionEvent.getY();
             }
+            return false;
         });
         photo = (PhotoView) mContentView;
         Bundle b = getIntent().getExtras();
@@ -165,45 +162,36 @@ public class LandEditActivity extends AppCompatActivity implements PopupMenuAdap
         layers[0] = new BitmapDrawable(getResources(),LandOpenHelper.getImage(land.imageUri));
         layers[1] = new ColorDrawable(Color.TRANSPARENT);
         photo.setImageDrawable(new LayerDrawable(layers));
-        photo.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                if (first) {
-                    drawTrees();
-                    first = false;
-                }
+        photo.getViewTreeObserver().addOnGlobalLayoutListener(() -> {
+            if (first) {
+                drawTrees();
+                first = false;
             }
         });
 
 
         // Set up the user interaction to manually show or hide the system UI.
-        mContentView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //toggle();
-            }
+        mContentView.setOnClickListener(view -> {
+            //toggle();
         });
 
-        mContentView.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View view) {
+        mContentView.setOnLongClickListener(view -> {
 
 
-                popupWindowsort().showAtLocation(view, Gravity.NO_GRAVITY, Math.round(lastX), Math.round(lastY));
-                Log.v("EDIT", "should be showing at x:"+Math.round(lastX)+" y:"+Math.round(lastY));
-                float viewX = lastX - photo.getLeft();
-                float viewY = lastY - photo.getTop();
-                Log.v("photo", viewX+":"+viewY);
-                RectF r = photo.getDisplayRect();
-                tempX = (viewX-r.left)/r.width();
-                tempY = (viewY-r.top)/r.height();
+            popupWindowsort().showAtLocation(view, Gravity.NO_GRAVITY, Math.round(lastX), Math.round(lastY));
+            Log.v("EDIT", "should be showing at x:"+Math.round(lastX)+" y:"+Math.round(lastY));
+            float viewX = lastX - photo.getLeft();
+            float viewY = lastY - photo.getTop();
+            Log.v("photo", viewX+":"+viewY);
+            RectF r = photo.getDisplayRect();
+            tempX = (viewX-r.left)/r.width();
+            tempY = (viewY-r.top)/r.height();
 
-                Log.v("rect", r.toString());
-                Log.v("coords", tempX+":"+tempY);
+            Log.v("rect", r.toString());
+            Log.v("coords", tempX+":"+tempY);
 
-                //Toast.makeText(getApplicationContext(), lastX+":"+lastY, Toast.LENGTH_SHORT).show();
-                return false;
-            }
+            //Toast.makeText(getApplicationContext(), lastX+":"+lastY, Toast.LENGTH_SHORT).show();
+            return false;
         });
 
         // Upon interacting with UI controls, delay any scheduled hide()
@@ -240,11 +228,11 @@ public class LandEditActivity extends AppCompatActivity implements PopupMenuAdap
 
         for ( PlantObject p : land.plants )
             for(PlantTypeObject type : plantTypeList)
-                if(type.name.equals(p.plantType)){
-                    Drawable d = ContextCompat.getDrawable(this, type.icon);
+                if(type.getName().equals(p.plantType)){
+                    Drawable d = ContextCompat.getDrawable(this, type.getIcon());
                     d.setBounds(Math.round(p.x*canvas.getWidth())-d.getIntrinsicWidth()/4,Math.round(p.y*canvas.getHeight()-d.getIntrinsicHeight()/4),
                             Math.round(p.x*canvas.getWidth())+d.getIntrinsicWidth()/4, Math.round(p.y*canvas.getHeight())+d.getIntrinsicHeight()/4);
-                    d.setColorFilter(new PorterDuffColorFilter(Color.parseColor(type.color), PorterDuff.Mode.SRC_IN));
+                    d.setColorFilter(new PorterDuffColorFilter(Color.parseColor(type.getColor()), PorterDuff.Mode.SRC_IN));
                     //And draw it...
                     d.draw(canvas);
                     break;
@@ -445,7 +433,7 @@ public class LandEditActivity extends AppCompatActivity implements PopupMenuAdap
     public void onMenuItemInteraction(final PlantTypeObject item){
         popupWindow.dismiss();
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
-        alertDialog.setTitle(item.name);
+        alertDialog.setTitle(item.getName());
         alertDialog.setMessage(R.string.state);
 
         final EditText input = new EditText(this);
@@ -454,15 +442,15 @@ public class LandEditActivity extends AppCompatActivity implements PopupMenuAdap
                 LinearLayout.LayoutParams.MATCH_PARENT);
         input.setLayoutParams(lp);
         alertDialog.setView(input);
-        ColorFilter filter = new PorterDuffColorFilter(Color.parseColor(item.color), PorterDuff.Mode.SRC_IN);
-        Drawable icon = getResources().getDrawable(item.icon);
+        ColorFilter filter = new PorterDuffColorFilter(Color.parseColor(item.getColor()), PorterDuff.Mode.SRC_IN);
+        Drawable icon = getResources().getDrawable(item.getIcon());
         icon.setColorFilter(filter);
         alertDialog.setIcon(icon);
 
         alertDialog.setPositiveButton("OK",
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-                        PlantObject p = new PlantObject(item.name, input.getText().toString(), tempX, tempY);
+                        PlantObject p = new PlantObject(item.getName(), input.getText().toString(), tempX, tempY);
                         land.addPlant(p);
                         addPlantQuery(p);
                         drawTrees();
@@ -471,11 +459,7 @@ public class LandEditActivity extends AppCompatActivity implements PopupMenuAdap
                 });
 
         alertDialog.setNegativeButton(getResources().getString(R.string.cancel),
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                });
+                (dialog, which) -> dialog.cancel());
 
         alertDialog.show();
     }
