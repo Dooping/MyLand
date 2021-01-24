@@ -16,4 +16,9 @@
         <item>"ha"</item>
     </array>
 
+    <array name="mapType">
+        <item>@string/satellite</item>
+        <item>@string/satellite_roads</item>
+    </array>
+
 </resources>

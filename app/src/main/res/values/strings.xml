@@ -186,4 +186,7 @@
     <string name="switch_user_message">Tap to switch user</string>
     <string name="delete_user">Delete user</string>
     <string name="delete_user_message">Are you sure you want to delete this profile?</string>
+    <string name="satellite">Satellite</string>
+    <string name="satellite_roads">Satellite with roads</string>
+    <string name="map_type">Map Type</string>
 </resources>

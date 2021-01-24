@@ -71,6 +71,7 @@ public class SettingsFragment extends Fragment {
     @BindView(R.id.export_db) MagicButton exportDB;
     @BindView(R.id.delete_user) MagicButton deleteUser;
     @BindView(R.id.unit) SwitchMultiButton unitSwitch;
+    @BindView(R.id.map_type) SwitchMultiButton mapType;
     @BindView(R.id.pageloader) PageLoader pageLoader;
 
     private String mParam1;
@@ -131,81 +132,59 @@ public class SettingsFragment extends Fragment {
             taskAdapter = new TaskTypeAdapter(tasks, mListener2);
             recyclerView2.setAdapter(taskAdapter);
             FloatingActionButton addTask = view.findViewById(R.id.add_task_type);
-            addTask.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    mListener2.addTaskType(taskAdapter, tasks);
-                }
-            });
+            addTask.setOnClickListener(view14 -> mListener2.addTaskType(taskAdapter, tasks));
             FloatingActionButton addPlant = view.findViewById(R.id.add_item_type);
-            addPlant.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    mListener.addItem(itemAdapter, items);
-                }
-            });
+            addPlant.setOnClickListener(view15 -> mListener.addItem(itemAdapter, items));
             ButterKnife.bind(this, view);
-            importDB.setMagicButtonClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
+            importDB.setMagicButtonClickListener(view12 -> {
 
-                    Intent i = new Intent(Intent.ACTION_GET_CONTENT );
-                    i.addCategory(Intent.CATEGORY_DEFAULT);
-                    i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                    startActivityForResult(Intent.createChooser(i, "Choose file"), 9998);
-                }
+                Intent i = new Intent(Intent.ACTION_GET_CONTENT );
+                i.addCategory(Intent.CATEGORY_DEFAULT);
+                i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                startActivityForResult(Intent.createChooser(i, "Choose file"), 9998);
             });
-            exportDB.setMagicButtonClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Intent i = new Intent(Intent.ACTION_CREATE_DOCUMENT);
-                    i.setType("application/octet-stream");
-                    //i.putExtra(Intent.EXTRA_TITLE, "myland.db");
-                    i.addCategory(Intent.CATEGORY_OPENABLE);
-                    i.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                    startActivityForResult(Intent.createChooser(i, "Choose directory"), 9999);
-                }
+            exportDB.setMagicButtonClickListener(view1 -> {
+                Intent i = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+                i.setType("application/octet-stream");
+                //i.putExtra(Intent.EXTRA_TITLE, "myland.db");
+                i.addCategory(Intent.CATEGORY_OPENABLE);
+                i.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                startActivityForResult(Intent.createChooser(i, "Choose directory"), 9999);
             });
             SharedPreferences prefs = getContext().getSharedPreferences(MY_PREFS_NAME, MODE_PRIVATE);
             int unit = prefs.getInt("unit", 0); //0 is the default value.
             unitSwitch.setSelectedTab(unit);
-            unitSwitch.setOnSwitchListener(new SwitchMultiButton.OnSwitchListener() {
-                @Override
-                public void onSwitch(int position, String tabText) {
-                    //Toast.makeText(getContext(), tabText, Toast.LENGTH_SHORT).show();
-                    SharedPreferences.Editor editor = getContext().getSharedPreferences(MY_PREFS_NAME, MODE_PRIVATE).edit();
-                    editor.putInt("unit", position);
-                    editor.apply();
-                }
+            unitSwitch.setOnSwitchListener((position, tabText) -> {
+                SharedPreferences.Editor editor = getContext().getSharedPreferences(MY_PREFS_NAME, MODE_PRIVATE).edit();
+                editor.putInt("unit", position);
+                editor.apply();
+            });
+            int mapTypePosition = prefs.getInt("mapType", 0);
+            mapType.setSelectedTab(mapTypePosition);
+            mapType.setOnSwitchListener((position, tabText) -> {
+                SharedPreferences.Editor editor = getContext().getSharedPreferences(MY_PREFS_NAME, MODE_PRIVATE).edit();
+                editor.putInt("mapType", position);
+                editor.apply();
             });
             final String user = prefs.getString("user","");
-            deleteUser.setMagicButtonClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    AlertDialog.Builder alertDialog = new AlertDialog.Builder(view.getRootView().getContext());
-                    alertDialog.setTitle(R.string.delete_user);
-                    alertDialog.setMessage(R.string.delete_user_message);
+            deleteUser.setMagicButtonClickListener(view13 -> {
+                AlertDialog.Builder alertDialog = new AlertDialog.Builder(view13.getRootView().getContext());
+                alertDialog.setTitle(R.string.delete_user);
+                alertDialog.setMessage(R.string.delete_user_message);
 
-                    alertDialog.setPositiveButton(R.string.yes,
-                            new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int which) {
-                                    if (LandOpenHelper.deleteUser(getContext(), user)){
-                                        Intent intent = new Intent(getContext(), Login.class);
-                                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                                        startActivity(intent);
-                                        getActivity().finish();
-                                    }
-                                }
-                            });
+                alertDialog.setPositiveButton(R.string.yes,
+                        (dialog, which) -> {
+                            if (LandOpenHelper.deleteUser(getContext(), user)){
+                                Intent intent = new Intent(getContext(), Login.class);
+                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                                startActivity(intent);
+                                getActivity().finish();
+                            }
+                        });
 
-                    alertDialog.setNegativeButton(R.string.no,
-                            new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int which) {
-                                    dialog.cancel();
-                                }
-                            });
-                    alertDialog.show();
-                }
+                alertDialog.setNegativeButton(R.string.no,
+                        (dialog, which) -> dialog.cancel());
+                alertDialog.show();
             });
         }
 

@@ -89,4 +89,7 @@
     <string name="switch_user_message">Toque para mudar de utilizador</string>
     <string name="delete_user">Apagar perfil</string>
     <string name="delete_user_message">Tem a certeza que quer apagar este perfil?</string>
+    <string name="satellite">Satélite</string>
+    <string name="satellite_roads">Satélite com estradas</string>
+    <string name="map_type">Tipo de mapa</string>
 </resources>

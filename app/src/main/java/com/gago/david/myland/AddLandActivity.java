@@ -3,24 +3,19 @@ package com.gago.david.myland;
 import android.animation.ObjectAnimator;
 import android.animation.TypeEvaluator;
 import android.animation.ValueAnimator;
-import android.content.ContentValues;
+import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.database.sqlite.SQLiteDatabase;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.view.animation.BounceInterpolator;
 import android.widget.Toast;
 
@@ -37,6 +32,7 @@ import com.mapbox.mapboxsdk.annotations.MarkerOptions;
 import com.mapbox.mapboxsdk.annotations.PolygonOptions;
 import com.mapbox.mapboxsdk.annotations.PolylineOptions;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
+import com.mapbox.mapboxsdk.constants.Style;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.geometry.LatLngBounds;
 import com.mapbox.mapboxsdk.maps.MapView;
@@ -44,15 +40,13 @@ import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.plugins.locationlayer.LocationLayerPlugin;
-import com.mapbox.mapboxsdk.plugins.locationlayer.camera.LatLngAnimator;
 
-import java.io.ByteArrayOutputStream;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.UUID;
 
-import butterknife.BindView;
 import id.arieridwan.lib.PageLoader;
+
+import static com.gago.david.myland.SettingsFragment.MY_PREFS_NAME;
 
 
 public class AddLandActivity extends AppCompatActivity implements OnMapReadyCallback,
@@ -85,11 +79,18 @@ public class AddLandActivity extends AppCompatActivity implements OnMapReadyCall
 
     }
 
+    @SuppressLint("RestrictedApi")
     @Override
     public void onMapReady(final MapboxMap mapboxMap) {
         pageLoader.stopProgress();
         Log.v("MAPBOX", "onMapReady");
         AddLandActivity.this.mapboxMap = mapboxMap;
+        SharedPreferences prefs = getSharedPreferences(MY_PREFS_NAME, MODE_PRIVATE);
+        int mapTypePosition = prefs.getInt("mapType", 0);
+        if (mapTypePosition == 0)
+            mapboxMap.setStyle(Style.SATELLITE);
+        else
+            mapboxMap.setStyle(Style.SATELLITE_STREETS);
         mapboxMap.getUiSettings().setTiltGesturesEnabled(false);
         mapboxMap.addOnMapLongClickListener(this);
         enableLocationPlugin();
@@ -147,81 +148,65 @@ public class AddLandActivity extends AppCompatActivity implements OnMapReadyCall
         userLocationFAB();
         FloatingActionButton saveButton = findViewById(R.id.saveButton);
         saveButton.setVisibility(View.VISIBLE);
-        saveButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                pageLoader.startProgress();
+        saveButton.setOnClickListener(v -> {
+            pageLoader.startProgress();
 //                locationLayerPlugin.setLocationLayerEnabled(false);
-                boolean cancel = false;
-                if(poligon.size()>0) {
-                    LatLngBounds latLngBounds = mapboxMap.getProjection().getVisibleRegion().latLngBounds;
-                    for (LatLng p : poligon)
-                        if (!latLngBounds.contains(p)) {
-                            cancel = true;
-                            Toast.makeText(getBaseContext(),R.string.markers_visibility_error, Toast.LENGTH_SHORT).show();
-                            pageLoader.stopProgress();
+            boolean cancel = false;
+            if(poligon.size()>0) {
+                LatLngBounds latLngBounds = mapboxMap.getProjection().getVisibleRegion().latLngBounds;
+                for (LatLng p : poligon)
+                    if (!latLngBounds.contains(p)) {
+                        cancel = true;
+                        Toast.makeText(getBaseContext(),R.string.markers_visibility_error, Toast.LENGTH_SHORT).show();
+                        pageLoader.stopProgress();
 //                            locationLayerPlugin.setLocationLayerEnabled(true);
-                        }
-                    if(!cancel) {
-                        mapboxMap.clear();
-                        poligon.add(poligon.getFirst());
-                        mapboxMap.addPolyline(new PolylineOptions()
-                                .addAll(poligon)
-                                .color(Color.parseColor("#3bb2d0"))).setWidth(3.0f);
-                        area = SphericalUtil.computeArea(poligon);
-                        Log.i("AREA", "computeArea " + SphericalUtil.computeArea(poligon) + " m2");
                     }
-                }
-
                 if(!cancel) {
-                    Handler myHandler = new Handler();
-
-                    myHandler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            mapboxMap.snapshot(new MapboxMap.SnapshotReadyCallback() {
-                                @Override
-                                public void onSnapshotReady(Bitmap snapshot) {
-                                    String filename = addImage(snapshot);
-                                    if(filename != null) {
-                                        Intent data = new Intent();
-                                        //---set the data to pass back---
-                                        data.putExtra("name", filename);
-                                        data.putExtra("area", area);
-                                        Log.v("MAPBOX", "fileUri: " + filename);
-                                        setResult(RESULT_OK, data);
-                                        //---close the activity---
-                                        finish();
-                                    }
-                                }
-                            });
-                        }
-                    }, 50);
+                    mapboxMap.clear();
+                    poligon.add(poligon.getFirst());
+                    mapboxMap.addPolyline(new PolylineOptions()
+                            .addAll(poligon)
+                            .color(Color.parseColor("#3bb2d0"))).setWidth(3.0f);
+                    area = SphericalUtil.computeArea(poligon);
+                    Log.i("AREA", "computeArea " + SphericalUtil.computeArea(poligon) + " m2");
                 }
-
             }
+
+            if(!cancel) {
+                Handler myHandler = new Handler();
+
+                myHandler.postDelayed(() -> mapboxMap.snapshot(new MapboxMap.SnapshotReadyCallback() {
+                    @Override
+                    public void onSnapshotReady(Bitmap snapshot) {
+                        String filename = addImage(snapshot);
+                        if(filename != null) {
+                            Intent data = new Intent();
+                            //---set the data to pass back---
+                            data.putExtra("name", filename);
+                            data.putExtra("area", area);
+                            Log.v("MAPBOX", "fileUri: " + filename);
+                            setResult(RESULT_OK, data);
+                            //---close the activity---
+                            finish();
+                        }
+                    }
+                }), 50);
+            }
+
         });
 
         FloatingActionButton addMarker = findViewById(R.id.add_marker);
         addMarker.setVisibility(View.VISIBLE);
-        addMarker.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                onMapLongClick(mapboxMap.getCameraPosition().target);
-            }
-        });
+        addMarker.setOnClickListener(view -> onMapLongClick(mapboxMap.getCameraPosition().target));
         FloatingActionButton removeMarker = findViewById(R.id.remove_marker);
         removeMarker.setVisibility(View.VISIBLE);
-        removeMarker.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(poligon.size() > 0) {
-                    poligon.removeLast();
-                    Marker marker = mapboxMap.getMarkers().get(mapboxMap.getMarkers().size() - 1);
-                    marker.remove();
-                    if (mapboxMap.getPolygons().size() > 0)
-                        mapboxMap.getPolygons().get(0).setPoints(poligon);
-                }
+        removeMarker.setOnClickListener(view -> {
+            if(poligon.size() > 0) {
+                poligon.removeLast();
+                Marker marker = mapboxMap.getMarkers().get(mapboxMap.getMarkers().size() - 1);
+                marker.remove();
+                if (mapboxMap.getPolygons().size() > 0)
+                    mapboxMap.getPolygons().get(0).setPoints(poligon);
             }
         });
 
@@ -289,16 +274,14 @@ public class AddLandActivity extends AppCompatActivity implements OnMapReadyCall
             locationEngine.removeLocationEngineListener(this);
     }
 
+    @SuppressLint("RestrictedApi")
     private void userLocationFAB(){
         FloatingActionButton FAB = findViewById(R.id.myLocationButton);
         FAB.setVisibility(View.VISIBLE);
-        FAB.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        FAB.setOnClickListener(v -> {
 
-                if(locationLayerPlugin.getLastKnownLocation() != null) { // Check to ensure coordinates aren't null, probably a better way of doing this...
-                    mapboxMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(locationLayerPlugin.getLastKnownLocation()),16), 3000);
-                }
+            if(locationLayerPlugin.getLastKnownLocation() != null) { // Check to ensure coordinates aren't null, probably a better way of doing this...
+                mapboxMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(locationLayerPlugin.getLastKnownLocation()),16), 3000);
             }
         });
     }
@@ -376,12 +359,7 @@ public class AddLandActivity extends AppCompatActivity implements OnMapReadyCall
         final LatLngInterpolator.Linear interpolator = new LatLngInterpolator.Linear();
         final BounceInterpolator bounceInterpolator = new BounceInterpolator();
         ValueAnimator markerAnimator = ObjectAnimator.ofObject(marker, "position",
-                new TypeEvaluator<LatLng>() {
-                    @Override
-                    public LatLng evaluate(float v, LatLng start, LatLng end) {
-                        return interpolator.interpolate(v, start, end);
-                    }
-                }, marker.getPosition(), point);
+                (TypeEvaluator<LatLng>) interpolator::interpolate, marker.getPosition(), point);
         markerAnimator.setInterpolator(bounceInterpolator);
         markerAnimator.setDuration(1000);
         markerAnimator.start();
