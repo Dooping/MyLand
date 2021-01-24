@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import com.gago.david.myland.R
 import kotlinx.android.synthetic.main.user_name.view.*
 
-class UserAdapter(val items : ArrayList<String>?, val context: Context, val listener: (String) -> Unit) : RecyclerView.Adapter<ViewHolder>() {
+class UserAdapter(private val items : ArrayList<String>?, val context: Context, private val listener: (String) -> Unit) : RecyclerView.Adapter<ViewHolder>() {
 
     // Gets the number of animals in the list
     override fun getItemCount(): Int {
