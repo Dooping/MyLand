@@ -59,6 +59,8 @@ import com.gago.david.myland.models.PriorityObject;
 import com.gago.david.myland.models.TaskObject;
 import com.lantouzi.wheelview.WheelView;
 
+import java.text.DecimalFormat;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -81,7 +83,7 @@ public class ScrollingActivity extends AppCompatActivity implements AddTaskFragm
     private FloatingActionButton deleteButton;
     private TaskListAdapter mAdapter;
     private ArrayList<TaskObject> tasks = new ArrayList<>();
-    private TextView description, state;
+    private TextView description, state, landTitle;
     private LinearLayout descriptionLayout;
     private Fragment fragment;
     private List<PriorityObject> priorities;
@@ -146,6 +148,7 @@ public class ScrollingActivity extends AppCompatActivity implements AddTaskFragm
 
 
         doneButton.setOnClickListener(new View.OnClickListener() {
+            @SuppressLint("RestrictedApi")
             @Override
             public void onClick(View view) {
                 AlertDialog.Builder alertDialog = new AlertDialog.Builder(view.getRootView().getContext());
@@ -253,55 +256,55 @@ public class ScrollingActivity extends AppCompatActivity implements AddTaskFragm
 
         plantTypeList = readPlantTypes();
         int unit = prefs.getInt("unit", 0); //0 is the default value.
-        String area = (unit==0) ? " ("+Math.round(land.area)+"m\u00B2)" : " ("+Math.round(land.area/10000)+"ha)";
-        setTitle(land.name + ((land.area==0) ? "" : area));
+        DecimalFormat df = new DecimalFormat("#.#");
+        String area = (unit==0) ? " ("+Math.round(land.area)+"m\u00B2)" : " ("+df.format(land.area/10000)+"ha)";
+        setTitle("");
+        landTitle = findViewById(R.id.land_title_size);
+        landTitle.setText(MessageFormat.format("{0}{1}", land.name, (land.area == 0) ? "" : area));
         description = findViewById(R.id.scrolling_description);
         description.setText(land.Description);
         descriptionLayout = findViewById(R.id.description_layout);
-        descriptionLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                AlertDialog.Builder alertDialog = new AlertDialog.Builder(ScrollingActivity.this);
+        descriptionLayout.setOnClickListener(view -> {
+            AlertDialog.Builder alertDialog = new AlertDialog.Builder(ScrollingActivity.this);
 
-                final EditText input = new EditText(ScrollingActivity.this);
-                if (selected < plantTypeList.size()+2) {
-                    alertDialog.setTitle(R.string.edit_land);
-                    input.setText(land.Description);
-                }
-                else {
-                    alertDialog.setTitle(R.string.edit_item);
-                    input.setText(land.plants.get(selected-2-plantTypeList.size()).description);
-                }
-                alertDialog.setMessage(R.string.state);
-
-                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.MATCH_PARENT,
-                        LinearLayout.LayoutParams.MATCH_PARENT);
-                input.setLayoutParams(lp);
-                alertDialog.setView(input);
-                ColorFilter filter = new PorterDuffColorFilter(getResources().getColor(R.color.colorAccent), PorterDuff.Mode.SRC_IN);
-                Drawable icon = getResources().getDrawable(R.drawable.ic_action_edit);
-                icon.setColorFilter(filter);
-                alertDialog.setIcon(icon);
-
-                alertDialog.setPositiveButton("OK",
-                        (dialog, which) -> {
-                            description.setText(input.getText());
-                            if (selected < plantTypeList.size()+2) {
-                                land.Description = input.getText().toString();
-                                updateLand();
-                            }
-                            else {
-                                land.plants.get(selected-2-plantTypeList.size()).description = input.getText().toString();
-                                updateItem(land.plants.get(selected-2-plantTypeList.size()));
-                            }
-                        });
-
-                alertDialog.setNegativeButton(getResources().getString(R.string.cancel),
-                        (dialog, which) -> dialog.cancel());
-
-                alertDialog.show();
+            final EditText input = new EditText(ScrollingActivity.this);
+            if (selected < plantTypeList.size()+2) {
+                alertDialog.setTitle(R.string.edit_land);
+                input.setText(land.Description);
             }
+            else {
+                alertDialog.setTitle(R.string.edit_item);
+                input.setText(land.plants.get(selected-2-plantTypeList.size()).description);
+            }
+            alertDialog.setMessage(R.string.state);
+
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.MATCH_PARENT);
+            input.setLayoutParams(lp);
+            alertDialog.setView(input);
+            ColorFilter filter = new PorterDuffColorFilter(getResources().getColor(R.color.colorAccent), PorterDuff.Mode.SRC_IN);
+            Drawable icon = getResources().getDrawable(R.drawable.ic_action_edit);
+            icon.setColorFilter(filter);
+            alertDialog.setIcon(icon);
+
+            alertDialog.setPositiveButton("OK",
+                    (dialog, which) -> {
+                        description.setText(input.getText());
+                        if (selected < plantTypeList.size()+2) {
+                            land.Description = input.getText().toString();
+                            updateLand();
+                        }
+                        else {
+                            land.plants.get(selected-2-plantTypeList.size()).description = input.getText().toString();
+                            updateItem(land.plants.get(selected-2-plantTypeList.size()));
+                        }
+                    });
+
+            alertDialog.setNegativeButton(getResources().getString(R.string.cancel),
+                    (dialog, which) -> dialog.cancel());
+
+            alertDialog.show();
         });
         state = findViewById(R.id.state);
     }
