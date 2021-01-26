@@ -22,7 +22,7 @@ import com.gago.david.myland.models.TaskObject
 import de.hdodenhof.circleimageview.CircleImageView
 import java.util.*
 
-class TaskListAdapter(items: ArrayList<TaskObject>, private val mListener: TaskEditFragment.OnFragmentInteractionListener?, private val priorities: List<PriorityObject>) : RecyclerView.Adapter<TaskListAdapter.ViewHolder>(), Filterable {
+class TaskListAdapter(items: ArrayList<TaskObject>, private val mListener: TaskEditFragment.OnFragmentInteractionListener?, private val priorities: List<PriorityObject>?) : RecyclerView.Adapter<TaskListAdapter.ViewHolder>(), Filterable {
     private val mValues: SortedList<TaskObject>
     private val mFilter: CustomFilter
     private val originalList: ArrayList<TaskObject>
@@ -40,11 +40,13 @@ class TaskListAdapter(items: ArrayList<TaskObject>, private val mListener: TaskE
             val s = dateFormat.format(holder.mItem?.targetDate)
             holder.date.text = s
         }
-        for (p: PriorityObject in priorities) if (p.p_order == holder.mItem?.priority) {
-            holder.mNotificationView.setImageDrawable(ColorDrawable(Color.parseColor(p.color)))
-            break
+        if (priorities != null) {
+            for (p: PriorityObject in priorities) if (p.p_order == holder.mItem?.priority) {
+                holder.mNotificationView.setImageDrawable(ColorDrawable(Color.parseColor(p.color)))
+                break
+            }
         }
-        holder.mView.setOnClickListener(View.OnClickListener { mListener?.selectTask(holder.mItem) })
+        holder.mView.setOnClickListener { mListener?.selectTask(holder.mItem) }
         setFadeAnimation(holder.mView)
     }
 
