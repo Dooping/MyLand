@@ -29,6 +29,7 @@ import com.gago.david.myland.models.PlantObject
 import com.gago.david.myland.models.PlantTypeObject
 import com.github.chrisbanes.photoview.PhotoView
 import java.util.*
+import kotlin.math.roundToInt
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -73,10 +74,11 @@ class LandEditActivity : AppCompatActivity(), OnMenuItemInteractionListener {
      * system UI. This is to prevent the jarring behavior of controls going away
      * while interacting with activity UI.
      */
-    private val mDelayHideTouchListener = OnTouchListener { view, motionEvent ->
+    private val mDelayHideTouchListener = OnTouchListener { view, _ ->
         if (AUTO_HIDE) {
             delayedHide(AUTO_HIDE_DELAY_MILLIS)
         }
+        view.performClick()
         false
     }
 
@@ -92,6 +94,7 @@ class LandEditActivity : AppCompatActivity(), OnMenuItemInteractionListener {
                 lastX = motionEvent.x
                 lastY = motionEvent.y
             }
+            view!!.performClick()
             false
         }
         photo = mContentView as PhotoView?
@@ -114,10 +117,10 @@ class LandEditActivity : AppCompatActivity(), OnMenuItemInteractionListener {
 
 
         // Set up the user interaction to manually show or hide the system UI.
-        mContentView!!.setOnClickListener { view: View? -> toggle() }
+        mContentView!!.setOnClickListener { toggle() }
         mContentView!!.setOnLongClickListener { view: View? ->
-            popupWindowsort().showAtLocation(view, Gravity.NO_GRAVITY, Math.round(lastX), Math.round(lastY))
-            Log.v("EDIT", "should be showing at x:" + Math.round(lastX) + " y:" + Math.round(lastY))
+            popupWindowsort().showAtLocation(view, Gravity.NO_GRAVITY, lastX.roundToInt(), lastY.roundToInt())
+            Log.v("EDIT", "should be showing at x:" + lastX.roundToInt() + " y:" + lastY.roundToInt())
             val viewX = lastX - photo!!.left
             val viewY = lastY - photo!!.top
             Log.v("photo", "$viewX:$viewY")
@@ -132,7 +135,7 @@ class LandEditActivity : AppCompatActivity(), OnMenuItemInteractionListener {
         // Upon interacting with UI controls, delay any scheduled hide()
         // operations to prevent the jarring behavior of controls going away
         // while interacting with the UI.
-        findViewById<View>(R.id.exit_button).setOnClickListener { v: View? -> finish() }
+        findViewById<View>(R.id.exit_button).setOnClickListener { finish() }
         setTitle(R.string.edit_land_title)
     }
 
@@ -355,7 +358,7 @@ class LandEditActivity : AppCompatActivity(), OnMenuItemInteractionListener {
         icon.colorFilter = filter
         alertDialog.setIcon(icon)
         alertDialog.setPositiveButton("OK"
-        ) { dialog, which ->
+        ) { _, _ ->
             val p = PlantObject(item.name, input.text.toString(), tempX, tempY)
             land!!.addPlant(p)
             addPlantQuery(p)
@@ -363,7 +366,7 @@ class LandEditActivity : AppCompatActivity(), OnMenuItemInteractionListener {
             Log.v("plant", land.toString())
         }
         alertDialog.setNegativeButton(resources.getString(R.string.cancel)
-        ) { dialog: DialogInterface, which: Int -> dialog.cancel() }
+        ) { dialog: DialogInterface, _: Int -> dialog.cancel() }
         alertDialog.show()
     }
 

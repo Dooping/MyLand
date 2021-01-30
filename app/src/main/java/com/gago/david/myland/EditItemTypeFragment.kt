@@ -106,7 +106,7 @@ class EditItemTypeFragment : Fragment() {
         icon.colorFilter = filter
         alertDialog.setIcon(icon)
         alertDialog.setAdapter(ImageAdapter(activity!!, list!!, Color.parseColor(tintColor))
-        ) { dialogInterface, i ->
+        ) { _, i ->
             imageView!!.setImageResource(list!![i])
             drawable = list!![i]
         }

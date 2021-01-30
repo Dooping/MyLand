@@ -31,16 +31,16 @@ class TaskTypeAdapter(private val mValues: MutableList<TaskTypeObject>, private 
             alertDialog.setTitle(holder.mItem!!.name)
             alertDialog.setMessage(R.string.remove_task)
             alertDialog.setPositiveButton(R.string.yes
-            ) { dialog, which ->
-                mListener!!.removeItem(holder.mItem)
+            ) { _, _ ->
+                mListener!!.removeItem(holder.mItem!!)
                 mValues.remove(holder.mItem!!)
                 notifyDataSetChanged()
             }
             alertDialog.setNegativeButton(R.string.no
-            ) { dialog, which -> dialog.cancel() }
+            ) { dialog, _ -> dialog.cancel() }
             alertDialog.show()
         }
-        holder.mView.setOnClickListener { mListener?.selectItem(holder.mItem) }
+        holder.mView.setOnClickListener { mListener?.selectItem(holder.mItem!!) }
     }
 
     override fun getItemCount(): Int {

@@ -121,7 +121,7 @@ class AddLandActivity : AppCompatActivity(), OnMapReadyCallback, OnMapLongClickL
         userLocationFAB()
         val saveButton = findViewById<FloatingActionButton>(R.id.saveButton)
         saveButton.visibility = View.VISIBLE
-        saveButton.setOnClickListener { v: View? ->
+        saveButton.setOnClickListener {
             pageLoader!!.startProgress()
             //                locationLayerPlugin.setLocationLayerEnabled(false);
             var cancel = false
@@ -164,10 +164,10 @@ class AddLandActivity : AppCompatActivity(), OnMapReadyCallback, OnMapLongClickL
         }
         val addMarker = findViewById<FloatingActionButton>(R.id.add_marker)
         addMarker.visibility = View.VISIBLE
-        addMarker.setOnClickListener { view: View? -> onMapLongClick(mapboxMap.cameraPosition.target) }
+        addMarker.setOnClickListener { onMapLongClick(mapboxMap.cameraPosition.target) }
         val removeMarker = findViewById<FloatingActionButton>(R.id.remove_marker)
         removeMarker.visibility = View.VISIBLE
-        removeMarker.setOnClickListener { view: View? ->
+        removeMarker.setOnClickListener {
             if (poligon!!.size > 0) {
                 poligon!!.removeLast()
                 val marker = mapboxMap.markers[mapboxMap.markers.size - 1]
@@ -240,7 +240,7 @@ class AddLandActivity : AppCompatActivity(), OnMapReadyCallback, OnMapLongClickL
     private fun userLocationFAB() {
         val FAB = findViewById<FloatingActionButton>(R.id.myLocationButton)
         FAB.visibility = View.VISIBLE
-        FAB.setOnClickListener { v: View? ->
+        FAB.setOnClickListener {
             if (locationLayerPlugin!!.lastKnownLocation != null) { // Check to ensure coordinates aren't null, probably a better way of doing this...
                 mapboxMap!!.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(locationLayerPlugin!!.lastKnownLocation), 16.0), 3000)
             }

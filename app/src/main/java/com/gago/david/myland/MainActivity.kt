@@ -293,7 +293,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
 // Create a new map of values, where column names are the keys
         val values = ContentValues()
-        values.put("Name", itemType!!.name)
+        values.put("Name", itemType.name)
         values.put("Icon", itemType.icon)
         values.put("Color", itemType.color)
 

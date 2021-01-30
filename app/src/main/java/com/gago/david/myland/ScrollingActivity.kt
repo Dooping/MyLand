@@ -41,6 +41,7 @@ import com.lantouzi.wheelview.WheelView.OnWheelItemSelectedListener
 import java.text.DecimalFormat
 import java.text.MessageFormat
 import java.util.*
+import kotlin.math.roundToInt
 
 class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInteractionListener, NavigationView.OnNavigationItemSelectedListener, TaskEditFragment.OnFragmentInteractionListener {
     private var wheel: WheelView? = null
@@ -89,12 +90,12 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
         val userView = headerView.findViewById<TextView>(R.id.user)
         userView.text = user
         val navLayout = headerView.findViewById<LinearLayout>(R.id.nav_layout)
-        navLayout.setOnClickListener { view: View? ->
+        navLayout.setOnClickListener {
             val intent = Intent(this@ScrollingActivity, Login::class.java)
             startActivity(intent)
         }
         editButton = findViewById(R.id.fab)
-        editButton?.setOnClickListener { view: View? ->
+        editButton?.setOnClickListener {
             //Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
             //        .setAction("Action", null).show();
             val intent = Intent(applicationContext, LandEditActivity::class.java)
@@ -111,7 +112,7 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
             alertDialog.setTitle(R.string.close)
             alertDialog.setMessage(R.string.close_task_ask)
             alertDialog.setPositiveButton(R.string.yes
-            ) { dialog: DialogInterface?, which: Int ->
+            ) { _: DialogInterface?, _: Int ->
                 if (fragment is TaskEditFragment) {
                     val task = (fragment as TaskEditFragment).closeTask()
                     supportFragmentManager.popBackStack()
@@ -122,7 +123,7 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
                 }
             }
             alertDialog.setNegativeButton(R.string.no
-            ) { dialog: DialogInterface, which: Int -> dialog.cancel() }
+            ) { dialog: DialogInterface, _: Int -> dialog.cancel() }
             alertDialog.show()
         }
         deleteButton?.setOnClickListener { view: View ->
@@ -130,7 +131,7 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
             alertDialog.setTitle(R.string.delete)
             alertDialog.setMessage(R.string.delete_task)
             alertDialog.setPositiveButton(R.string.yes
-            ) { dialog: DialogInterface?, which: Int ->
+            ) { _: DialogInterface?, _: Int ->
                 if (fragment is TaskEditFragment) {
                     val task = (fragment as TaskEditFragment).deleteTask()
                     supportFragmentManager.popBackStack()
@@ -141,11 +142,11 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
                 }
             }
             alertDialog.setNegativeButton(R.string.no
-            ) { dialog: DialogInterface, which: Int -> dialog.cancel() }
+            ) { dialog: DialogInterface, _: Int -> dialog.cancel() }
             alertDialog.show()
         }
         addTaskButton = findViewById(R.id.add_task_button)
-        addTaskButton?.setOnClickListener { view: View? -> addTaskPressed() }
+        addTaskButton?.setOnClickListener { addTaskPressed() }
         toolbarLayout = findViewById(R.id.toolbar_layout)
         layers = arrayOfNulls(2)
         layers[0] = BitmapDrawable(resources, LandOpenHelper.getImage(land!!.imageUri))
@@ -181,14 +182,14 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
         plantTypeList = readPlantTypes()
         val unit = prefs.getInt("unit", 0) //0 is the default value.
         val df = DecimalFormat("#.#")
-        val area = if (unit == 0) " (" + Math.round(land!!.area) + "m\u00B2)" else " (" + df.format(land!!.area / 10000) + "ha)"
+        val area = if (unit == 0) " (" + land!!.area.roundToInt() + "m\u00B2)" else " (" + df.format(land!!.area / 10000) + "ha)"
         title = ""
         landTitle = findViewById(R.id.land_title_size)
         landTitle?.text = MessageFormat.format("{0}{1}", land!!.name, if (land!!.area == 0.0) "" else area)
         description = findViewById(R.id.scrolling_description)
         description?.text = land!!.Description
         descriptionLayout = findViewById(R.id.description_layout)
-        descriptionLayout?.setOnClickListener { view: View? ->
+        descriptionLayout?.setOnClickListener {
             val alertDialog = AlertDialog.Builder(this@ScrollingActivity)
             val input = EditText(this@ScrollingActivity)
             if (selected < plantGroups?.keys!!.size + 2) {
@@ -220,7 +221,7 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
                 }
             }
             alertDialog.setNegativeButton(resources.getString(R.string.cancel)
-            ) { dialog: DialogInterface, which: Int -> dialog.cancel() }
+            ) { dialog: DialogInterface, _: Int -> dialog.cancel() }
             alertDialog.show()
         }
         state = findViewById(R.id.state)
@@ -387,7 +388,7 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
             initiateStuff()
         }
         alertDialog.setNegativeButton(R.string.no
-        ) { dialog: DialogInterface, which: Int -> dialog.cancel() }
+        ) { dialog: DialogInterface, _: Int -> dialog.cancel() }
         alertDialog.show()
     }
 
@@ -396,12 +397,12 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
         alertDialog.setTitle(land!!.name)
         alertDialog.setMessage(R.string.remove_land)
         alertDialog.setPositiveButton(R.string.yes
-        ) { dialog: DialogInterface?, which: Int ->
+        ) { _: DialogInterface?, _: Int ->
             LandOpenHelper.deleteLand(land, this@ScrollingActivity)
             finish()
         }
         alertDialog.setNegativeButton(R.string.no
-        ) { dialog: DialogInterface, which: Int -> dialog.cancel() }
+        ) { dialog: DialogInterface, _: Int -> dialog.cancel() }
         alertDialog.show()
     }
 
@@ -712,7 +713,7 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
             alertDialog.setTitle(R.string.update)
             alertDialog.setMessage(R.string.save_changes)
             alertDialog.setPositiveButton(R.string.yes
-            ) { dialog: DialogInterface?, which: Int ->
+            ) { _: DialogInterface?, _: Int ->
                 val success = LandOpenHelper.updateTask(newTask, this@ScrollingActivity)
                 if (success) {
                     Toast.makeText(this@ScrollingActivity, R.string.update_task_success, Toast.LENGTH_SHORT).show()
@@ -721,7 +722,7 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
                 filter()
             }
             alertDialog.setNegativeButton(R.string.no
-            ) { dialog: DialogInterface, which: Int ->
+            ) { dialog: DialogInterface, _: Int ->
                 dialog.cancel()
                 filter()
             }
