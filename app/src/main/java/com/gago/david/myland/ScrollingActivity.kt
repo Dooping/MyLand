@@ -364,7 +364,7 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
         icon.colorFilter = filter
         alertDialog.setIcon(icon)
         alertDialog.setPositiveButton(R.string.yes
-        ) { dialog: DialogInterface?, which: Int ->
+        ) { _: DialogInterface?, _: Int ->
             val mDbHelper = LandOpenHelper(this@ScrollingActivity)
 
             // Gets the data repository in write mode
@@ -533,7 +533,7 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
         if (selected > plantGroups?.keys!!.size + 1) removeButton!!.visibility = View.VISIBLE
     }
 
-    override fun onFragmentInteraction(tasks: ArrayList<TaskObject>) {
+    override fun onFragmentInteraction(tasks: ArrayList<TaskObject>?) {
         val fragment: Fragment = AddTaskFragment()
         val manager = supportFragmentManager
         val trans = manager.beginTransaction()
@@ -541,7 +541,7 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
         trans.commit()
         manager.popBackStack()
         Log.v("tasks", tasks.toString())
-        addTaskQuery(tasks)
+        addTaskQuery(tasks!!)
         filter()
     }
 
