@@ -16,7 +16,6 @@ import android.widget.Filterable
 import android.widget.TextView
 import com.gago.david.myland.R
 import com.gago.david.myland.TaskEditFragment
-import com.gago.david.myland.adapters.TaskListAdapter
 import com.gago.david.myland.models.PriorityObject
 import com.gago.david.myland.models.TaskObject
 import de.hdodenhof.circleimageview.CircleImageView
@@ -37,7 +36,7 @@ class TaskListAdapter(items: ArrayList<TaskObject>, private val mListener: TaskE
         holder.mContentView.text = holder.mItem?.observations
         if (holder.mItem?.targetDate == null) holder.date.text = "" else {
             val dateFormat = DateFormat.getDateFormat(mListener as Context?)
-            val s = dateFormat.format(holder.mItem?.targetDate)
+            val s = dateFormat.format(holder.mItem?.targetDate!!)
             holder.date.text = s
         }
         if (priorities != null) {
@@ -46,7 +45,7 @@ class TaskListAdapter(items: ArrayList<TaskObject>, private val mListener: TaskE
                 break
             }
         }
-        holder.mView.setOnClickListener { mListener?.selectTask(holder.mItem) }
+        holder.mView.setOnClickListener { mListener?.selectTask(holder.mItem!!) }
         setFadeAnimation(holder.mView)
     }
 

@@ -38,7 +38,7 @@ class MyLandRecyclerViewAdapter(private val mValues: List<LandObject>, private v
             break
         }
         if (!colorChanged) holder.notification.setImageDrawable(ColorDrawable(Color.WHITE))
-        holder.mView.setOnClickListener { mListener?.onListFragmentInteraction(holder.mItem) }
+        holder.mView.setOnClickListener { mListener?.onListFragmentInteraction(holder.mItem!!) }
     }
 
     override fun getItemCount(): Int {
