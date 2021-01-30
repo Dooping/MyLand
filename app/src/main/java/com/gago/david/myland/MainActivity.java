@@ -31,6 +31,8 @@ import com.gago.david.myland.models.PlantTypeObject;
 import com.gago.david.myland.models.TaskTypeObject;
 import com.jaredrummler.android.colorpicker.ColorPickerDialogListener;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity
@@ -358,7 +360,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onFragmentInteraction(PlantTypeObject itemType) {
+    public void onFragmentInteraction(@NotNull PlantTypeObject itemType) {
         LandOpenHelper mDbHelper = new LandOpenHelper(this);
 
         // Gets the data repository in write mode

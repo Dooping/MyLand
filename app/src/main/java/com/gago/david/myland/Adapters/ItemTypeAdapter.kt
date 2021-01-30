@@ -19,7 +19,7 @@ import de.hdodenhof.circleimageview.CircleImageView
  * [RecyclerView.Adapter] that can display a [PlantTypeObject] and makes a call to the
  * specified [OnListFragmentInteractionListener].
  */
-class ItemTypeAdapter(private val mValues: MutableList<PlantTypeObject>, private val mListener: SettingsFragment.OnListFragmentInteractionListener?) : RecyclerView.Adapter<ItemTypeAdapter.ViewHolder>() {
+class ItemTypeAdapter(private val mValues: ArrayList<PlantTypeObject>, private val mListener: SettingsFragment.OnListFragmentInteractionListener?) : RecyclerView.Adapter<ItemTypeAdapter.ViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
                 .inflate(R.layout.plant_type_item, parent, false)
