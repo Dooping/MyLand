@@ -32,7 +32,7 @@ import java.util.*
  * create an instance of this fragment.
  */
 class EditItemTypeFragment : Fragment() {
-    private var item: PlantTypeObject? = null
+    private lateinit var item: PlantTypeObject
     private var create = false
     private var list: ArrayList<Int>? = null
     private var tintColor: String? = null
@@ -61,10 +61,10 @@ class EditItemTypeFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (arguments != null) {
-            item = arguments!!.getSerializable(ARG_PARAM1) as PlantTypeObject?
+            item = arguments!!.getSerializable(ARG_PARAM1) as PlantTypeObject
             create = arguments!!.getBoolean(ARG_PARAM2)
-            tintColor = if (item!!.color == "") "#669900" else item!!.color
-            drawable = item!!.icon
+            tintColor = if (item.color == "") "#669900" else item.color
+            drawable = item.icon
         }
         val array = resources.obtainTypedArray(R.array.imageList)
         list = ArrayList()
@@ -77,7 +77,7 @@ class EditItemTypeFragment : Fragment() {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_edit_item_type, container, false)
         ButterKnife.bind(this, view)
-        nameView!!.setText(item!!.name)
+        nameView!!.setText(item.name)
         imageView!!.setImageResource(drawable)
         imageView!!.setColorFilter(Color.parseColor(tintColor), PorterDuff.Mode.SRC_IN)
         editIcon!!.setMagicButtonClickListener { showAlertDialog() }
@@ -90,9 +90,9 @@ class EditItemTypeFragment : Fragment() {
                     .show(activity)
         }
         button!!.setOnClickListener {
-            item!!.name = nameView!!.text.toString()
-            item!!.icon = drawable
-            item!!.color = tintColor!!
+            item.name = nameView!!.text.toString()
+            item.icon = drawable
+            item.color = tintColor!!
             onButtonPressed(item)
         }
         return view
@@ -107,14 +107,13 @@ class EditItemTypeFragment : Fragment() {
         alertDialog.setIcon(icon)
         alertDialog.setAdapter(ImageAdapter(activity!!, list!!, Color.parseColor(tintColor))
         ) { dialogInterface, i ->
-            Log.v("image adapter", "adfngajn:$i")
             imageView!!.setImageResource(list!![i])
             drawable = list!![i]
         }
         alertDialog.show()
     }
 
-    fun onButtonPressed(item: PlantTypeObject?) {
+    private fun onButtonPressed(item: PlantTypeObject) {
         if (mListener != null) {
             if (create) mListener!!.addItem(item) else mListener!!.onFragmentInteraction(item)
         }
@@ -150,8 +149,8 @@ class EditItemTypeFragment : Fragment() {
      * See the Android Training lesson [Communicating with Other Fragments](http://developer.android.com/training/basics/fragments/communicating.html) for more information.
      */
     interface OnFragmentInteractionListener {
-        fun onFragmentInteraction(itemType: PlantTypeObject?)
-        fun addItem(item: PlantTypeObject?)
+        fun onFragmentInteraction(itemType: PlantTypeObject)
+        fun addItem(item: PlantTypeObject)
     }
 
     companion object {
