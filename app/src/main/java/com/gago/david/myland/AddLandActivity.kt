@@ -139,8 +139,8 @@ class AddLandActivity : AppCompatActivity(), OnMapReadyCallback, OnMapLongClickL
                     mapboxMap.addPolyline(PolylineOptions()
                             .addAll(poligon)
                             .color(Color.parseColor("#3bb2d0"))).width = 3.0f
-                    area = SphericalUtil.computeArea(poligon)
-                    Log.i("AREA", "computeArea " + SphericalUtil.computeArea(poligon) + " m2")
+                    area = SphericalUtil.computeArea(poligon!!)
+                    Log.i("AREA", "computeArea " + SphericalUtil.computeArea(poligon!!) + " m2")
                 }
             }
             if (!cancel) {
@@ -311,7 +311,7 @@ class AddLandActivity : AppCompatActivity(), OnMapReadyCallback, OnMapLongClickL
         val interpolator = Linear()
         val bounceInterpolator = BounceInterpolator()
         val markerAnimator: ValueAnimator = ObjectAnimator.ofObject(marker, "position",
-                TypeEvaluator<LatLng> { fraction: Float, a: LatLng?, b: LatLng? -> interpolator.interpolate(fraction, a, b) }, marker.position, point)
+                TypeEvaluator<LatLng> { fraction: Float, a: LatLng?, b: LatLng? -> interpolator.interpolate(fraction, a!!, b!!) }, marker.position, point)
         markerAnimator.interpolator = bounceInterpolator
         markerAnimator.duration = 1000
         markerAnimator.start()
