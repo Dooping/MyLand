@@ -15,7 +15,7 @@ import com.gago.david.myland.models.PlantObject;
 import com.gago.david.myland.models.PlantTypeObject;
 import com.gago.david.myland.models.TaskObject;
 import com.gago.david.myland.models.TaskTypeObject;
-import com.gago.david.myland.Utils.Utils;
+import com.gago.david.myland.utils.Utils;
 
 import org.apache.commons.io.IOUtils;
 

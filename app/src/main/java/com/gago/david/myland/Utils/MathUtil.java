@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.gago.david.myland.Utils;
+package com.gago.david.myland.utils;
 
 import static java.lang.Math.*;
 

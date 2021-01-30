@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.gago.david.myland.Utils;
+package com.gago.david.myland.utils;
 
 import com.mapbox.mapboxsdk.geometry.LatLng;
 
 import java.util.List;
 
-import static com.gago.david.myland.Utils.MathUtil.*;
+import static com.gago.david.myland.utils.MathUtil.*;
 import static java.lang.Math.*;
 
 public class SphericalUtil {

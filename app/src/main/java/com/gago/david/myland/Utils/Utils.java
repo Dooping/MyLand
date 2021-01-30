@@ -1,4 +1,4 @@
-package com.gago.david.myland.Utils;
+package com.gago.david.myland.utils;
 
 import android.net.Uri;
 import android.support.annotation.NonNull;
