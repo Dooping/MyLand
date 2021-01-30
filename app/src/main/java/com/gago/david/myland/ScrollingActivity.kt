@@ -398,7 +398,7 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
         alertDialog.setMessage(R.string.remove_land)
         alertDialog.setPositiveButton(R.string.yes
         ) { _: DialogInterface?, _: Int ->
-            LandOpenHelper.deleteLand(land, this@ScrollingActivity)
+            LandOpenHelper.deleteLand(land!!, this@ScrollingActivity)
             finish()
         }
         alertDialog.setNegativeButton(R.string.no

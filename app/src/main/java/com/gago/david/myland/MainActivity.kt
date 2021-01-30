@@ -237,7 +237,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     override fun addItem(item: TaskTypeObject?) {
-        val success = LandOpenHelper.addTaskType(this, item)
+        val success = LandOpenHelper.addTaskType(this, item!!)
         if (!success) {
             Toast.makeText(this, R.string.task_type_add_error, Toast.LENGTH_SHORT).show()
             Log.v("Add TaskType", "Failed to insert task type: " + item.toString())

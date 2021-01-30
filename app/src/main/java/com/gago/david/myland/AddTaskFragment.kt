@@ -61,7 +61,7 @@ class AddTaskFragment : Fragment(), OnItemSelectedListener {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_add_task, container, false)
         spinner = view.findViewById(R.id.spinner)
-        taskTypes = LandOpenHelper.readTaskTypes(context)
+        taskTypes = LandOpenHelper.readTaskTypes(context!!)
         val list = ArrayList<String>()
         for (task in taskTypes!!) list.add(task.name)
         val adapter = ArrayAdapter(context!!, R.layout.support_simple_spinner_dropdown_item, list)
@@ -69,7 +69,7 @@ class AddTaskFragment : Fragment(), OnItemSelectedListener {
         spinner!!.adapter = adapter
         spinner!!.onItemSelectedListener = this
         taskDescription = view.findViewById(R.id.task_type_description)
-        val priorities = LandOpenHelper.readPriorities(context)
+        val priorities = LandOpenHelper.readPriorities(context!!)
         val prioritySpinner = view.findViewById<Spinner>(R.id.priority_spinner)
         val list2 = ArrayList<String>()
         for (p in priorities) list2.add(p.name)
@@ -196,7 +196,7 @@ class AddTaskFragment : Fragment(), OnItemSelectedListener {
 
     override fun onResume() {
         super.onResume()
-        taskTypes = LandOpenHelper.readTaskTypes(context)
+        taskTypes = LandOpenHelper.readTaskTypes(context!!)
         val list = ArrayList<String>()
         for (task in taskTypes!!) list.add(task.name)
         val adapter = ArrayAdapter(context!!, R.layout.support_simple_spinner_dropdown_item, list)

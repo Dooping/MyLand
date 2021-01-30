@@ -70,7 +70,7 @@ class AddLandDetailsFragment : Fragment() {
     }
 
     private fun addLandQuery() {
-        val success = LandOpenHelper.addLand(context, LandObject(name!!.text.toString(), imageUri!!, description!!.text.toString(), area!!))
+        val success = LandOpenHelper.addLand(context!!, LandObject(name!!.text.toString(), imageUri!!, description!!.text.toString(), area!!))
         if (!success) Toast.makeText(context, "Land already exists, choose a different name", Toast.LENGTH_SHORT).show() else {
             created = true
             val intent = Intent(context, ScrollingActivity::class.java)
@@ -104,7 +104,7 @@ class AddLandDetailsFragment : Fragment() {
     }
 
     override fun onDestroyView() {
-        if (!created) LandOpenHelper.deleteImage(imageUri, context)
+        if (!created) LandOpenHelper.deleteImage(imageUri!!, context!!)
         super.onDestroyView()
     }
 

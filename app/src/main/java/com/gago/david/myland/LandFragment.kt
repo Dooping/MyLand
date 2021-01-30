@@ -44,13 +44,13 @@ class LandFragment
         if (arguments != null) {
             mColumnCount = arguments!!.getInt(ARG_COLUMN_COUNT)
         }
-        priorities = LandOpenHelper.readPriorities(context)
+        priorities = LandOpenHelper.readPriorities(context!!)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_land_list, container, false)
-        lands = LandOpenHelper.readLands(context)
+        lands = LandOpenHelper.readLands(context!!)
         if (view is FrameLayout) {
             val context = view.getContext()
             val recyclerView: RecyclerView = view.findViewById(R.id.list)
@@ -109,7 +109,7 @@ class LandFragment
     override fun onResume() {
         super.onResume()
         lands.clear()
-        lands.addAll(LandOpenHelper.readLands(context))
+        lands.addAll(LandOpenHelper.readLands(context!!))
         adapter!!.notifyDataSetChanged()
     }
 

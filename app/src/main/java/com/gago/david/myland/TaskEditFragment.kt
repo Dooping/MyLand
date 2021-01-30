@@ -67,7 +67,7 @@ class TaskEditFragment : Fragment(), OnItemSelectedListener {
         if (arguments != null) {
             task = arguments!!.getSerializable(ARG_PARAM1) as TaskObject?
         }
-        taskTypes = LandOpenHelper.readTaskTypes(context)
+        taskTypes = LandOpenHelper.readTaskTypes(context!!)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -86,7 +86,7 @@ class TaskEditFragment : Fragment(), OnItemSelectedListener {
         taskSpinner!!.adapter = adapter
         taskSpinner!!.onItemSelectedListener = this
         taskSpinner!!.setSelection(index)
-        priorities = LandOpenHelper.readPriorities(context)
+        priorities = LandOpenHelper.readPriorities(context!!)
         val list2 = ArrayList<String>()
         var index2 = 0
         for (i in priorities.indices) {
@@ -130,7 +130,7 @@ class TaskEditFragment : Fragment(), OnItemSelectedListener {
     }
 
     fun deleteTask(): TaskObject? {
-        val success = LandOpenHelper.deleteTask(task, context)
+        val success = LandOpenHelper.deleteTask(task!!, context!!)
         deleted = true
         if (success) Toast.makeText(context, R.string.delete_task_success, Toast.LENGTH_SHORT).show() else Toast.makeText(context, R.string.delete_task_error, Toast.LENGTH_SHORT).show()
         return task

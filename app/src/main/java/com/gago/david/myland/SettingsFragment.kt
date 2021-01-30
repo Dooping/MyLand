@@ -81,7 +81,7 @@ class SettingsFragment : Fragment() {
             mParam1 = arguments!!.getString(ARG_PARAM1)
             mParam2 = arguments!!.getString(ARG_PARAM2)
         }
-        items = LandOpenHelper.readPlantTypes(context)
+        items = LandOpenHelper.readPlantTypes(context!!)
         tasks = readTaskTypes()
         askReadingPermission()
         askWritingPermission()
@@ -146,7 +146,7 @@ class SettingsFragment : Fragment() {
                 alertDialog.setMessage(R.string.delete_user_message)
                 alertDialog.setPositiveButton(R.string.yes
                 ) { _: DialogInterface?, _: Int ->
-                    if (LandOpenHelper.deleteUser(getContext(), user)) {
+                    if (LandOpenHelper.deleteUser(getContext()!!, user!!)) {
                         val intent = Intent(getContext(), Login::class.java)
                         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
                         startActivity(intent)
@@ -219,7 +219,7 @@ class SettingsFragment : Fragment() {
     }
 
     private fun readTaskTypes(): ArrayList<TaskTypeObject> {
-        val mDbHelper = LandOpenHelper(context)
+        val mDbHelper = LandOpenHelper(context!!)
         val db = mDbHelper.readableDatabase
 
         // Define a projection that specifies which columns from the database
@@ -308,7 +308,7 @@ class SettingsFragment : Fragment() {
 
         protected override fun doInBackground(vararg path: Uri?): Boolean {
             var success = false
-            val mDbHelper = LandExporterHelper(context)
+            val mDbHelper = LandExporterHelper(context!!)
             try {
                 if (mDbHelper.exportDatabase(path[0])) success = true
             } catch (e: IOException) {
@@ -331,7 +331,7 @@ class SettingsFragment : Fragment() {
 
         protected override fun doInBackground(vararg path: Uri?): Boolean {
             var success = false
-            val mDbHelper = LandImporterHelper(context)
+            val mDbHelper = LandImporterHelper(context!!)
             try {
                 if (mDbHelper.importDatabase(path[0])) success = true
             } catch (e: IOException) {
