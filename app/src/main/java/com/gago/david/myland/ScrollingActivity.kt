@@ -69,7 +69,7 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val b = intent.extras
-        name = b.getString("name")
+        name = b!!.getString("name")
         if (name == null) finish()
         land = readLand(name)
         priorities = LandOpenHelper.readPriorities(this)

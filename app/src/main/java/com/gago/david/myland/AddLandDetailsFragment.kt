@@ -60,7 +60,7 @@ class AddLandDetailsFragment : Fragment() {
                               savedInstanceState: Bundle?): View? {
         imageUri = arguments!!.getString("filename")
         area = arguments!!.getDouble("area")
-        Log.v("ADDDETAIL", imageUri)
+        Log.v("ADDDETAIL", imageUri!!)
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_add_land_details, container, false)
         ButterKnife.bind(this, view)

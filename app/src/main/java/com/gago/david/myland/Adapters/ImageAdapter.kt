@@ -15,7 +15,7 @@ class ImageAdapter(context: Context, private val list: ArrayList<Int>, private v
         var image: ImageView? = null
     }
 
-    override fun getView(position: Int, convertView: View?, parent: ViewGroup): View? {
+    override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         // Get the data item for this position
         var newConvertView = convertView
         val dataModel = list[position]
@@ -38,6 +38,6 @@ class ImageAdapter(context: Context, private val list: ArrayList<Int>, private v
         viewHolder.image!!.setImageResource(dataModel)
         viewHolder.image!!.setColorFilter(tintColor, PorterDuff.Mode.SRC_IN)
         // Return the completed view to render on screen
-        return newConvertView
+        return newConvertView!!
     }
 }

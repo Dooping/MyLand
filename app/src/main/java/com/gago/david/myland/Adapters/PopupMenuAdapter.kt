@@ -13,7 +13,7 @@ import com.gago.david.myland.models.PlantTypeObject
 
 class PopupMenuAdapter(context: Context, objects: List<PlantTypeObject?>) : ArrayAdapter<PlantTypeObject?>(context, R.layout.menu_item, objects) {
     private val mListener: OnMenuItemInteractionListener?
-    override fun getView(position: Int, convertView: View?, parent: ViewGroup): View? {
+    override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         // Get the data item for this position
         var newConvertView = convertView
         val plant = getItem(position)
@@ -30,7 +30,7 @@ class PopupMenuAdapter(context: Context, objects: List<PlantTypeObject?>) : Arra
         plantText?.text = plant?.name
         newConvertView?.setOnClickListener { mListener?.onMenuItemInteraction(plant) }
         // Return the completed view to render on screen
-        return newConvertView
+        return newConvertView!!
     }
 
     interface OnMenuItemInteractionListener {
