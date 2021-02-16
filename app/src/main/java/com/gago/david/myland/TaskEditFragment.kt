@@ -34,7 +34,7 @@ import java.util.*
  * create an instance of this fragment.
  */
 class TaskEditFragment : Fragment(), OnItemSelectedListener {
-    private var task: TaskObject? = null
+    private lateinit var task: TaskObject
     private lateinit var taskTypes: ArrayList<TaskTypeObject>
     lateinit var priorities: ArrayList<PriorityObject>
     private var myCalendar: Calendar? = null
@@ -65,7 +65,7 @@ class TaskEditFragment : Fragment(), OnItemSelectedListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (arguments != null) {
-            task = arguments!!.getSerializable(ARG_PARAM1) as TaskObject?
+            task = arguments!!.getSerializable(ARG_PARAM1) as TaskObject
         }
         taskTypes = LandOpenHelper.readTaskTypes(context!!)
     }
@@ -79,7 +79,7 @@ class TaskEditFragment : Fragment(), OnItemSelectedListener {
         var index = 0
         for (i in taskTypes.indices) {
             list.add(taskTypes[i].name)
-            if (taskTypes[i].name == task!!.taskType) index = i
+            if (taskTypes[i].name == task.taskType) index = i
         }
         val adapter = ArrayAdapter(context!!, R.layout.support_simple_spinner_dropdown_item, list)
         adapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item)
@@ -91,18 +91,18 @@ class TaskEditFragment : Fragment(), OnItemSelectedListener {
         var index2 = 0
         for (i in priorities.indices) {
             list2.add(priorities[i].name)
-            if (priorities[i].p_order == task!!.priority) index2 = i
+            if (priorities[i].p_order == task.priority) index2 = i
         }
         val adapter2 = ArrayAdapter(context!!, R.layout.support_simple_spinner_dropdown_item, list2)
         adapter2.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item)
         prioritySpinner!!.adapter = adapter2
         prioritySpinner!!.setSelection(index2)
         myCalendar = Calendar.getInstance()
-        if (task!!.targetDate != null) {
-            myCalendar!!.time = task!!.targetDate!!
+        if (task.targetDate != null) {
+            myCalendar!!.time = task.targetDate!!
             updateLabel()
         }
-        val date = OnDateSetListener { view1: DatePicker?, year: Int, monthOfYear: Int, dayOfMonth: Int ->
+        val date = OnDateSetListener { _: DatePicker?, year: Int, monthOfYear: Int, dayOfMonth: Int ->
             myCalendar!!.set(Calendar.YEAR, year)
             myCalendar!!.set(Calendar.MONTH, monthOfYear)
             myCalendar!!.set(Calendar.DAY_OF_MONTH, dayOfMonth)
@@ -113,7 +113,7 @@ class TaskEditFragment : Fragment(), OnItemSelectedListener {
                     .get(Calendar.YEAR), myCalendar!!.get(Calendar.MONTH),
                     myCalendar!!.get(Calendar.DAY_OF_MONTH)).show()
         }
-        taskDescription!!.setText(task!!.observations)
+        taskDescription!!.setText(task.observations)
         return view
     }
 
@@ -123,14 +123,14 @@ class TaskEditFragment : Fragment(), OnItemSelectedListener {
         targetDate!!.setText(s)
     }
 
-    fun closeTask(): TaskObject? {
+    fun closeTask(): TaskObject {
         completed = true
         //onButtonPressed();
         return task
     }
 
-    fun deleteTask(): TaskObject? {
-        val success = LandOpenHelper.deleteTask(task!!, context!!)
+    fun deleteTask(): TaskObject {
+        val success = LandOpenHelper.deleteTask(task, context!!)
         deleted = true
         if (success) Toast.makeText(context, R.string.delete_task_success, Toast.LENGTH_SHORT).show() else Toast.makeText(context, R.string.delete_task_error, Toast.LENGTH_SHORT).show()
         return task
@@ -138,7 +138,7 @@ class TaskEditFragment : Fragment(), OnItemSelectedListener {
 
     fun onButtonPressed() {
         if (mListener != null && !deleted) {
-            val task = task!!.clone()
+            val task = task.clone()
             var changed = false
             if (taskTypes[taskSpinner!!.selectedItemPosition].name != task.taskType) {
                 changed = true
@@ -161,7 +161,7 @@ class TaskEditFragment : Fragment(), OnItemSelectedListener {
                 changed = true
                 task.completed = true
             }
-            if (changed) mListener!!.updateTask(task, this.task!!) else mListener!!.notUpdateTask()
+            if (changed) mListener!!.updateTask(task, this.task) else mListener!!.notUpdateTask()
         }
     }
 

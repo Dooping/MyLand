@@ -226,7 +226,9 @@ class LandEditActivity : AppCompatActivity(), OnMenuItemInteractionListener {
                 null,  // don't filter by row groups
                 sortOrder2 // The sort order
         )
-        while (cursor2.moveToNext()) l.addPlant(PlantObject(cursor2.getInt(1), cursor2.getString(2), cursor2.getString(3), cursor2.getFloat(4), cursor2.getFloat(5)))
+        while (cursor2.moveToNext())
+            l.addPlant(PlantObject(cursor2.getInt(1), cursor2.getString(2), cursor2.getString(3), cursor2.getFloat(4), cursor2.getFloat(5)))
+        cursor2.close()
         db.close()
         return l
     }
