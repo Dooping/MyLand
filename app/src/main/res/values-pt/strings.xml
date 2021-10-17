@@ -94,4 +94,6 @@
     <string name="map_type">Tipo de mapa</string>
     <string name="exit_button">Sair</string>
     <string name="edit_land_title">Editar terreno</string>
+    <string name="plant_remove_error">Não foi possível remover o item!</string>
+    <string name="plant_remove_empty">Só pode remover items que tenham sido adicionados nesta sessão</string>
 </resources>

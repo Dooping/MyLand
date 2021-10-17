@@ -17,7 +17,6 @@ import android.util.Log
 import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
-import android.view.View.OnLongClickListener
 import android.view.View.OnTouchListener
 import android.view.WindowManager
 import android.widget.*
@@ -28,7 +27,9 @@ import com.gago.david.myland.models.LandObject
 import com.gago.david.myland.models.PlantObject
 import com.gago.david.myland.models.PlantTypeObject
 import com.github.chrisbanes.photoview.PhotoView
+import de.hdodenhof.circleimageview.CircleImageView
 import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.math.roundToInt
 
 /**
@@ -47,7 +48,9 @@ class LandEditActivity : AppCompatActivity(), OnMenuItemInteractionListener {
     var photo: PhotoView? = null
     private var first = true
     private var plantTypeList: ArrayList<PlantTypeObject?>? = null
+    private var addedPlants: Stack<PlantObject> = Stack()
     private var mContentView: View? = null
+    private lateinit var removePlantButton: CircleImageView
     private val mHidePart2Runnable = Runnable { // Delayed removal of status and navigation bar
 
         // Note that some of these constants are new as of API 16 (Jelly Bean)
@@ -118,7 +121,7 @@ class LandEditActivity : AppCompatActivity(), OnMenuItemInteractionListener {
 
         // Set up the user interaction to manually show or hide the system UI.
         mContentView!!.setOnClickListener { toggle() }
-        mContentView!!.setOnLongClickListener { view: View? ->
+        mContentView!!.setOnLongClickListener { view: View ->
             popupWindowsort().showAtLocation(view, Gravity.NO_GRAVITY, lastX.roundToInt(), lastY.roundToInt())
             Log.v("EDIT", "should be showing at x:" + lastX.roundToInt() + " y:" + lastY.roundToInt())
             val viewX = lastX - photo!!.left
@@ -137,6 +140,23 @@ class LandEditActivity : AppCompatActivity(), OnMenuItemInteractionListener {
         // while interacting with the UI.
         findViewById<View>(R.id.exit_button).setOnClickListener { finish() }
         setTitle(R.string.edit_land_title)
+        removePlantButton = findViewById(R.id.remove_last_plant)
+        removePlantButton.circleBackgroundColor = Color.GRAY
+        removePlantButton.setOnClickListener {
+            if (addedPlants.empty()) {
+                Toast.makeText(baseContext, R.string.plant_remove_empty, Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            val deletedPlant = addedPlants.pop()
+            val success = LandOpenHelper.deletePlantObject(this, deletedPlant)
+            if (success) {
+                land!!.removePlant(deletedPlant)
+                drawTrees()
+                if (addedPlants.isEmpty()) (it as CircleImageView).circleBackgroundColor = Color.GRAY
+            } else
+                Toast.makeText(baseContext, R.string.plant_remove_error, Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun drawTrees() {
@@ -148,18 +168,20 @@ class LandEditActivity : AppCompatActivity(), OnMenuItemInteractionListener {
         val xSize: Int
         val ySize: Int
         if (xRatio < yRatio) {
-            xSize = Math.round(xRatio * layers[0]!!.intrinsicWidth)
-            ySize = Math.round(xRatio * layers[0]!!.intrinsicHeight)
+            xSize = (xRatio * layers[0]!!.intrinsicWidth).roundToInt()
+            ySize = (xRatio * layers[0]!!.intrinsicHeight).roundToInt()
         } else {
-            xSize = Math.round(yRatio * layers[0]!!.intrinsicWidth)
-            ySize = Math.round(yRatio * layers[0]!!.intrinsicHeight)
+            xSize = (yRatio * layers[0]!!.intrinsicWidth).roundToInt()
+            ySize = (yRatio * layers[0]!!.intrinsicHeight).roundToInt()
         }
         val bitmap = Bitmap.createBitmap(xSize, ySize, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
         for (p in land!!.plants) for (type in plantTypeList!!) if (type!!.name == p.plantType) {
             val d = ContextCompat.getDrawable(this, type.icon)
-            d!!.setBounds(Math.round(p.x * canvas.width) - d.intrinsicWidth / 4, Math.round(p.y * canvas.height - d.intrinsicHeight / 4),
-                    Math.round(p.x * canvas.width) + d.intrinsicWidth / 4, Math.round(p.y * canvas.height) + d.intrinsicHeight / 4)
+            d!!.setBounds(
+                (p.x * canvas.width).roundToInt() - d.intrinsicWidth / 4,
+                (p.y * canvas.height - d.intrinsicHeight / 4).roundToInt(),
+                    (p.x * canvas.width).roundToInt() + d.intrinsicWidth / 4, (p.y * canvas.height).roundToInt() + d.intrinsicHeight / 4)
             d.colorFilter = PorterDuffColorFilter(Color.parseColor(type.color), PorterDuff.Mode.SRC_IN)
             //And draw it...
             d.draw(canvas)
@@ -363,8 +385,10 @@ class LandEditActivity : AppCompatActivity(), OnMenuItemInteractionListener {
         ) { _, _ ->
             val p = PlantObject(item.name, input.text.toString(), tempX, tempY)
             land!!.addPlant(p)
+            addedPlants.push(p)
             addPlantQuery(p)
             drawTrees()
+            removePlantButton.circleBackgroundColor = Color.RED
             Log.v("plant", land.toString())
         }
         alertDialog.setNegativeButton(resources.getString(R.string.cancel)

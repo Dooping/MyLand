@@ -366,18 +366,9 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
         alertDialog.setIcon(icon)
         alertDialog.setPositiveButton(R.string.yes
         ) { _: DialogInterface?, _: Int ->
-            val mDbHelper = LandOpenHelper(this@ScrollingActivity)
-
-            // Gets the data repository in write mode
-            val db = mDbHelper.writableDatabase
-            val id = land!!.plants[selected - 2 - plantGroups?.keys!!.size].id
-            val whereClause = "Id = ?"
-            val whereArgs = arrayOf("" + id)
-
-// Create a new map of values, where column names are the keys
-            val i = db.delete("Plants", whereClause, whereArgs)
-            Log.v("Remove Plant", "$i rows removed")
-            db.close()
+            val plant:PlantObject = land!!.plants[selected - 2 - plantGroups?.keys!!.size]
+            LandOpenHelper.deletePlantObject(this, plant)
+            val id = plant.id
             selected--
             val iterator = tasks.iterator()
             while (iterator.hasNext()) {

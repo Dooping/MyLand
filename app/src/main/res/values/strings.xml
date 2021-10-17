@@ -191,4 +191,6 @@
     <string name="map_type">Map Type</string>
     <string name="exit_button">Exit</string>
     <string name="edit_land_title">Edit land</string>
+    <string name="plant_remove_error">Could not remove the item!</string>
+    <string name="plant_remove_empty">You can only remove items added in this session</string>
 </resources>

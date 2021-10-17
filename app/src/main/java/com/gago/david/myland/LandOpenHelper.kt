@@ -779,5 +779,18 @@ Land VARCHAR NOT NULL,
             db.close()
             return newRowId > -1
         }
+
+        fun deletePlantObject(context: Context, plantObject: PlantObject): Boolean {
+            val mDbHelper = LandOpenHelper(context)
+            val db = mDbHelper.writableDatabase
+            val id = plantObject.id
+            val whereClause = "Id = ?"
+            val whereArgs = arrayOf("" + id)
+
+            val i = db.delete("Plants", whereClause, whereArgs)
+            Log.v("Remove Plant", "$i rows removed")
+            db.close()
+            return i > 0
+        }
     }
 }

@@ -25,7 +25,7 @@
         mapbox:borderWidth="0dp"
         mapbox:elevation="6dp"
         mapbox:fabSize="normal"
-        mapbox:pressedTranslationZ="12dp" />
+        mapbox:pressedTranslationZ="12dp"/>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/remove_marker"
@@ -74,7 +74,8 @@
         app:setErrorText="@string/something_happened"
         app:setLoadingAnimationMode="flip"
         app:setLoadingImage="@drawable/laucher_icon"
-        app:setLoadingText="@string/please_wait" />
+        app:setLoadingText="@string/please_wait"
+        tools:visibility="invisible" />
 
     <!-- Implementation of find my location button -->
 

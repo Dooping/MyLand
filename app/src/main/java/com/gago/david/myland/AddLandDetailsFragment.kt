@@ -29,21 +29,11 @@ class AddLandDetailsFragment : Fragment() {
     private var mParam1: String? = null
     private var mParam2: String? = null
 
-    @JvmField
-    @BindView(R.id.land_detail_image)
-    var image: ImageView? = null
+    lateinit var image: ImageView
+    lateinit var name: EditText
+    lateinit var description: EditText
+    lateinit var button: FloatingActionButton
 
-    @JvmField
-    @BindView(R.id.land_name)
-    var name: EditText? = null
-
-    @JvmField
-    @BindView(R.id.land_description)
-    var description: EditText? = null
-
-    @JvmField
-    @BindView(R.id.next_button)
-    var button: FloatingActionButton? = null
     private var imageUri: String? = null
     private var area: Double? = null
     private var created = false
@@ -63,7 +53,10 @@ class AddLandDetailsFragment : Fragment() {
         Log.v("ADDDETAIL", imageUri!!)
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_add_land_details, container, false)
-        ButterKnife.bind(this, view)
+        image = view.findViewById(R.id.land_detail_image)
+        name = view.findViewById(R.id.land_name)
+        description = view.findViewById(R.id.land_description)
+        button = view.findViewById(R.id.next_button)
         image!!.setImageBitmap(LandOpenHelper.getImage(imageUri))
         button!!.setOnClickListener { addLandQuery() }
         return view
