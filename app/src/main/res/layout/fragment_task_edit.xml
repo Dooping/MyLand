@@ -34,7 +34,7 @@
                 android:textSize="18sp" />
 
             <Spinner
-                android:id="@+id/spinner"
+                android:id="@+id/taskSpinner"
                 style="@style/SpinnerStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -44,7 +44,7 @@
         </LinearLayout>
 
         <TextView
-            android:id="@+id/task_type_description"
+            android:id="@+id/taskTypeDescription"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
@@ -72,7 +72,7 @@
             android:textSize="18sp" />
 
         <Spinner
-            android:id="@+id/priority_spinner"
+            android:id="@+id/prioritySpinner"
             style="@style/SpinnerStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -113,7 +113,7 @@
     </LinearLayout>
 
     <EditText
-        android:id="@+id/task_description"
+        android:id="@+id/taskDescription"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"

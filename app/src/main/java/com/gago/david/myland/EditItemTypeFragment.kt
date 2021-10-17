@@ -38,25 +38,12 @@ class EditItemTypeFragment : Fragment() {
     private var tintColor: String? = null
     private var drawable = 0
 
-    @JvmField
-    @BindView(R.id.item_name)
-    var nameView: EditText? = null
+    private lateinit var nameView: EditText
+    lateinit var imageView: ImageView
+    lateinit var button: FloatingActionButton
+    private lateinit var editIcon: MagicButton
+    private lateinit var editColor: MagicButton
 
-    @JvmField
-    @BindView(R.id.item_image)
-    var imageView: ImageView? = null
-
-    @JvmField
-    @BindView(R.id.submit_button)
-    var button: FloatingActionButton? = null
-
-    @JvmField
-    @BindView(R.id.edit_icon)
-    var editIcon: MagicButton? = null
-
-    @JvmField
-    @BindView(R.id.edit_color)
-    var editColor: MagicButton? = null
     private var mListener: OnFragmentInteractionListener? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -76,12 +63,17 @@ class EditItemTypeFragment : Fragment() {
                               savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_edit_item_type, container, false)
-        ButterKnife.bind(this, view)
-        nameView!!.setText(item.name)
-        imageView!!.setImageResource(drawable)
-        imageView!!.setColorFilter(Color.parseColor(tintColor), PorterDuff.Mode.SRC_IN)
-        editIcon!!.setMagicButtonClickListener { showAlertDialog() }
-        editColor!!.setMagicButtonClickListener {
+        nameView = view.findViewById(R.id.item_name)
+        imageView = view.findViewById(R.id.item_image)
+        button = view.findViewById(R.id.submit_button)
+        editIcon = view.findViewById(R.id.edit_icon)
+        editColor = view.findViewById(R.id.edit_color)
+
+        nameView.setText(item.name)
+        imageView.setImageResource(drawable)
+        imageView.setColorFilter(Color.parseColor(tintColor), PorterDuff.Mode.SRC_IN)
+        editIcon.setMagicButtonClickListener { showAlertDialog() }
+        editColor.setMagicButtonClickListener {
             ColorPickerDialog.newBuilder()
                     .setDialogType(ColorPickerDialog.TYPE_PRESETS)
                     .setDialogId(0)
@@ -89,8 +81,8 @@ class EditItemTypeFragment : Fragment() {
                     .setShowAlphaSlider(false)
                     .show(activity)
         }
-        button!!.setOnClickListener {
-            item.name = nameView!!.text.toString()
+        button.setOnClickListener {
+            item.name = nameView.text.toString()
             item.icon = drawable
             item.color = tintColor!!
             onButtonPressed(item)
@@ -107,7 +99,7 @@ class EditItemTypeFragment : Fragment() {
         alertDialog.setIcon(icon)
         alertDialog.setAdapter(ImageAdapter(activity!!, list!!, Color.parseColor(tintColor))
         ) { _, i ->
-            imageView!!.setImageResource(list!![i])
+            imageView.setImageResource(list!![i])
             drawable = list!![i]
         }
         alertDialog.show()
@@ -135,7 +127,7 @@ class EditItemTypeFragment : Fragment() {
     }
 
     fun setColor(color: String?) {
-        imageView!!.setColorFilter(Color.parseColor(color), PorterDuff.Mode.SRC_IN)
+        imageView.setColorFilter(Color.parseColor(color), PorterDuff.Mode.SRC_IN)
         tintColor = color
     }
 

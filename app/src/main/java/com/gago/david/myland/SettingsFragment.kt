@@ -50,29 +50,13 @@ class SettingsFragment : Fragment() {
     lateinit var items: ArrayList<PlantTypeObject>
     lateinit var tasks: ArrayList<TaskTypeObject>
 
-    @JvmField
-    @BindView(R.id.import_db)
-    var importDB: MagicButton? = null
+    lateinit var importDB: MagicButton
+    lateinit var exportDB: MagicButton
+    lateinit var deleteUser: MagicButton
+    private lateinit var unitSwitch: SwitchMultiButton
+    lateinit var mapType: SwitchMultiButton
+    lateinit var pageLoader: PageLoader
 
-    @JvmField
-    @BindView(R.id.export_db)
-    var exportDB: MagicButton? = null
-
-    @JvmField
-    @BindView(R.id.delete_user)
-    var deleteUser: MagicButton? = null
-
-    @JvmField
-    @BindView(R.id.unit)
-    var unitSwitch: SwitchMultiButton? = null
-
-    @JvmField
-    @BindView(R.id.map_type)
-    var mapType: SwitchMultiButton? = null
-
-    @JvmField
-    @BindView(R.id.pageloader)
-    var pageLoader: PageLoader? = null
     private var mParam1: String? = null
     private var mParam2: String? = null
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -109,14 +93,21 @@ class SettingsFragment : Fragment() {
             addTask.setOnClickListener { mListener2!!.addTaskType(taskAdapter!!, tasks) }
             val addPlant: FloatingActionButton = view.findViewById(R.id.add_item_type)
             addPlant.setOnClickListener { mListener!!.addItem(itemAdapter!!, items) }
-            ButterKnife.bind(this, view)
-            importDB!!.setMagicButtonClickListener {
+
+            importDB = view.findViewById(R.id.import_db)
+            exportDB = view.findViewById(R.id.export_db)
+            deleteUser = view.findViewById(R.id.delete_user)
+            unitSwitch = view.findViewById(R.id.unit)
+            mapType = view.findViewById(R.id.map_type)
+            pageLoader = view.findViewById(R.id.pageloader)
+
+            importDB.setMagicButtonClickListener {
                 val i = Intent(Intent.ACTION_GET_CONTENT)
                 i.addCategory(Intent.CATEGORY_DEFAULT)
                 i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
                 startActivityForResult(Intent.createChooser(i, "Choose file"), 9998)
             }
-            exportDB!!.setMagicButtonClickListener {
+            exportDB.setMagicButtonClickListener {
                 val i = Intent(Intent.ACTION_CREATE_DOCUMENT)
                 i.type = "application/octet-stream"
                 //i.putExtra(Intent.EXTRA_TITLE, "myland.db");
@@ -126,21 +117,21 @@ class SettingsFragment : Fragment() {
             }
             val prefs = getContext()!!.getSharedPreferences(MY_PREFS_NAME, Context.MODE_PRIVATE)
             val unit = prefs.getInt("unit", 0) //0 is the default value.
-            unitSwitch!!.selectedTab = unit
-            unitSwitch!!.setOnSwitchListener { position: Int, _: String? ->
+            unitSwitch.selectedTab = unit
+            unitSwitch.setOnSwitchListener { position: Int, _: String? ->
                 val editor = getContext()!!.getSharedPreferences(MY_PREFS_NAME, Context.MODE_PRIVATE).edit()
                 editor.putInt("unit", position)
                 editor.apply()
             }
             val mapTypePosition = prefs.getInt("mapType", 0)
-            mapType!!.selectedTab = mapTypePosition
-            mapType!!.setOnSwitchListener { position: Int, _: String? ->
+            mapType.selectedTab = mapTypePosition
+            mapType.setOnSwitchListener { position: Int, _: String? ->
                 val editor = getContext()!!.getSharedPreferences(MY_PREFS_NAME, Context.MODE_PRIVATE).edit()
                 editor.putInt("mapType", position)
                 editor.apply()
             }
             val user = prefs.getString("user", "")
-            deleteUser!!.setMagicButtonClickListener { view13: View ->
+            deleteUser.setMagicButtonClickListener { view13: View ->
                 val alertDialog = AlertDialog.Builder(view13.rootView.context)
                 alertDialog.setTitle(R.string.delete_user)
                 alertDialog.setMessage(R.string.delete_user_message)
@@ -303,7 +294,7 @@ class SettingsFragment : Fragment() {
 
     private inner class ExportDB internal constructor(private val mContext: Context?) : AsyncTask<Uri?, Void?, Boolean>() {
         override fun onPreExecute() {
-            pageLoader!!.startProgress()
+            pageLoader.startProgress()
         }
 
         protected override fun doInBackground(vararg path: Uri?): Boolean {
@@ -319,14 +310,14 @@ class SettingsFragment : Fragment() {
 
         override fun onPostExecute(result: Boolean) {
             mContext!!.deleteDatabase(LandExporterHelper.LAND_TABLE_NAME)
-            pageLoader!!.stopProgress()
+            pageLoader.stopProgress()
             if (result) Toast.makeText(mContext, R.string.export_success, Toast.LENGTH_SHORT).show() else Toast.makeText(mContext, R.string.export_error, Toast.LENGTH_SHORT).show()
         }
     }
 
     private inner class ImportDB internal constructor(private val mContext: Context?) : AsyncTask<Uri?, Void?, Boolean>() {
         override fun onPreExecute() {
-            pageLoader!!.startProgress()
+            pageLoader.startProgress()
         }
 
         protected override fun doInBackground(vararg path: Uri?): Boolean {
@@ -342,7 +333,7 @@ class SettingsFragment : Fragment() {
 
         override fun onPostExecute(result: Boolean) {
             mContext!!.deleteDatabase(LandImporterHelper.LAND_TABLE_NAME)
-            pageLoader!!.stopProgress()
+            pageLoader.stopProgress()
             if (result) Toast.makeText(mContext, R.string.import_success, Toast.LENGTH_SHORT).show() else Toast.makeText(mContext, R.string.import_error, Toast.LENGTH_SHORT).show()
         }
     }

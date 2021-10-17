@@ -25,17 +25,10 @@ class EditTaskTypeFragment : Fragment() {
     private var task: TaskTypeObject? = null
     private var create = false
 
-    @JvmField
-    @BindView(R.id.task_name)
-    var nameView: TextView? = null
+    private lateinit var nameView: TextView
+    lateinit var descriptionView: EditText
+    lateinit var button: FloatingActionButton
 
-    @JvmField
-    @BindView(R.id.task_description)
-    var descriptionView: EditText? = null
-
-    @JvmField
-    @BindView(R.id.submit_button)
-    var button: FloatingActionButton? = null
     private var mListener: OnFragmentInteractionListener? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,12 +42,15 @@ class EditTaskTypeFragment : Fragment() {
                               savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_edit_task_type, container, false)
-        ButterKnife.bind(this, view)
-        nameView!!.text = task!!.name
-        descriptionView!!.setText(task!!.description)
-        button!!.setOnClickListener { view1: View? ->
-            task!!.description = descriptionView!!.text.toString()
-            task!!.name = nameView!!.text.toString()
+        nameView = view.findViewById(R.id.task_name)
+        descriptionView = view.findViewById(R.id.taskDescription)
+        button = view.findViewById(R.id.submit_button)
+
+        nameView.text = task!!.name
+        descriptionView.setText(task!!.description)
+        button.setOnClickListener {
+            task!!.description = descriptionView.text.toString()
+            task!!.name = nameView.text.toString()
             onButtonPressed(task)
         }
         return view

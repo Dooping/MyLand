@@ -17,8 +17,6 @@ import android.view.ViewGroup
 import android.view.animation.AlphaAnimation
 import android.widget.*
 import android.widget.AdapterView.OnItemSelectedListener
-import butterknife.BindView
-import butterknife.ButterKnife
 import com.gago.david.myland.AddTaskFragment.Companion.getHeight
 import com.gago.david.myland.models.PriorityObject
 import com.gago.david.myland.models.TaskObject
@@ -43,25 +41,12 @@ class TaskEditFragment : Fragment(), OnItemSelectedListener {
     private var completed = false
     private var mListener: OnFragmentInteractionListener? = null
 
-    @JvmField
-    @BindView(R.id.task_type_description)
-    var taskTypeDescription: TextView? = null
+    lateinit var taskTypeDescription: TextView
+    lateinit var taskSpinner: Spinner
+    lateinit var prioritySpinner: Spinner
+    lateinit var taskDescription: EditText
+    lateinit var targetDate: EditText
 
-    @JvmField
-    @BindView(R.id.spinner)
-    var taskSpinner: Spinner? = null
-
-    @JvmField
-    @BindView(R.id.priority_spinner)
-    var prioritySpinner: Spinner? = null
-
-    @JvmField
-    @BindView(R.id.task_description)
-    var taskDescription: EditText? = null
-
-    @JvmField
-    @BindView(R.id.targetDate)
-    var targetDate: EditText? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (arguments != null) {
@@ -74,7 +59,13 @@ class TaskEditFragment : Fragment(), OnItemSelectedListener {
                               savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_task_edit, container, false)
-        ButterKnife.bind(this, view)
+
+        taskSpinner = view.findViewById(R.id.taskSpinner)
+        taskTypeDescription = view.findViewById(R.id.taskTypeDescription)
+        prioritySpinner = view.findViewById(R.id.prioritySpinner)
+        taskDescription = view.findViewById(R.id.taskDescription)
+        targetDate = view.findViewById(R.id.targetDate)
+
         val list = ArrayList<String>()
         var index = 0
         for (i in taskTypes.indices) {
@@ -83,9 +74,9 @@ class TaskEditFragment : Fragment(), OnItemSelectedListener {
         }
         val adapter = ArrayAdapter(context!!, R.layout.support_simple_spinner_dropdown_item, list)
         adapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item)
-        taskSpinner!!.adapter = adapter
-        taskSpinner!!.onItemSelectedListener = this
-        taskSpinner!!.setSelection(index)
+        taskSpinner.adapter = adapter
+        taskSpinner.onItemSelectedListener = this
+        taskSpinner.setSelection(index)
         priorities = LandOpenHelper.readPriorities(context!!)
         val list2 = ArrayList<String>()
         var index2 = 0

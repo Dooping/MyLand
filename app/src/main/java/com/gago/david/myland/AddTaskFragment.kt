@@ -60,7 +60,7 @@ class AddTaskFragment : Fragment(), OnItemSelectedListener {
 
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_add_task, container, false)
-        spinner = view.findViewById(R.id.spinner)
+        spinner = view.findViewById(R.id.taskSpinner)
         taskTypes = LandOpenHelper.readTaskTypes(context!!)
         val list = ArrayList<String>()
         for (task in taskTypes!!) list.add(task.name)
@@ -68,9 +68,9 @@ class AddTaskFragment : Fragment(), OnItemSelectedListener {
         adapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item)
         spinner!!.adapter = adapter
         spinner!!.onItemSelectedListener = this
-        taskDescription = view.findViewById(R.id.task_type_description)
+        taskDescription = view.findViewById(R.id.taskTypeDescription)
         val priorities = LandOpenHelper.readPriorities(context!!)
-        val prioritySpinner = view.findViewById<Spinner>(R.id.priority_spinner)
+        val prioritySpinner = view.findViewById<Spinner>(R.id.prioritySpinner)
         val list2 = ArrayList<String>()
         for (p in priorities) list2.add(p.name)
         val adapter2 = ArrayAdapter(context!!, R.layout.support_simple_spinner_dropdown_item, list2)
@@ -89,7 +89,7 @@ class AddTaskFragment : Fragment(), OnItemSelectedListener {
                     .get(Calendar.YEAR), myCalendar!!.get(Calendar.MONTH),
                     myCalendar!!.get(Calendar.DAY_OF_MONTH)).show()
         }
-        description = view.findViewById(R.id.task_description)
+        description = view.findViewById(R.id.taskDescription)
         val addTask = view.findViewById<Button>(R.id.add_task)
         addTask.setOnClickListener {
             val time = if (targetDate!!.text.toString() == "") null else myCalendar!!.time
