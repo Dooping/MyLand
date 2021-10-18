@@ -35,7 +35,7 @@ class TaskEditFragment : Fragment(), OnItemSelectedListener {
     private lateinit var task: TaskObject
     private lateinit var taskTypes: ArrayList<TaskTypeObject>
     lateinit var priorities: ArrayList<PriorityObject>
-    private var myCalendar: Calendar? = null
+    private lateinit var myCalendar: Calendar
     private var first = true
     private var deleted = false
     private var completed = false
@@ -86,32 +86,32 @@ class TaskEditFragment : Fragment(), OnItemSelectedListener {
         }
         val adapter2 = ArrayAdapter(context!!, R.layout.support_simple_spinner_dropdown_item, list2)
         adapter2.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item)
-        prioritySpinner!!.adapter = adapter2
-        prioritySpinner!!.setSelection(index2)
+        prioritySpinner.adapter = adapter2
+        prioritySpinner.setSelection(index2)
         myCalendar = Calendar.getInstance()
         if (task.targetDate != null) {
-            myCalendar!!.time = task.targetDate!!
+            myCalendar.time = task.targetDate!!
             updateLabel()
         }
         val date = OnDateSetListener { _: DatePicker?, year: Int, monthOfYear: Int, dayOfMonth: Int ->
-            myCalendar!!.set(Calendar.YEAR, year)
-            myCalendar!!.set(Calendar.MONTH, monthOfYear)
-            myCalendar!!.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+            myCalendar.set(Calendar.YEAR, year)
+            myCalendar.set(Calendar.MONTH, monthOfYear)
+            myCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
             updateLabel()
         }
-        targetDate!!.setOnClickListener { v: View? ->
-            DatePickerDialog(context!!, date, myCalendar!!
-                    .get(Calendar.YEAR), myCalendar!!.get(Calendar.MONTH),
-                    myCalendar!!.get(Calendar.DAY_OF_MONTH)).show()
+        targetDate.setOnClickListener { v: View? ->
+            DatePickerDialog(context!!, date, myCalendar
+                    .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
+                    myCalendar.get(Calendar.DAY_OF_MONTH)).show()
         }
-        taskDescription!!.setText(task.observations)
+        taskDescription.setText(task.observations)
         return view
     }
 
     private fun updateLabel() {
         val dateFormat = DateFormat.getDateFormat(context)
-        val s = dateFormat.format(myCalendar!!.time)
-        targetDate!!.setText(s)
+        val s = dateFormat.format(myCalendar.time)
+        targetDate.setText(s)
     }
 
     fun closeTask(): TaskObject {
@@ -131,22 +131,22 @@ class TaskEditFragment : Fragment(), OnItemSelectedListener {
         if (mListener != null && !deleted) {
             val task = task.clone()
             var changed = false
-            if (taskTypes[taskSpinner!!.selectedItemPosition].name != task.taskType) {
+            if (taskTypes[taskSpinner.selectedItemPosition].name != task.taskType) {
                 changed = true
-                task.taskType = taskTypes[taskSpinner!!.selectedItemPosition].name
+                task.taskType = taskTypes[taskSpinner.selectedItemPosition].name
             }
-            if (priorities[prioritySpinner!!.selectedItemPosition].p_order != task.priority) {
+            if (priorities[prioritySpinner.selectedItemPosition].p_order != task.priority) {
                 changed = true
-                task.priority = priorities[prioritySpinner!!.selectedItemPosition].p_order
+                task.priority = priorities[prioritySpinner.selectedItemPosition].p_order
             }
-            if (taskDescription!!.text.toString() != task.observations) {
+            if (taskDescription.text.toString() != task.observations) {
                 changed = true
-                task.observations = taskDescription!!.text.toString()
+                task.observations = taskDescription.text.toString()
             }
-            if (targetDate!!.text.toString() != "" && task.targetDate != null && myCalendar!!.time.compareTo(task.targetDate) != 0
-                    || targetDate!!.text.toString() != "" && task.targetDate == null) {
+            if (targetDate.text.toString() != "" && task.targetDate != null && myCalendar.time.compareTo(task.targetDate) != 0
+                    || targetDate.text.toString() != "" && task.targetDate == null) {
                 changed = true
-                task.targetDate = myCalendar!!.time
+                task.targetDate = myCalendar.time
             }
             if (completed) {
                 changed = true
@@ -179,19 +179,19 @@ class TaskEditFragment : Fragment(), OnItemSelectedListener {
 
     override fun onItemSelected(adapterView: AdapterView<*>?, view: View, i: Int, l: Long) {
         if (!first) {
-            val measuredTextHeight = getHeight(context, taskTypes[i].description, 14, taskTypeDescription!!.width, Typeface.DEFAULT)
-            val anim = ValueAnimator.ofInt(taskTypeDescription!!.measuredHeight, measuredTextHeight)
+            val measuredTextHeight = getHeight(context, taskTypes[i].description, 14, taskTypeDescription.width, Typeface.DEFAULT)
+            val anim = ValueAnimator.ofInt(taskTypeDescription.measuredHeight, measuredTextHeight)
             anim.addUpdateListener { valueAnimator: ValueAnimator ->
                 val `val` = valueAnimator.animatedValue as Int
-                val layoutParams = taskTypeDescription!!.layoutParams
+                val layoutParams = taskTypeDescription.layoutParams
                 layoutParams.height = `val`
-                taskTypeDescription!!.layoutParams = layoutParams
+                taskTypeDescription.layoutParams = layoutParams
             }
             anim.addListener(object : AnimatorListenerAdapter() {
                 override fun onAnimationEnd(animation: Animator) {
-                    taskTypeDescription!!.text = taskTypes[i].description
+                    taskTypeDescription.text = taskTypes[i].description
                     val fadeIn = AlphaAnimation(0.0f, 1.0f)
-                    taskTypeDescription!!.startAnimation(fadeIn)
+                    taskTypeDescription.startAnimation(fadeIn)
                     fadeIn.duration = 500
                     fadeIn.fillAfter = true
                     fadeIn.startOffset = 500
@@ -202,20 +202,20 @@ class TaskEditFragment : Fragment(), OnItemSelectedListener {
                     val fadeOut = AlphaAnimation(1.0f, 0.0f)
                     fadeOut.duration = 500
                     fadeOut.fillAfter = true
-                    taskTypeDescription!!.startAnimation(fadeOut)
+                    taskTypeDescription.startAnimation(fadeOut)
                 }
             })
             anim.duration = 500
             anim.start()
         } else {
             first = false
-            taskTypeDescription!!.text = taskTypes[i].description
+            taskTypeDescription.text = taskTypes[i].description
         }
     }
 
     override fun onNothingSelected(adapterView: AdapterView<*>?) {
         Log.v("item", "not selected")
-        taskTypeDescription!!.text = ""
+        taskTypeDescription.text = ""
     }
 
     /**

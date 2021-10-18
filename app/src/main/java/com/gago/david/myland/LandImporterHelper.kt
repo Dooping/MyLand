@@ -6,6 +6,7 @@ import android.database.sqlite.SQLiteOpenHelper
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
+import android.os.ParcelFileDescriptor
 import android.util.Log
 import com.gago.david.myland.LandOpenHelper.Companion.addImage
 import com.gago.david.myland.LandOpenHelper.Companion.addItemType
@@ -17,12 +18,8 @@ import com.gago.david.myland.LandOpenHelper.Companion.deleteImage
 import com.gago.david.myland.models.*
 import com.gago.david.myland.models.LandContract.ItemEntry
 import com.gago.david.myland.models.LandContract.LandEntry
-import com.gago.david.myland.utils.Utils
 import org.apache.commons.io.IOUtils
-import java.io.File
-import java.io.FileInputStream
-import java.io.FileOutputStream
-import java.io.IOException
+import java.io.*
 import java.util.*
 
 /**
@@ -48,19 +45,26 @@ class LandImporterHelper(private val context: Context) : SQLiteOpenHelper(contex
     }
 
     @Throws(IOException::class)
-    fun importDatabase(dbPath: Uri?): Boolean {
-        val f = Utils.getFileForUri(dbPath!!)
-        Log.v("file", f.path + " " + f.exists())
+    fun importDatabase(dbPath: Uri): Boolean {
+        Log.v("FILE", "path: $dbPath")
+        val contentResolver = context.contentResolver
+        val parcelFileDescriptor: ParcelFileDescriptor? =
+        contentResolver.openFileDescriptor(dbPath, "r")
+        val fileDescriptor: FileDescriptor = parcelFileDescriptor!!.fileDescriptor
+        val f = context.contentResolver.openInputStream(dbPath)
+        //Log.v("FILE", f.path + " " + f.exists())
         val oldDb = File("//data/data/com.gago.david.myland/databases/", LAND_TABLE_NAME)
-        if (f.exists()) FileInputStream(f).use { `is` ->
+        context.contentResolver.openInputStream(dbPath).use { `is` ->
             FileOutputStream(oldDb).use { os ->
                 val buffer = ByteArray(1024)
                 var length: Int
-                while (`is`.read(buffer).also { length = it } > 0) {
-                    os.write(buffer, 0, length)
+                if (`is` != null) {
+                    while (`is`.read(buffer).also { length = it } > 0) {
+                        os.write(buffer, 0, length)
+                    }
                 }
             }
-        } else return false
+        }
         val itemTypes: List<PlantTypeObject> = readPlantTypes()
         for (i in itemTypes) addItemType(context, i)
         val taskTypes: List<TaskTypeObject> = readTaskTypes()

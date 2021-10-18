@@ -2,7 +2,6 @@ package com.gago.david.myland
 
 import android.content.ContentValues
 import android.content.Context
-import android.content.ContextWrapper
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.graphics.Bitmap
@@ -232,14 +231,11 @@ Land VARCHAR NOT NULL,
         }
 
         private fun saveToInternalStorage(context: Context, bitmapImage: Bitmap?, name: String): String {
-            val cw = ContextWrapper(context)
-            // path to /data/data/yourapp/app_data/imageDir
-            val directory = cw.getDir("imageDir", Context.MODE_PRIVATE)
-            // Create imageDir
-            val mypath = File(directory, name)
+            val newImage = File(name)
             var fos: FileOutputStream? = null
             try {
-                fos = FileOutputStream(mypath)
+                newImage.createNewFile()
+                fos = FileOutputStream(newImage)
                 // Use the compress method on the BitMap object to write image to the OutputStream
                 bitmapImage!!.compress(Bitmap.CompressFormat.PNG, 100, fos)
             } catch (e: Exception) {
@@ -251,7 +247,7 @@ Land VARCHAR NOT NULL,
                     e.printStackTrace()
                 }
             }
-            return mypath.absolutePath
+            return newImage.absolutePath
         }
 
         fun addImage(context: Context, image: Bitmap?): String {

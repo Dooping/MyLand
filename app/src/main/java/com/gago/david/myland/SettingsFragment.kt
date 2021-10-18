@@ -50,7 +50,7 @@ class SettingsFragment : Fragment() {
     lateinit var items: ArrayList<PlantTypeObject>
     lateinit var tasks: ArrayList<TaskTypeObject>
 
-    lateinit var importDB: MagicButton
+    private lateinit var importDB: MagicButton
     lateinit var exportDB: MagicButton
     lateinit var deleteUser: MagicButton
     private lateinit var unitSwitch: SwitchMultiButton
@@ -102,10 +102,19 @@ class SettingsFragment : Fragment() {
             pageLoader = view.findViewById(R.id.pageloader)
 
             importDB.setMagicButtonClickListener {
-                val i = Intent(Intent.ACTION_GET_CONTENT)
+                val intent = Intent()
+                    .setType("*/*")
+                    .setAction(Intent.ACTION_GET_CONTENT)
+
+                startActivityForResult(Intent.createChooser(intent, "Select a file"), 9998)
+                /*val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+                    addCategory(Intent.CATEGORY_OPENABLE)
+                    //type = ".db"
+                }
+                val i = Intent(Intent.ACTION_OPEN_DOCUMENT)
                 i.addCategory(Intent.CATEGORY_DEFAULT)
                 i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
-                startActivityForResult(Intent.createChooser(i, "Choose file"), 9998)
+                startActivityForResult(Intent.createChooser(intent, "Choose file"), 9998)*/
             }
             exportDB.setMagicButtonClickListener {
                 val i = Intent(Intent.ACTION_CREATE_DOCUMENT)
@@ -152,15 +161,15 @@ class SettingsFragment : Fragment() {
         return view
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (resultCode == Activity.RESULT_OK) when (requestCode) {
             9999 -> {
-                Log.i("Test", "Result 9999 URI " + data.data!!.path)
+                Log.i("Test", "Result 9999 URI " + data!!.data!!.path)
                 //exportDB(data.getData());
                 ExportDB(activity).execute(data.data)
             }
             9998 -> {
-                Log.i("Test", "Result 9998 URI " + data.data!!.path)
+                Log.i("Test", "Result 9998 URI " + data!!.data!!.path)
                 //importDB(data.getData());
                 ImportDB(activity).execute(data.data)
             }
@@ -292,12 +301,12 @@ class SettingsFragment : Fragment() {
         }
     }
 
-    private inner class ExportDB internal constructor(private val mContext: Context?) : AsyncTask<Uri?, Void?, Boolean>() {
+    private inner class ExportDB(private val mContext: Context?) : AsyncTask<Uri?, Void?, Boolean>() {
         override fun onPreExecute() {
             pageLoader.startProgress()
         }
 
-        protected override fun doInBackground(vararg path: Uri?): Boolean {
+        override fun doInBackground(vararg path: Uri?): Boolean {
             var success = false
             val mDbHelper = LandExporterHelper(context!!)
             try {
@@ -315,16 +324,17 @@ class SettingsFragment : Fragment() {
         }
     }
 
-    private inner class ImportDB internal constructor(private val mContext: Context?) : AsyncTask<Uri?, Void?, Boolean>() {
+    private inner class ImportDB(private val mContext: Context?) : AsyncTask<Uri?, Void?, Boolean>() {
         override fun onPreExecute() {
             pageLoader.startProgress()
         }
 
-        protected override fun doInBackground(vararg path: Uri?): Boolean {
+        override fun doInBackground(vararg path: Uri?): Boolean {
             var success = false
             val mDbHelper = LandImporterHelper(context!!)
             try {
-                if (mDbHelper.importDatabase(path[0])) success = true
+                Log.v("IMPORT", "pathSize: ${path.size}")
+                if (mDbHelper.importDatabase(path[0]!!)) success = true
             } catch (e: IOException) {
                 e.printStackTrace()
             }

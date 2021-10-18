@@ -35,7 +35,7 @@ class LandExporterHelper(private val context: Context) : SQLiteOpenHelper(contex
         } catch (e: IOException) {
             e.printStackTrace()
         }
-        for (query in queries.split(";").toTypedArray()) {
+        for (query in queries.split(";").filter(String::isNotEmpty).toList()) {
             db.execSQL(query)
         }
     }
