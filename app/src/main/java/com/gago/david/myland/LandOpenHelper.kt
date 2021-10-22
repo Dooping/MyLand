@@ -8,6 +8,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Log
 import android.widget.Toast
+import com.gago.david.myland.models.TaskObject
 import com.gago.david.myland.models.*
 import org.apache.commons.io.IOUtils
 import java.io.*
@@ -41,7 +42,10 @@ class LandOpenHelper(private val context: Context) : SQLiteOpenHelper(context, L
             upgradeVersion6(db);
         if (oldVersion < 7)
             upgradeVersion7(db);*/
-        if (oldVersion < newVersion) {
+
+        if (oldVersion < 8)
+            upgradeVersion8(db)
+        else if (oldVersion < newVersion) {
             dropDatabase(db)
             onCreate(db)
         }
@@ -170,14 +174,19 @@ Land VARCHAR NOT NULL,
         db.beginTransaction()
     }
 
+    private fun upgradeVersion8(db: SQLiteDatabase) {
+        db.execSQL("ALTER TABLE Tasks ADD COLUMN CompletedDate Long;")
+        Log.v("DATABASE", "updated to version 8")
+    }
+
     override fun onConfigure(db: SQLiteDatabase) {
         db.setForeignKeyConstraintsEnabled(true)
     }
 
     companion object {
-        private const val DATABASE_VERSION = 7
+        private const val DATABASE_VERSION = 8
         private const val LAND_TABLE_NAME = "myland.db"
-        @JvmStatic
+
         fun getImage(uri: String?): Bitmap? {
             Log.v("GETIMAGE", uri!!)
             try {
@@ -255,13 +264,11 @@ Land VARCHAR NOT NULL,
             return addImage(context, image, name)
         }
 
-        @JvmStatic
         fun addImage(context: Context, image: Bitmap?, name: String): String {
             Log.v("ADDIMAGE", name)
             return saveToInternalStorage(context, image, name)
         }
 
-        @JvmStatic
         fun readTaskTypes(context: Context): ArrayList<TaskTypeObject> {
             val mDbHelper = LandOpenHelper(context)
             val db = mDbHelper.readableDatabase
@@ -343,6 +350,7 @@ Land VARCHAR NOT NULL,
             if (t.targetDate != null) values.put("ExpirationDate", t.targetDate!!.time)
             values.put("Completed", t.completed)
             values.put("Observations", t.observations)
+            values.put("CompletedDate", t.completedDate?.time)
             val whereClause = "rowid = ?"
             val whereArgs = arrayOf("" + t.rowid)
             val newRowId = db.update("Tasks", values, whereClause, whereArgs).toLong()
@@ -388,7 +396,6 @@ Land VARCHAR NOT NULL,
             return success
         }
 
-        @JvmStatic
         fun deleteImage(image: String, context: Context): Boolean {
             if (isImageUsed(context, image)) return false
             val f = File(image)
@@ -478,7 +485,6 @@ Land VARCHAR NOT NULL,
             db.execSQL("update Lands set User = (select Name from Users) where User is null;")
         }
 
-        @JvmStatic
         fun readLands(context: Context): MutableList<LandObject> {
             val mDbHelper = LandOpenHelper(context)
             val db = mDbHelper.readableDatabase
@@ -522,7 +528,6 @@ Land VARCHAR NOT NULL,
             return lands
         }
 
-        @JvmStatic
         fun readPlantTypes(context: Context): ArrayList<PlantTypeObject> {
             val mDbHelper = LandOpenHelper(context)
             val db = mDbHelper.readableDatabase
@@ -556,7 +561,6 @@ Land VARCHAR NOT NULL,
             return plants
         }
 
-        @JvmStatic
         fun readPlants(context: Context, name: String?): ArrayList<PlantObject> {
             val mDbHelper = LandOpenHelper(context)
             val db = mDbHelper.readableDatabase
@@ -593,7 +597,6 @@ Land VARCHAR NOT NULL,
             return plants
         }
 
-        @JvmStatic
         fun readTasks(context: Context, land: String?): ArrayList<TaskObject> {
             val tasks = ArrayList<TaskObject>()
             val mDbHelper = LandOpenHelper(context)
@@ -647,7 +650,74 @@ Land VARCHAR NOT NULL,
             return tasks
         }
 
-        @JvmStatic
+        fun readTaskHistory(context: Context, land: String?): ArrayList<TaskObject> {
+            val tasks = ArrayList<TaskObject>()
+            val mDbHelper = LandOpenHelper(context)
+            val db = mDbHelper.readableDatabase
+            val prefs = context.getSharedPreferences(SettingsFragment.MY_PREFS_NAME, Context.MODE_PRIVATE)
+            val user = prefs.getString("user", "")
+
+            // Define a projection that specifies which columns from the database
+            // you will actually use after this query.
+            val projection = arrayOf(
+                "Land",
+                "PlantIndex",
+                "TaskType",
+                "Priority",
+                "CreationDate",
+                "ExpirationDate",
+                "Completed",
+                "Observations",
+                "rowid",
+                "CompletedDate"
+            )
+
+            // How you want the results sorted in the resulting Cursor
+            val sortOrder = "CompletedDate DESC"
+            val selection = "Land = ? AND User = ? AND Completed = 1"
+            val selectionArgs = arrayOf(land, user)
+            val cursor = db.query(
+                "Tasks",  // The table to query
+                projection,  // The array of columns to return (pass null to get all)
+                selection,  // The columns for the WHERE clause
+                selectionArgs,  // The values for the WHERE clause
+                null,  // don't group the rows
+                null,  // don't filter by row groups
+                sortOrder // The sort order
+            )
+
+            tasks.clear()
+            while (cursor.moveToNext()) {
+                val cl = Calendar.getInstance()
+                cl.timeInMillis = cursor.getLong(cursor.getColumnIndex("CreationDate"))
+                val cl2 = if (cursor.isNull(cursor.getColumnIndex("ExpirationDate"))) null else Calendar.getInstance()
+                if (cl2 != null) cl2.timeInMillis = cursor.getLong(cursor.getColumnIndex("ExpirationDate"))
+                val targetDate = cl2?.time
+                val cl3 = if (cursor.isNull(cursor.getColumnIndex("CompletedDate"))) null else Calendar.getInstance()
+                if (cl3 != null) cl3.timeInMillis = cursor.getLong(cursor.getColumnIndex("ExpirationDate"))
+                val completedDate = cl3?.time
+                val o = TaskObject(
+                    cursor.getLong(cursor.getColumnIndex("rowid")),
+                    cursor.getString(cursor.getColumnIndex("Land")),
+                    if (cursor.isNull(cursor.getColumnIndex("PlantIndex"))) null else cursor.getInt(
+                        cursor.getColumnIndex("PlantIndex")
+                    ),
+                    cursor.getString(cursor.getColumnIndex("TaskType")),
+                    cursor.getInt(cursor.getColumnIndex("Priority")),
+                    cl.time,
+                    targetDate,
+                    cursor.getInt(cursor.getColumnIndex("Completed")) > 0,
+                    cursor.getString(cursor.getColumnIndex("Observations")),
+                    completedDate
+                )
+                tasks.add(o)
+                Log.v("read tasks", "task: $o")
+            }
+            cursor.close()
+            db.close()
+            return tasks
+        }
+
         fun addLand(context: Context, l: LandObject): Boolean {
             val mDbHelper = LandOpenHelper(context)
 
@@ -694,7 +764,6 @@ Land VARCHAR NOT NULL,
             return success
         }
 
-        @JvmStatic
         fun addPlant(context: Context, p: PlantObject, land: String?): Boolean {
             val mDbHelper = LandOpenHelper(context)
 
@@ -719,7 +788,6 @@ Land VARCHAR NOT NULL,
             return newRowId > -1
         }
 
-        @JvmStatic
         fun addTask(context: Context, t: TaskObject): Boolean {
             val mDbHelper = LandOpenHelper(context)
 
@@ -744,7 +812,6 @@ Land VARCHAR NOT NULL,
             return newRowId > -1
         }
 
-        @JvmStatic
         fun addItemType(context: Context, item: PlantTypeObject): Boolean {
             val mDbHelper = LandOpenHelper(context)
 
@@ -760,7 +827,6 @@ Land VARCHAR NOT NULL,
             return newRowId > -1
         }
 
-        @JvmStatic
         fun addTaskType(context: Context, item: TaskTypeObject): Boolean {
             val mDbHelper = LandOpenHelper(context)
 

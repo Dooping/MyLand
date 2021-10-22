@@ -22,7 +22,6 @@ import android.widget.TextView
 import android.widget.Toast
 import com.gago.david.myland.EditItemTypeFragment.Companion.newInstance
 import com.gago.david.myland.EditTaskTypeFragment.Companion.newInstance
-import com.gago.david.myland.MainActivity
 import com.gago.david.myland.SettingsFragment.OnTaskListFragmentInteractionListener
 import com.gago.david.myland.adapters.ItemTypeAdapter
 import com.gago.david.myland.adapters.TaskTypeAdapter

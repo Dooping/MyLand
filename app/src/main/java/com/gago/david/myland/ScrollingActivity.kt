@@ -34,7 +34,9 @@ import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import com.gago.david.myland.adapters.TaskHistoryRecyclerViewAdapter
 import com.gago.david.myland.adapters.TaskListAdapter
+import com.gago.david.myland.models.TaskObject
 import com.gago.david.myland.models.*
 import com.lantouzi.wheelview.WheelView
 import com.lantouzi.wheelview.WheelView.OnWheelItemSelectedListener
@@ -44,6 +46,8 @@ import java.util.*
 import kotlin.math.roundToInt
 
 class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInteractionListener, NavigationView.OnNavigationItemSelectedListener, TaskEditFragment.OnFragmentInteractionListener {
+    private lateinit var taskHistory: ArrayList<TaskObject>
+    private lateinit var taskHistoryFiltered: MutableList<TaskObject>
     private var wheel: WheelView? = null
     private var land: LandObject? = null
     private var name: String? = null
@@ -175,6 +179,7 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
                 selected = position
                 drawTrees()
                 filter()
+                updateHitory()
             }
 
             override fun onWheelItemSelected(wheelView: WheelView, position: Int) {}
@@ -225,6 +230,32 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
             alertDialog.show()
         }
         state = findViewById(R.id.state)
+
+        taskHistory = LandOpenHelper.readTaskHistory(this, land!!.name)
+        taskHistoryFiltered = taskHistory.toMutableList()
+        findViewById<RecyclerView>(R.id.task_history_list).apply {
+            layoutManager =  LinearLayoutManager(context)
+            adapter = TaskHistoryRecyclerViewAdapter(taskHistoryFiltered)
+        }
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    private fun updateHitory() {
+        taskHistoryFiltered.clear()
+        when {
+            selected == 0 -> taskHistoryFiltered.addAll(taskHistory)
+            selected == 1 -> taskHistoryFiltered.addAll(taskHistory.filter { it.plantIndex == null })
+            selected < plantGroups?.keys!!.size + 2 -> {
+                val plantType = plantGroups!!.keys.toList()[selected - 2]
+                val plantIndexes = land!!.plants.filter { it.plantType == plantType }.map { it.id }
+                taskHistoryFiltered.addAll(taskHistory.filter { plantIndexes.contains(it.plantIndex)})
+            }
+            else -> {
+                val plantIndex = land!!.plants[selected - 2 - plantGroups?.keys!!.size].id
+                taskHistoryFiltered.addAll(taskHistory.filter { it.plantIndex == plantIndex})
+            }
+        }
+        findViewById<RecyclerView>(R.id.task_history_list).adapter?.notifyDataSetChanged()
     }
 
     override fun setContentView(view: View) {
@@ -697,6 +728,8 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
             val success = LandOpenHelper.updateTask(newTask, this@ScrollingActivity)
             if (success) {
                 Toast.makeText(this@ScrollingActivity, R.string.task_close_success, Toast.LENGTH_SHORT).show()
+                taskHistory.add(newTask)
+                updateHitory()
             } else Toast.makeText(this@ScrollingActivity, R.string.task_close_error, Toast.LENGTH_SHORT).show()
             filter()
         } else {

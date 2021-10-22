@@ -96,4 +96,6 @@
     <string name="edit_land_title">Editar terreno</string>
     <string name="plant_remove_error">Não foi possível remover o item!</string>
     <string name="plant_remove_empty">Só pode remover items que tenham sido adicionados nesta sessão</string>
+    <string name="tasks">Tarefas</string>
+    <string name="task_history">Histórico de tarefas</string>
 </resources>

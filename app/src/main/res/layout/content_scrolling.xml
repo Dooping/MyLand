@@ -90,6 +90,18 @@
                 app:lwvMarkTextColor="#919191"
                 app:lwvMarkTextSize="12sp" />
 
+            <TextView
+                android:id="@+id/tasks_label"
+                style="?android:attr/textAppearanceSmall"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="8dp"
+                android:layout_weight="0"
+                android:text="@string/tasks"
+                android:textStyle="bold" />
+
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/task_list"
                 android:layout_width="match_parent"
@@ -116,6 +128,24 @@
                 android:text="@string/button_remove"
                 android:textColor="@android:color/background_light"
                 android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/task_history_label"
+                style="?android:attr/textAppearanceSmall"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="8dp"
+                android:layout_weight="0"
+                android:text="@string/task_history"
+                android:textStyle="bold" />
+
+            <include
+                android:id="@+id/task_history_list"
+                layout="@layout/fragment_task_history_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
 
         </LinearLayout>
 

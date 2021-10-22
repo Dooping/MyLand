@@ -151,6 +151,7 @@ class TaskEditFragment : Fragment(), OnItemSelectedListener {
             if (completed) {
                 changed = true
                 task.completed = true
+                task.completedDate = Date()
             }
             if (changed) mListener!!.updateTask(task, this.task) else mListener!!.notUpdateTask()
         }

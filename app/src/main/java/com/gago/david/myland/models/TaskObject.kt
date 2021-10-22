@@ -4,24 +4,16 @@ import java.io.Serializable
 import java.util.*
 
 class TaskObject : Serializable, Cloneable {
-    @JvmField
     var rowid: Long = 0
-    @JvmField
     var land: String
-    @JvmField
     var plantIndex: Int?
-    @JvmField
     var taskType: String
-    @JvmField
     var priority: Int
-    @JvmField
     var creationDate: Date
-    @JvmField
     var targetDate: Date?
-    @JvmField
     var completed: Boolean
-    @JvmField
     var observations: String
+    var completedDate: Date? = null
 
     constructor(land: String, plantIndex: Int?, taskType: String, priority: Int, creationDate: Date, targetDate: Date?, completed: Boolean, observations: String) {
         this.land = land
@@ -34,7 +26,17 @@ class TaskObject : Serializable, Cloneable {
         this.observations = observations
     }
 
-    constructor(rowid: Long, land: String, plantIndex: Int?, taskType: String, priority: Int, creationDate: Date, targetDate: Date?, completed: Boolean, observations: String) {
+    constructor(
+        rowid: Long,
+        land: String,
+        plantIndex: Int?,
+        taskType: String,
+        priority: Int,
+        creationDate: Date,
+        targetDate: Date?,
+        completed: Boolean,
+        observations: String
+    ) {
         this.rowid = rowid
         this.land = land
         this.plantIndex = plantIndex
@@ -44,6 +46,30 @@ class TaskObject : Serializable, Cloneable {
         this.targetDate = targetDate
         this.completed = completed
         this.observations = observations
+    }
+
+    constructor(
+        rowid: Long,
+        land: String,
+        plantIndex: Int?,
+        taskType: String,
+        priority: Int,
+        creationDate: Date,
+        targetDate: Date?,
+        completed: Boolean,
+        observations: String,
+        completedDate: Date?
+    ) {
+        this.rowid = rowid
+        this.land = land
+        this.plantIndex = plantIndex
+        this.taskType = taskType
+        this.priority = priority
+        this.creationDate = creationDate
+        this.targetDate = targetDate
+        this.completed = completed
+        this.observations = observations
+        this.completedDate = completedDate
     }
 
     override fun toString(): String {
@@ -57,6 +83,7 @@ class TaskObject : Serializable, Cloneable {
                 ", targetDate=" + targetDate +
                 ", completed=" + completed +
                 ", observations='" + observations + '\'' +
+                ", completedDate='" + completedDate + '\'' +
                 '}'
     }
 
@@ -71,14 +98,15 @@ class TaskObject : Serializable, Cloneable {
                 priority == that.priority &&
                 creationDate == that.creationDate &&
                 targetDate == that.targetDate &&
-                observations == that.observations
+                observations == that.observations &&
+                completedDate == that.completedDate
     }
 
     override fun hashCode(): Int {
-        return Objects.hash(rowid, land, plantIndex, taskType, priority, creationDate, targetDate, completed, observations)
+        return Objects.hash(rowid, land, plantIndex, taskType, priority, creationDate, targetDate, completed, observations, completedDate)
     }
 
     public override fun clone(): TaskObject {
-        return TaskObject(rowid, land, plantIndex, taskType, priority, creationDate, targetDate, completed, observations)
+        return TaskObject(rowid, land, plantIndex, taskType, priority, creationDate, targetDate, completed, observations, completedDate)
     }
 }

@@ -51,6 +51,7 @@ CREATE TABLE IF NOT EXISTS Tasks(
 	ExpirationDate LONG,
 	Completed BOOLEAN NOT NULL CHECK (Completed IN (0,1)),
 	Observations TEXT,
+	CompletedDate LONG,
 	FOREIGN KEY(PlantIndex) REFERENCES Plants(Id) ON DELETE CASCADE,
     FOREIGN KEY(Land, User) REFERENCES Lands(Name, User) ON DELETE CASCADE,
     FOREIGN KEY(TaskType) REFERENCES TaskTypes(Name) ON DELETE CASCADE,

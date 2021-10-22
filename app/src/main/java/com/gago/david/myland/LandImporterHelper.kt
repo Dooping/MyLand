@@ -15,6 +15,7 @@ import com.gago.david.myland.LandOpenHelper.Companion.addPlant
 import com.gago.david.myland.LandOpenHelper.Companion.addTask
 import com.gago.david.myland.LandOpenHelper.Companion.addTaskType
 import com.gago.david.myland.LandOpenHelper.Companion.deleteImage
+import com.gago.david.myland.models.TaskObject
 import com.gago.david.myland.models.*
 import com.gago.david.myland.models.LandContract.ItemEntry
 import com.gago.david.myland.models.LandContract.LandEntry

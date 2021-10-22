@@ -193,4 +193,6 @@
     <string name="edit_land_title">Edit land</string>
     <string name="plant_remove_error">Could not remove the item!</string>
     <string name="plant_remove_empty">You can only remove items added in this session</string>
+    <string name="tasks">Tasks</string>
+    <string name="task_history">Task history</string>
 </resources>

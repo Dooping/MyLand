@@ -24,8 +24,6 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.FrameLayout
 import android.widget.Toast
 import br.com.bloder.magic.view.MagicButton
-import butterknife.BindView
-import butterknife.ButterKnife
 import com.gago.david.myland.adapters.ItemTypeAdapter
 import com.gago.david.myland.adapters.TaskTypeAdapter
 import com.gago.david.myland.models.PlantTypeObject
