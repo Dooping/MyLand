@@ -171,7 +171,8 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
         val recyclerView = findViewById<RecyclerView>(R.id.task_list)
         recyclerView.layoutManager = LinearLayoutManager(this)
         tasks = LandOpenHelper.readTasks(this, land!!.name)
-        mAdapter = TaskListAdapter(tasks, this, priorities)
+        val emptyView = findViewById<View>(R.id.emptyTaskList)
+        mAdapter = TaskListAdapter(tasks, this, priorities, emptyView)
         recyclerView.adapter = mAdapter
         wheel = findViewById(R.id.wheelview)
         wheel?.setOnWheelItemSelectedListener(object : OnWheelItemSelectedListener {
@@ -233,9 +234,10 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
 
         taskHistory = LandOpenHelper.readTaskHistory(this, land!!.name)
         taskHistoryFiltered = taskHistory.toMutableList()
+        val historyEmptyView = findViewById<View>(R.id.emptyTaskListHistory)
         findViewById<RecyclerView>(R.id.task_history_list).apply {
             layoutManager =  LinearLayoutManager(context)
-            adapter = TaskHistoryRecyclerViewAdapter(taskHistoryFiltered)
+            adapter = TaskHistoryRecyclerViewAdapter(taskHistoryFiltered, historyEmptyView)
         }
     }
 

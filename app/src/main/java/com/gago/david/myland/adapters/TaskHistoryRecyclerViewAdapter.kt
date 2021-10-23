@@ -16,7 +16,8 @@ import de.hdodenhof.circleimageview.CircleImageView
  * Used to display task history
  */
 class TaskHistoryRecyclerViewAdapter(
-    private val values: List<TaskObject>
+    private val values: List<TaskObject>,
+    private val emptyView: View
 ) : RecyclerView.Adapter<TaskHistoryRecyclerViewAdapter.ViewHolder>() {
 
     private lateinit var dateFormat: java.text.DateFormat
@@ -42,7 +43,13 @@ class TaskHistoryRecyclerViewAdapter(
         holder.notificationView.visibility = View.GONE
     }
 
-    override fun getItemCount(): Int = values.size
+    override fun getItemCount(): Int {
+        if (values.isEmpty())
+            emptyView.visibility = View.VISIBLE
+        else
+            emptyView.visibility = View.GONE
+        return values.size
+    }
 
     inner class ViewHolder(binding: TaskItemBinding) :
         RecyclerView.ViewHolder(binding.root) {
@@ -55,5 +62,4 @@ class TaskHistoryRecyclerViewAdapter(
             return super.toString() + " '" + contentView.text + "'"
         }
     }
-
 }

@@ -54,12 +54,9 @@ class LandFragment
         if (view is FrameLayout) {
             val context = view.getContext()
             val recyclerView: RecyclerView = view.findViewById(R.id.list)
-            if (mColumnCount <= 1) {
-                recyclerView.layoutManager = LinearLayoutManager(context)
-            } else {
-                recyclerView.layoutManager = GridLayoutManager(context, mColumnCount)
-            }
-            adapter = MyLandRecyclerViewAdapter(lands, mListener, priorities)
+            recyclerView.layoutManager = LinearLayoutManager(context)
+            val emptyListView = view.findViewById<View>(R.id.land_list_empty)
+            adapter = MyLandRecyclerViewAdapter(lands, mListener, priorities, emptyListView)
             recyclerView.adapter = adapter
         }
         //lands = new ArrayList<>();

@@ -98,4 +98,7 @@
     <string name="plant_remove_empty">Só pode remover items que tenham sido adicionados nesta sessão</string>
     <string name="tasks">Tarefas</string>
     <string name="task_history">Histórico de tarefas</string>
+    <string name="task_list_empty">A lista de tarefas está vazia...</string>
+    <string name="task_list_history_empty">Ainda não há tarefas concluídas...</string>
+    <string name="land_list_empty">A lista de terrenos está vazia...</string>
 </resources>

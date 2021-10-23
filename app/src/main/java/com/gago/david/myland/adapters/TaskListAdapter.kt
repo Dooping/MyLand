@@ -21,7 +21,12 @@ import com.gago.david.myland.models.TaskObject
 import de.hdodenhof.circleimageview.CircleImageView
 import java.util.*
 
-class TaskListAdapter(items: ArrayList<TaskObject>, private val mListener: TaskEditFragment.OnFragmentInteractionListener?, private val priorities: List<PriorityObject>?) : RecyclerView.Adapter<TaskListAdapter.ViewHolder>(), Filterable {
+class TaskListAdapter(
+    items: ArrayList<TaskObject>,
+    private val mListener: TaskEditFragment.OnFragmentInteractionListener?,
+    private val priorities: List<PriorityObject>?,
+    private val emptyView: View
+) : RecyclerView.Adapter<TaskListAdapter.ViewHolder>(), Filterable {
     private val mValues: SortedList<TaskObject>
     private val mFilter: CustomFilter
     private val originalList: ArrayList<TaskObject>
@@ -56,6 +61,10 @@ class TaskListAdapter(items: ArrayList<TaskObject>, private val mListener: TaskE
     }
 
     override fun getItemCount(): Int {
+        if (mValues.size() == 0)
+            emptyView.visibility = View.VISIBLE
+        else
+            emptyView.visibility = View.GONE
         return mValues.size()
     }
 
@@ -64,28 +73,22 @@ class TaskListAdapter(items: ArrayList<TaskObject>, private val mListener: TaskE
     }
 
     inner class ViewHolder(val mView: View) : RecyclerView.ViewHolder(mView) {
-        val mIdView: TextView
-        val mContentView: TextView
-        val date: TextView
-        val mNotificationView: CircleImageView
+        val mIdView: TextView = mView.findViewById(R.id.id)
+        val mContentView: TextView = mView.findViewById(R.id.content)
+        val date: TextView = mView.findViewById(R.id.date)
+        val mNotificationView: CircleImageView = mView.findViewById(R.id.notification)
         var mItem: TaskObject? = null
         override fun toString(): String {
             return super.toString() + " '" + mContentView.text + "'"
         }
 
-        init {
-            mIdView = mView.findViewById(R.id.id)
-            mContentView = mView.findViewById(R.id.content)
-            mNotificationView = mView.findViewById(R.id.notification)
-            date = mView.findViewById(R.id.date)
-        }
     }
 
     inner class CustomFilter(private val mAdapter: TaskListAdapter, private val filteredList: SortedList<TaskObject>) : Filter() {
         override fun performFiltering(constraint: CharSequence): FilterResults {
             val results = FilterResults()
             val filteredResults = ArrayList<TaskObject>()
-            if (constraint.length == 0) {
+            if (constraint.isEmpty()) {
                 filteredResults.addAll(originalList)
             } else {
                 val filterPattern = constraint.toString().split(" ").toTypedArray()
@@ -105,7 +108,7 @@ class TaskListAdapter(items: ArrayList<TaskObject>, private val mListener: TaskE
                         run {
                             var i: Int = 1
                             while (i < filterPattern.size) {
-                                idx.add(Integer.valueOf(filterPattern.get(i)))
+                                idx.add(Integer.valueOf(filterPattern[i]))
                                 i++
                             }
                         }

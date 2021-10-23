@@ -39,6 +39,19 @@
         app:setErrorText="@string/something_happened"
         app:setLoadingAnimationMode="flip"
         app:setLoadingImage="@drawable/laucher_icon"
-        app:setLoadingText="@string/please_wait" />
+        app:setLoadingText="@string/please_wait"
+        tools:visibility="gone" />
+
+    <TextView
+        android:id="@+id/land_list_empty"
+        style="@android:style/Widget.DeviceDefault.Light.TextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:text="@string/land_list_empty"
+        android:textSize="20sp"
+        android:textStyle="italic"
+        android:visibility="visible" />
 
 </FrameLayout>

@@ -195,4 +195,7 @@
     <string name="plant_remove_empty">You can only remove items added in this session</string>
     <string name="tasks">Tasks</string>
     <string name="task_history">Task history</string>
+    <string name="task_list_empty">The task list is empty...</string>
+    <string name="task_list_history_empty">There are no completed tasks yet...</string>
+    <string name="land_list_empty">The list of lands is empty...</string>
 </resources>

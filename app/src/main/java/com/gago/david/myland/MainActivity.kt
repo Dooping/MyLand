@@ -43,7 +43,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         //deleteDatabase("myland.db");
         //Log.v("tree", ""+R.drawable.ic_tree);
         val user = intent.getStringExtra(INTENT_USER)
-                ?: throw IllegalStateException("field " + INTENT_USER + " missing in Intent")
+                ?: throw IllegalStateException("field $INTENT_USER missing in Intent")
         setContentView(R.layout.activity_main)
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)

@@ -18,10 +18,15 @@ import de.hdodenhof.circleimageview.CircleImageView
  * [RecyclerView.Adapter] that can display a [LandObject] and makes a call to the
  * specified [OnListFragmentInteractionListener].
  */
-class MyLandRecyclerViewAdapter(private val mValues: List<LandObject>, private val mListener: LandFragment.OnListFragmentInteractionListener?, private val priorities: List<PriorityObject>) : RecyclerView.Adapter<MyLandRecyclerViewAdapter.ViewHolder>() {
+class MyLandRecyclerViewAdapter(
+    private val mValues: List<LandObject>,
+    private val mListener: LandFragment.OnListFragmentInteractionListener?,
+    private val priorities: List<PriorityObject>,
+    private val emptyView: View
+) : RecyclerView.Adapter<MyLandRecyclerViewAdapter.ViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
-                .inflate(R.layout.fragment_land, parent, false)
+            .inflate(R.layout.fragment_land, parent, false)
         return ViewHolder(view)
     }
 
@@ -42,26 +47,23 @@ class MyLandRecyclerViewAdapter(private val mValues: List<LandObject>, private v
     }
 
     override fun getItemCount(): Int {
+        if (mValues.isEmpty())
+            emptyView.visibility = View.VISIBLE
+        else
+            emptyView.visibility = View.GONE
         return mValues.size
     }
 
     inner class ViewHolder(val mView: View) : RecyclerView.ViewHolder(mView) {
-        val mIdView: TextView
-        val mContentView: TextView
-        val landImage: CircleImageView
-        val notification: CircleImageView
-        val number: TextView
+        val mIdView: TextView = mView.findViewById(R.id.id)
+        val mContentView: TextView = mView.findViewById(R.id.content)
+        val landImage: CircleImageView = mView.findViewById(R.id.land_image)
+        val notification: CircleImageView = mView.findViewById(R.id.notification)
+        val number: TextView = mView.findViewById(R.id.number)
         var mItem: LandObject? = null
         override fun toString(): String {
             return super.toString() + " '" + mContentView.text + "'"
         }
 
-        init {
-            mIdView = mView.findViewById(R.id.id)
-            mContentView = mView.findViewById(R.id.content)
-            landImage = mView.findViewById(R.id.land_image)
-            notification = mView.findViewById(R.id.notification)
-            number = mView.findViewById(R.id.number)
-        }
     }
 }
