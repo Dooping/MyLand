@@ -126,23 +126,6 @@
                 android:text="@string/task_list_empty"
                 android:textStyle="italic" />
 
-
-            <Button
-                android:id="@+id/button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_margin="16dp"
-                android:layout_weight="0"
-                android:background="@drawable/button_shape"
-                android:backgroundTint="@android:color/holo_red_dark"
-                android:onClick="deleteLand"
-                android:paddingEnd="16dp"
-                android:paddingStart="16dp"
-                android:text="@string/button_remove"
-                android:textColor="@android:color/background_light"
-                android:textSize="12sp" />
-
             <TextView
                 android:id="@+id/task_history_label"
                 style="?android:attr/textAppearanceSmall"

@@ -27,6 +27,7 @@ import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.Toolbar
 import android.util.Log
+import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.animation.AlphaAnimation
@@ -45,6 +46,9 @@ import java.text.MessageFormat
 import java.util.*
 import kotlin.math.roundToInt
 
+import android.support.v7.view.menu.MenuBuilder
+
+
 class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInteractionListener, NavigationView.OnNavigationItemSelectedListener, TaskEditFragment.OnFragmentInteractionListener {
     private lateinit var taskHistory: ArrayList<TaskObject>
     private lateinit var taskHistoryFiltered: MutableList<TaskObject>
@@ -58,7 +62,7 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
     private var selected = 0
     private var editButton: FloatingActionButton? = null
     private var addTaskButton: FloatingActionButton? = null
-    private var removeButton: FloatingActionButton? = null
+    private lateinit var removeButton: MenuItem
     private var doneButton: FloatingActionButton? = null
     private var deleteButton: FloatingActionButton? = null
     private var mAdapter: TaskListAdapter? = null
@@ -108,7 +112,6 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
             intent.putExtras(b1) //Put your id to your next Intent
             startActivity(intent)
         }
-        removeButton = findViewById(R.id.remove)
         doneButton = findViewById(R.id.done)
         deleteButton = findViewById(R.id.delete)
         doneButton?.setOnClickListener { view: View ->
@@ -281,8 +284,8 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
         } else
             mAdapter!!.filter.filter("item " + land!!.plants[selected - 2 - plantGroups?.keys!!.size].id)
         if (selected < plantGroups?.keys!!.size + 2)
-            removeButton!!.visibility = View.GONE
-        else removeButton!!.visibility = View.VISIBLE
+            removeButton.setEnabled(false)
+        else removeButton.setEnabled(true)
         if (selected < 1)
             addTaskButton!!.visibility = View.GONE
         else addTaskButton!!.visibility = View.VISIBLE
@@ -324,7 +327,7 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
                 .commit()
         editButton!!.visibility = View.GONE
         addTaskButton!!.visibility = View.GONE
-        removeButton!!.visibility = View.GONE
+        removeButton.setEnabled(false)
     }
 
     private fun drawTrees() {
@@ -416,7 +419,7 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
         alertDialog.show()
     }
 
-    fun deleteLand(view: View) {
+    private fun deleteLand(view: View) {
         val alertDialog = AlertDialog.Builder(view.rootView.context)
         alertDialog.setTitle(land!!.name)
         alertDialog.setMessage(R.string.remove_land)
@@ -555,7 +558,7 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
     fun showButtons() {
         editButton!!.visibility = View.VISIBLE
         addTaskButton!!.visibility = View.VISIBLE
-        if (selected > plantGroups?.keys!!.size + 1) removeButton!!.visibility = View.VISIBLE
+        if (selected > plantGroups?.keys!!.size + 1) removeButton.setEnabled(true)
     }
 
     override fun onFragmentInteraction(tasks: ArrayList<TaskObject>?) {
@@ -686,20 +689,41 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
         anim.start()
     }
 
+    @SuppressLint("RestrictedApi")
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_scrolling, menu)
+        removeButton = menu!!.findItem(R.id.menu_delete_item)
+        if (menu is MenuBuilder) {
+            menu.setOptionalIconsVisible(true)
+        }
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when(item.itemId) {
+            R.id.menu_delete_land -> deleteLand(findViewById(R.id.menu_delete_land))
+            R.id.menu_delete_item -> removeTree(findViewById(R.id.menu_delete_item))
+        }
+        return true
+    }
+
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
-        val id = item.itemId
-        if (id == R.id.lands) {
-            finishAfterTransition()
-        } else if (id == R.id.settings) {
-            val data = Intent()
-            data.putExtra("menu", "settings")
-            setResult(RESULT_OK, data)
-            finish()
-        } else if (id == R.id.exit) {
-            val homeIntent = Intent(Intent.ACTION_MAIN)
-            homeIntent.addCategory(Intent.CATEGORY_HOME)
-            homeIntent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
-            startActivity(homeIntent)
+        when (item.itemId) {
+            R.id.lands -> {
+                finishAfterTransition()
+            }
+            R.id.settings -> {
+                val data = Intent()
+                data.putExtra("menu", "settings")
+                setResult(RESULT_OK, data)
+                finish()
+            }
+            R.id.exit -> {
+                val homeIntent = Intent(Intent.ACTION_MAIN)
+                homeIntent.addCategory(Intent.CATEGORY_HOME)
+                homeIntent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+                startActivity(homeIntent)
+            }
         }
         val drawer = findViewById<DrawerLayout>(R.id.drawer_layout)
         drawer.closeDrawer(GravityCompat.START)
@@ -722,7 +746,7 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
         doneButton!!.visibility = View.VISIBLE
         deleteButton!!.visibility = View.VISIBLE
         editButton!!.visibility = View.GONE
-        removeButton!!.visibility = View.GONE
+        removeButton.setEnabled(false)
     }
 
     override fun updateTask(newTask: TaskObject, oldTask: TaskObject) {

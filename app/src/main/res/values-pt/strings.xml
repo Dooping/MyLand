@@ -7,7 +7,7 @@
     <string name="menu_lands">Terrenos</string>
     <string name="menu_options">Opções</string>
     <string name="menu_exit">Sair</string>
-    <string name="please_wait">Por favor espere...</string>
+    <string name="please_wait">Por favor espere…</string>
     <string name="something_happened">Algo aconteceu</string>
     <string name="task_type">Tipo de Tarefa</string>
     <string name="title_activity_land_edit">Editar Terreno</string>
@@ -98,7 +98,9 @@
     <string name="plant_remove_empty">Só pode remover items que tenham sido adicionados nesta sessão</string>
     <string name="tasks">Tarefas</string>
     <string name="task_history">Histórico de tarefas</string>
-    <string name="task_list_empty">A lista de tarefas está vazia...</string>
-    <string name="task_list_history_empty">Ainda não há tarefas concluídas...</string>
-    <string name="land_list_empty">A lista de terrenos está vazia...</string>
+    <string name="task_list_empty">A lista de tarefas está vazia…</string>
+    <string name="task_list_history_empty">Ainda não há tarefas concluídas…</string>
+    <string name="land_list_empty">A lista de terrenos está vazia…</string>
+    <string name="menu_delete_item">Apagar item</string>
+    <string name="menu_remove_land">Apagar terreno</string>
 </resources>

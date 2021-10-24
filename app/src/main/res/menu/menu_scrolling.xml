@@ -3,8 +3,16 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.gago.david.myland.ScrollingActivity">
     <item
-        android:id="@+id/action_settings"
+        android:id="@+id/menu_delete_item"
+        android:enabled="false"
+        android:icon="@drawable/ic_baseline_remove_circle_24"
         android:orderInCategory="100"
-        android:title="@string/action_settings"
-        app:showAsAction="never" />
+        android:title="@string/menu_delete_item"
+        app:showAsAction="never|ifRoom" />
+    <item
+        android:id="@+id/menu_delete_land"
+        android:icon="@drawable/ic_baseline_delete_24"
+        android:orderInCategory="101"
+        android:title="@string/menu_remove_land"
+        app:showAsAction="always" />
 </menu>
