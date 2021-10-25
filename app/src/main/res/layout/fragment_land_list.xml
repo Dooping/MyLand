@@ -6,9 +6,7 @@
     android:layout_height="match_parent">
 
 
-    <android.support.v7.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
+    <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/list"
         android:name="com.gago.david.myland.LandFragment"
         android:layout_width="match_parent"
@@ -18,18 +16,20 @@
         tools:listitem="@layout/fragment_land">
 
 
-    </android.support.v7.widget.RecyclerView>
+    </androidx.recyclerview.widget.RecyclerView>
 
 
-    <android.support.design.widget.FloatingActionButton
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/add_land_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
-        android:tint="@android:color/background_light"
-        app:elevation="10dp"
-        app:srcCompat="@drawable/ic_add_black_48dp" />
+        android:backgroundTint="@color/colorAccent"
+        android:foreground="@drawable/ic_baseline_add_24"
+        android:foregroundGravity="center"
+        android:tint="@color/white"
+        app:elevation="10dp" />
 
     <id.arieridwan.lib.PageLoader
         android:id="@+id/pageloader"

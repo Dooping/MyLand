@@ -8,7 +8,7 @@ import android.app.DatePickerDialog.OnDateSetListener
 import android.content.Context
 import android.graphics.Typeface
 import android.os.Bundle
-import android.support.v4.app.Fragment
+import androidx.fragment.app.Fragment
 import android.text.format.DateFormat
 import android.util.Log
 import android.view.LayoutInflater

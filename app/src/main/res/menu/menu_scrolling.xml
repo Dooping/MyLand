@@ -10,9 +10,16 @@
         android:title="@string/menu_delete_item"
         app:showAsAction="never|ifRoom" />
     <item
+        android:id="@+id/menu_edit_land"
+        android:icon="@drawable/ic_baseline_edit_gray_24"
+        android:orderInCategory="101"
+        android:title="@string/edit_land"
+        android:visible="false"
+        app:showAsAction="always" />
+    <item
         android:id="@+id/menu_delete_land"
         android:icon="@drawable/ic_baseline_delete_24"
-        android:orderInCategory="101"
+        android:orderInCategory="102"
         android:title="@string/menu_remove_land"
         app:showAsAction="always" />
 </menu>

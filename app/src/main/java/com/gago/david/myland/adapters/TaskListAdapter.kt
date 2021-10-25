@@ -3,8 +3,8 @@ package com.gago.david.myland.adapters
 import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
-import android.support.v7.util.SortedList
-import android.support.v7.widget.RecyclerView
+import androidx.recyclerview.widget.SortedList
+import androidx.recyclerview.widget.RecyclerView
 import android.text.format.DateFormat
 import android.util.Log
 import android.view.LayoutInflater

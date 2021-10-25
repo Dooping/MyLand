@@ -4,11 +4,11 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.support.design.widget.FloatingActionButton
-import android.support.v4.app.Fragment
-import android.support.v7.widget.GridLayoutManager
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -54,7 +54,8 @@ class LandFragment
         if (view is FrameLayout) {
             val context = view.getContext()
             val recyclerView: RecyclerView = view.findViewById(R.id.list)
-            recyclerView.layoutManager = LinearLayoutManager(context)
+            recyclerView.layoutManager =
+                LinearLayoutManager(context)
             val emptyListView = view.findViewById<View>(R.id.land_list_empty)
             adapter = MyLandRecyclerViewAdapter(lands, mListener, priorities, emptyListView)
             recyclerView.adapter = adapter
@@ -73,10 +74,10 @@ class LandFragment
         return view
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == 1) {
             if (resultCode == Activity.RESULT_OK) {
-                val filename = data.getStringExtra("name")
+                val filename = data!!.getStringExtra("name")
                 val area = data.getDoubleExtra("area", 0.0)
                 (activity as MainActivity?)!!.addLandDetails(filename, area)
             }

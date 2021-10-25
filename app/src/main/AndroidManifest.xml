@@ -21,16 +21,19 @@
             android:configChanges="orientation"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
+            android:exported="false"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
         <activity
             android:name=".AddLandActivity"
             android:configChanges="orientation"
+            android:exported="false"
             android:screenOrientation="landscape" />
         <activity
             android:name=".ScrollingActivity"
             android:configChanges="orientation"
             android:label="@string/title_activity_scrolling"
+            android:exported="false"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="adjustPan" />
@@ -39,11 +42,13 @@
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_land_edit"
             android:screenOrientation="landscape"
+            android:exported="false"
             android:theme="@style/FullscreenTheme" />
         <activity
             android:name=".Login"
             android:screenOrientation="portrait"
             android:label="@string/app_name"
+            android:exported="true"
             android:theme="@style/AppTheme.NoActionBar2">
 
             <intent-filter>

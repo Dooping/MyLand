@@ -13,19 +13,19 @@ import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.LayerDrawable
 import android.os.Bundle
-import android.support.design.widget.CollapsingToolbarLayout
-import android.support.design.widget.FloatingActionButton
-import android.support.design.widget.NavigationView
-import android.support.v4.app.Fragment
-import android.support.v4.app.FragmentManager
-import android.support.v4.content.ContextCompat
-import android.support.v4.view.GravityCompat
-import android.support.v4.widget.DrawerLayout
-import android.support.v7.app.ActionBarDrawerToggle
-import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
-import android.support.v7.widget.Toolbar
+import com.google.android.material.appbar.CollapsingToolbarLayout
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.navigation.NavigationView
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import androidx.core.content.ContextCompat
+import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout
+import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import androidx.appcompat.widget.Toolbar
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
@@ -46,7 +46,8 @@ import java.text.MessageFormat
 import java.util.*
 import kotlin.math.roundToInt
 
-import android.support.v7.view.menu.MenuBuilder
+import androidx.appcompat.view.menu.MenuBuilder
+import com.google.android.material.appbar.AppBarLayout
 
 
 class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInteractionListener, NavigationView.OnNavigationItemSelectedListener, TaskEditFragment.OnFragmentInteractionListener {
@@ -57,12 +58,14 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
     private var name: String? = null
     private var first = true
     private lateinit var layers: Array<Drawable?>
-    private var toolbarLayout: CollapsingToolbarLayout? = null
+    private lateinit var toolbarLayout: CollapsingToolbarLayout
+    private lateinit var appBarLayout: AppBarLayout
     private var plantTypeList: ArrayList<PlantTypeObject>? = null
     private var selected = 0
     private var editButton: FloatingActionButton? = null
     private var addTaskButton: FloatingActionButton? = null
     private lateinit var removeButton: MenuItem
+    private var editLandButton: MenuItem? = null
     private var doneButton: FloatingActionButton? = null
     private var deleteButton: FloatingActionButton? = null
     private var mAdapter: TaskListAdapter? = null
@@ -104,13 +107,7 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
         }
         editButton = findViewById(R.id.fab)
         editButton?.setOnClickListener {
-            //Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-            //        .setAction("Action", null).show();
-            val intent = Intent(applicationContext, LandEditActivity::class.java)
-            val b1 = Bundle()
-            b1.putString("name", name) //Your id
-            intent.putExtras(b1) //Put your id to your next Intent
-            startActivity(intent)
+            editLand()
         }
         doneButton = findViewById(R.id.done)
         deleteButton = findViewById(R.id.delete)
@@ -157,7 +154,7 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
         toolbarLayout = findViewById(R.id.toolbar_layout)
         layers = arrayOfNulls(2)
         layers[0] = BitmapDrawable(resources, LandOpenHelper.getImage(land!!.imageUri))
-        toolbarLayout?.background = layers[0]
+        toolbarLayout.background = layers[0]
         /*try {
             InputStream inputStream = getContentResolver().openInputStream(Uri.parse(land.imageUri));
             Drawable yourDrawable = Drawable.createFromStream(inputStream, land.imageUri );
@@ -165,14 +162,26 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
             toolbarLayout.setBackground(yourDrawable);
         } catch (FileNotFoundException e) {
             //yourDrawable = getResources().getDrawable(R.drawable.default_image);
-        }*/toolbarLayout?.viewTreeObserver?.addOnGlobalLayoutListener {
+        }*/toolbarLayout.viewTreeObserver?.addOnGlobalLayoutListener {
             if (first) {
                 drawTrees()
                 first = false
             }
         }
+        appBarLayout = findViewById(R.id.app_bar)
+        appBarLayout.addOnOffsetChangedListener(AppBarLayout.OnOffsetChangedListener { _, verticalOffset ->
+            if (verticalOffset == 0) {
+                editButton?.visibility = View.VISIBLE
+                editLandButton?.isVisible = false
+            }
+            else {
+                editButton?.visibility = View.INVISIBLE
+                editLandButton?.isVisible = true
+            }
+        })
         val recyclerView = findViewById<RecyclerView>(R.id.task_list)
-        recyclerView.layoutManager = LinearLayoutManager(this)
+        recyclerView.layoutManager =
+            LinearLayoutManager(this)
         tasks = LandOpenHelper.readTasks(this, land!!.name)
         val emptyView = findViewById<View>(R.id.emptyTaskList)
         mAdapter = TaskListAdapter(tasks, this, priorities, emptyView)
@@ -183,7 +192,7 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
                 selected = position
                 drawTrees()
                 filter()
-                updateHitory()
+                updateHistory()
             }
 
             override fun onWheelItemSelected(wheelView: WheelView, position: Int) {}
@@ -239,13 +248,22 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
         taskHistoryFiltered = taskHistory.toMutableList()
         val historyEmptyView = findViewById<View>(R.id.emptyTaskListHistory)
         findViewById<RecyclerView>(R.id.task_history_list).apply {
-            layoutManager =  LinearLayoutManager(context)
+            layoutManager =
+                LinearLayoutManager(context)
             adapter = TaskHistoryRecyclerViewAdapter(taskHistoryFiltered, historyEmptyView)
         }
     }
 
+    private fun editLand() {
+        val intent = Intent(applicationContext, LandEditActivity::class.java)
+        val b1 = Bundle()
+        b1.putString("name", name)
+        intent.putExtras(b1)
+        startActivity(intent)
+    }
+
     @SuppressLint("NotifyDataSetChanged")
-    private fun updateHitory() {
+    private fun updateHistory() {
         taskHistoryFiltered.clear()
         when {
             selected == 0 -> taskHistoryFiltered.addAll(taskHistory)
@@ -325,7 +343,7 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
                 .add(R.id.add_fragment_container, fragment, LandFragment::class.java.name)
                 .addToBackStack(fragment.javaClass.name)
                 .commit()
-        editButton!!.visibility = View.GONE
+        editButton!!.visibility = View.VISIBLE
         addTaskButton!!.visibility = View.GONE
         removeButton.setEnabled(false)
     }
@@ -397,7 +415,7 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
         alertDialog.setTitle(p.plantType)
         alertDialog.setMessage(R.string.remove_tree)
         val filter: ColorFilter = PorterDuffColorFilter(Color.parseColor(plantTypeObject!!.color), PorterDuff.Mode.SRC_IN)
-        val icon = view.rootView.context.resources.getDrawable(plantTypeObject.icon)
+        val icon = view.rootView.context.resources.getDrawable(plantTypeObject.icon, theme)
         icon.colorFilter = filter
         alertDialog.setIcon(icon)
         alertDialog.setPositiveButton(R.string.yes
@@ -693,6 +711,7 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_scrolling, menu)
         removeButton = menu!!.findItem(R.id.menu_delete_item)
+        editLandButton = menu.findItem(R.id.menu_edit_land)
         if (menu is MenuBuilder) {
             menu.setOptionalIconsVisible(true)
         }
@@ -703,6 +722,7 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
         when(item.itemId) {
             R.id.menu_delete_land -> deleteLand(findViewById(R.id.menu_delete_land))
             R.id.menu_delete_item -> removeTree(findViewById(R.id.menu_delete_item))
+            R.id.menu_edit_land -> editLand()
         }
         return true
     }
@@ -746,7 +766,7 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
         doneButton!!.visibility = View.VISIBLE
         deleteButton!!.visibility = View.VISIBLE
         editButton!!.visibility = View.GONE
-        removeButton.setEnabled(false)
+        removeButton.isEnabled = false
     }
 
     override fun updateTask(newTask: TaskObject, oldTask: TaskObject) {
@@ -755,7 +775,7 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
             if (success) {
                 Toast.makeText(this@ScrollingActivity, R.string.task_close_success, Toast.LENGTH_SHORT).show()
                 taskHistory.add(newTask)
-                updateHitory()
+                updateHistory()
             } else Toast.makeText(this@ScrollingActivity, R.string.task_close_error, Toast.LENGTH_SHORT).show()
             filter()
         } else {

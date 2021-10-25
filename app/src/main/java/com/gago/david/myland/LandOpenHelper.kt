@@ -45,6 +45,8 @@ class LandOpenHelper(private val context: Context) : SQLiteOpenHelper(context, L
 
         if (oldVersion < 8)
             upgradeVersion8(db)
+        if (oldVersion < 9)
+            upgradeVersion9(db)
         else if (oldVersion < newVersion) {
             dropDatabase(db)
             onCreate(db)
@@ -179,12 +181,18 @@ Land VARCHAR NOT NULL,
         Log.v("DATABASE", "updated to version 8")
     }
 
+    private fun upgradeVersion9(db: SQLiteDatabase) {
+        db.execSQL("ALTER TABLE Tasks ADD COLUMN Archived BOOLEAN NOT NULL CHECK (Completed IN (0,1)) DEFAULT 0;")
+        db.execSQL("ALTER TABLE Tasks ADD COLUMN ArchivedDate Long;")
+        Log.v("DATABASE", "updated to version 9")
+    }
+
     override fun onConfigure(db: SQLiteDatabase) {
         db.setForeignKeyConstraintsEnabled(true)
     }
 
     companion object {
-        private const val DATABASE_VERSION = 8
+        private const val DATABASE_VERSION = 9
         private const val LAND_TABLE_NAME = "myland.db"
 
         fun getImage(uri: String?): Bitmap? {
@@ -351,6 +359,8 @@ Land VARCHAR NOT NULL,
             values.put("Completed", t.completed)
             values.put("Observations", t.observations)
             values.put("CompletedDate", t.completedDate?.time)
+            values.put("Archived", t.archived)
+            values.put("ArchivedDate", t.archivedDate?.time)
             val whereClause = "rowid = ?"
             val whereArgs = arrayOf("" + t.rowid)
             val newRowId = db.update("Tasks", values, whereClause, whereArgs).toLong()
@@ -674,7 +684,7 @@ Land VARCHAR NOT NULL,
 
             // How you want the results sorted in the resulting Cursor
             val sortOrder = "CompletedDate DESC"
-            val selection = "Land = ? AND User = ? AND Completed = 1"
+            val selection = "Land = ? AND User = ? AND Completed = 1 AND Archived = 0"
             val selectionArgs = arrayOf(land, user)
             val cursor = db.query(
                 "Tasks",  // The table to query

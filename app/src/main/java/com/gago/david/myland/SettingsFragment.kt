@@ -10,12 +10,12 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.AsyncTask
 import android.os.Bundle
-import android.support.design.widget.FloatingActionButton
-import android.support.v4.app.ActivityCompat
-import android.support.v4.app.Fragment
-import android.support.v4.content.ContextCompat
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import androidx.core.app.ActivityCompat
+import androidx.fragment.app.Fragment
+import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -76,13 +76,15 @@ class SettingsFragment : Fragment() {
         if (view is FrameLayout) {
             val context = view.getContext()
             val recyclerView: RecyclerView = view.findViewById(R.id.item_list)
-            recyclerView.layoutManager = LinearLayoutManager(context)
+            recyclerView.layoutManager =
+                LinearLayoutManager(context)
             recyclerView.isNestedScrollingEnabled = false
             recyclerView.setHasFixedSize(false)
             itemAdapter = ItemTypeAdapter(items, mListener)
             recyclerView.adapter = itemAdapter
             val recyclerView2: RecyclerView = view.findViewById(R.id.task_type_list)
-            recyclerView2.layoutManager = LinearLayoutManager(context)
+            recyclerView2.layoutManager =
+                LinearLayoutManager(context)
             recyclerView2.isNestedScrollingEnabled = false
             recyclerView2.setHasFixedSize(false)
             taskAdapter = TaskTypeAdapter(tasks, mListener2)

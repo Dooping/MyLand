@@ -14,6 +14,8 @@ class TaskObject : Serializable, Cloneable {
     var completed: Boolean
     var observations: String
     var completedDate: Date? = null
+    var archived: Boolean
+    var archivedDate: Date? = null
 
     constructor(land: String, plantIndex: Int?, taskType: String, priority: Int, creationDate: Date, targetDate: Date?, completed: Boolean, observations: String) {
         this.land = land
@@ -24,6 +26,7 @@ class TaskObject : Serializable, Cloneable {
         this.targetDate = targetDate
         this.completed = completed
         this.observations = observations
+        this.archived = false
     }
 
     constructor(
@@ -46,6 +49,7 @@ class TaskObject : Serializable, Cloneable {
         this.targetDate = targetDate
         this.completed = completed
         this.observations = observations
+        this.archived = false
     }
 
     constructor(
@@ -70,20 +74,23 @@ class TaskObject : Serializable, Cloneable {
         this.completed = completed
         this.observations = observations
         this.completedDate = completedDate
+        this.archived = false
     }
 
     override fun toString(): String {
         return "TaskObject{" +
-                "rowid=" + rowid +
+                "rowid=" + rowid + '\'' +
                 ", land='" + land + '\'' +
-                ", plantIndex=" + plantIndex +
+                ", plantIndex=" + plantIndex + '\'' +
                 ", taskType='" + taskType + '\'' +
-                ", priority=" + priority +
-                ", creationDate=" + creationDate +
-                ", targetDate=" + targetDate +
-                ", completed=" + completed +
+                ", priority=" + priority + '\'' +
+                ", creationDate=" + creationDate + '\'' +
+                ", targetDate=" + targetDate + '\'' +
+                ", completed=" + completed + '\'' +
                 ", observations='" + observations + '\'' +
                 ", completedDate='" + completedDate + '\'' +
+                ", archived='" + archived + '\'' +
+                ", archivedDate='" + archivedDate + '\'' +
                 '}'
     }
 

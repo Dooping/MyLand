@@ -57,6 +57,7 @@
             android:cropToPadding="false"
             android:elevation="5dp"
             android:focusable="true"
+            android:foregroundGravity="center"
             android:src="@drawable/ic_remove_white_18dp"
             android:tint="@android:color/background_light"
             android:tintMode="multiply"
