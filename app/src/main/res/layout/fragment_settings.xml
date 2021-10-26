@@ -50,13 +50,13 @@
             </LinearLayout>
 
             <Button
-                android:id="@+id/button"
+                android:id="@+id/startNewSeasonButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="16dp"
                 android:layout_weight="0"
                 android:backgroundTint="@color/colorAccent"
-                android:text="Start new season"
+                android:text="@string/start_new_season_button"
                 app:cornerRadius="7dp"
                 app:icon="@drawable/ic_grass" />
 

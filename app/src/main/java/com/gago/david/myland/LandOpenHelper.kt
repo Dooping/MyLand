@@ -864,5 +864,23 @@ Land VARCHAR NOT NULL,
             db.close()
             return i > 0
         }
+
+        fun archiveOldTasks(context: Context) {
+            val mDbHelper = LandOpenHelper(context)
+            val db = mDbHelper.writableDatabase
+            val prefs =
+                context.getSharedPreferences(SettingsFragment.MY_PREFS_NAME, Context.MODE_PRIVATE)
+            val user = prefs.getString("user", "")
+            val contentValues = ContentValues()
+            contentValues.put("archived", true)
+            contentValues.put("archivedDate", Date().time)
+
+            db.update(
+                "Tasks",
+                contentValues,
+                "user = ? and not archived and completed",
+                arrayOf(user)
+            )
+        }
     }
 }

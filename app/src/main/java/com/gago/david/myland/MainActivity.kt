@@ -178,7 +178,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     ft.setCustomAnimations(R.anim.enter, R.anim.exit, R.anim.pop_enter, R.anim.pop_exit)
                     ft.replace(R.id.fragment_container, fragment)
                     ft.addToBackStack(backStateName)
-                    ft.commit()
+                    ft.commitAllowingStateLoss()
                 }
                 super.onActivityResult(requestCode, resultCode, data)
             }

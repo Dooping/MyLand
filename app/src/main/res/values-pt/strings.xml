@@ -103,4 +103,8 @@
     <string name="land_list_empty">A lista de terrenos está vazia…</string>
     <string name="menu_delete_item">Apagar item</string>
     <string name="menu_remove_land">Apagar terreno</string>
+    <string name="dialog_new_season_title">Nova temporada</string>
+    <string name="dialog_new_season_body">Tem a certeza que quer iniciar uma nova temporada?\nTodas as tarefas completas irão desaparecer.</string>
+    <string name="toast_new_season_success">A nova temporada começou!</string>
+    <string name="start_new_season_button">Começar nova temporada</string>
 </resources>

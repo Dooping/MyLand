@@ -46,8 +46,8 @@ class EditItemTypeFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (arguments != null) {
-            item = arguments!!.getSerializable(ARG_PARAM1) as PlantTypeObject
-            create = arguments!!.getBoolean(ARG_PARAM2)
+            item = requireArguments().getSerializable(ARG_PARAM1) as PlantTypeObject
+            create = requireArguments().getBoolean(ARG_PARAM2)
             tintColor = if (item.color == "") "#669900" else item.color
             drawable = item.icon
         }

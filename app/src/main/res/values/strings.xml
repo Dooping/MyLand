@@ -200,4 +200,8 @@
     <string name="land_list_empty">The list of lands is empty…</string>
     <string name="menu_remove_land">Remove Land</string>
     <string name="menu_delete_item">Remove item</string>
+    <string name="dialog_new_season_title">New season</string>
+    <string name="dialog_new_season_body">Are you sure you want to start a new season?\nThis will hide all completed tasks.</string>
+    <string name="toast_new_season_success">The new season started!</string>
+    <string name="start_new_season_button">Start new season</string>
 </resources>

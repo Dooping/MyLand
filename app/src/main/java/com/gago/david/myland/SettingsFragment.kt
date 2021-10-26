@@ -21,6 +21,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
+import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.Toast
 import br.com.bloder.magic.view.MagicButton
@@ -39,8 +40,6 @@ import java.util.*
  * create an instance of this fragment.
  */
 class SettingsFragment : Fragment() {
-    private val MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 10
-    private val MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 20
     var itemAdapter: ItemTypeAdapter? = null
     var taskAdapter: TaskTypeAdapter? = null
     private var mListener: OnListFragmentInteractionListener? = null
@@ -54,16 +53,17 @@ class SettingsFragment : Fragment() {
     private lateinit var unitSwitch: SwitchMultiButton
     lateinit var mapType: SwitchMultiButton
     lateinit var pageLoader: PageLoader
+    lateinit var startNewSeasonButton: Button
 
     private var mParam1: String? = null
     private var mParam2: String? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (arguments != null) {
-            mParam1 = arguments!!.getString(ARG_PARAM1)
-            mParam2 = arguments!!.getString(ARG_PARAM2)
+            mParam1 = requireArguments().getString(ARG_PARAM1)
+            mParam2 = requireArguments().getString(ARG_PARAM2)
         }
-        items = LandOpenHelper.readPlantTypes(context!!)
+        items = LandOpenHelper.readPlantTypes(requireContext())
         tasks = readTaskTypes()
         askReadingPermission()
         askWritingPermission()
@@ -100,7 +100,9 @@ class SettingsFragment : Fragment() {
             unitSwitch = view.findViewById(R.id.unit)
             mapType = view.findViewById(R.id.map_type)
             pageLoader = view.findViewById(R.id.pageloader)
+            startNewSeasonButton = view.findViewById(R.id.startNewSeasonButton)
 
+            startNewSeasonButton.setOnClickListener { startNewSeason() }
             importDB.setMagicButtonClickListener {
                 val intent = Intent()
                     .setType("*/*")
@@ -124,18 +126,18 @@ class SettingsFragment : Fragment() {
                 i.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
                 startActivityForResult(Intent.createChooser(i, "Choose directory"), 9999)
             }
-            val prefs = getContext()!!.getSharedPreferences(MY_PREFS_NAME, Context.MODE_PRIVATE)
+            val prefs = requireContext().getSharedPreferences(MY_PREFS_NAME, Context.MODE_PRIVATE)
             val unit = prefs.getInt("unit", 0) //0 is the default value.
             unitSwitch.selectedTab = unit
             unitSwitch.setOnSwitchListener { position: Int, _: String? ->
-                val editor = getContext()!!.getSharedPreferences(MY_PREFS_NAME, Context.MODE_PRIVATE).edit()
+                val editor = requireContext().getSharedPreferences(MY_PREFS_NAME, Context.MODE_PRIVATE).edit()
                 editor.putInt("unit", position)
                 editor.apply()
             }
             val mapTypePosition = prefs.getInt("mapType", 0)
             mapType.selectedTab = mapTypePosition
             mapType.setOnSwitchListener { position: Int, _: String? ->
-                val editor = getContext()!!.getSharedPreferences(MY_PREFS_NAME, Context.MODE_PRIVATE).edit()
+                val editor = requireContext().getSharedPreferences(MY_PREFS_NAME, Context.MODE_PRIVATE).edit()
                 editor.putInt("mapType", position)
                 editor.apply()
             }
@@ -146,11 +148,11 @@ class SettingsFragment : Fragment() {
                 alertDialog.setMessage(R.string.delete_user_message)
                 alertDialog.setPositiveButton(R.string.yes
                 ) { _: DialogInterface?, _: Int ->
-                    if (LandOpenHelper.deleteUser(getContext()!!, user!!)) {
+                    if (LandOpenHelper.deleteUser(requireContext(), user!!)) {
                         val intent = Intent(getContext(), Login::class.java)
                         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
                         startActivity(intent)
-                        activity!!.finish()
+                        requireActivity().finish()
                     }
                 }
                 alertDialog.setNegativeButton(R.string.no
@@ -178,11 +180,11 @@ class SettingsFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        val inputManager = activity!!
+        val inputManager = requireActivity()
                 .getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
 
         // check if no view has focus:
-        val currentFocusedView = activity!!.currentFocus
+        val currentFocusedView = requireActivity().currentFocus
         if (currentFocusedView != null) {
             inputManager.hideSoftInputFromWindow(currentFocusedView.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
         }
@@ -219,7 +221,7 @@ class SettingsFragment : Fragment() {
     }
 
     private fun readTaskTypes(): ArrayList<TaskTypeObject> {
-        val mDbHelper = LandOpenHelper(context!!)
+        val mDbHelper = LandOpenHelper(requireContext())
         val db = mDbHelper.readableDatabase
 
         // Define a projection that specifies which columns from the database
@@ -249,14 +251,28 @@ class SettingsFragment : Fragment() {
         return taskTypes
     }
 
+    private fun startNewSeason() {
+        val alertDialog = AlertDialog.Builder(requireContext())
+        alertDialog.setTitle(R.string.dialog_new_season_title)
+        alertDialog.setMessage(R.string.dialog_new_season_body)
+        alertDialog.setPositiveButton(R.string.yes
+        ) { _: DialogInterface?, _: Int ->
+            LandOpenHelper.archiveOldTasks(requireContext())
+            Toast.makeText(requireContext(), R.string.toast_new_season_success, Toast.LENGTH_SHORT).show()
+        }
+        alertDialog.setNegativeButton(R.string.no
+        ) { dialog: DialogInterface, _: Int -> dialog.cancel() }
+        alertDialog.show()
+    }
+
     private fun askWritingPermission() {
         // Here, thisActivity is the current activity
-        if (ContextCompat.checkSelfPermission(context!!,
+        if (ContextCompat.checkSelfPermission(requireContext(),
                         Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
 
             // Should we show an explanation?
-            if (ActivityCompat.shouldShowRequestPermissionRationale(activity!!,
+            if (ActivityCompat.shouldShowRequestPermissionRationale(requireActivity(),
                             Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
 
                 // Show an expanation to the user *asynchronously* -- don't block
@@ -265,7 +281,7 @@ class SettingsFragment : Fragment() {
             } else {
 
                 // No explanation needed, we can request the permission.
-                ActivityCompat.requestPermissions(activity!!, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                ActivityCompat.requestPermissions(requireActivity(), arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
                         MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE)
 
                 // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
@@ -277,12 +293,12 @@ class SettingsFragment : Fragment() {
 
     private fun askReadingPermission() {
         // Here, thisActivity is the current activity
-        if (ContextCompat.checkSelfPermission(context!!,
+        if (ContextCompat.checkSelfPermission(requireContext(),
                         Manifest.permission.READ_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
 
             // Should we show an explanation?
-            if (ActivityCompat.shouldShowRequestPermissionRationale(activity!!,
+            if (ActivityCompat.shouldShowRequestPermissionRationale(requireActivity(),
                             Manifest.permission.READ_EXTERNAL_STORAGE)) {
 
                 // Show an expanation to the user *asynchronously* -- don't block
@@ -291,7 +307,7 @@ class SettingsFragment : Fragment() {
             } else {
 
                 // No explanation needed, we can request the permission.
-                ActivityCompat.requestPermissions(activity!!, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
+                ActivityCompat.requestPermissions(requireActivity(), arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
                         MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE)
 
                 // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
@@ -352,6 +368,8 @@ class SettingsFragment : Fragment() {
         // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
         private const val ARG_PARAM1 = "param1"
         private const val ARG_PARAM2 = "param2"
+        private const val MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 10
+        private const val MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 20
         const val MY_PREFS_NAME = "MyLandSettings"
 
         /**
