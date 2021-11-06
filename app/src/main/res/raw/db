@@ -64,9 +64,9 @@ INSERT INTO 'Priorities' (Name, P_order, Color)
 VALUES ('Alta',1,'#B71C1C'),('Media',3,'#fff305'),('Baixa',5,'#12d800');
 
 INSERT INTO 'PlantTypes' (Name, Icon, Color)
-VALUES ('Alfarrobeira',2131230878,'#4d2600'),('Amendoeira',2131230878,'#996633'),('Oliveira',2131230878,'#669900')
-,('Figueira',2131230878,'#74258e'),('Medronheiro',2131230878,'#aa0316'),('Mato',2131230860,'#e2db00')
-,('Pedras',2131230874,'#adadad');
+VALUES ('Alfarrobeira',2131230888,'#4d2600'),('Amendoeira',2131230888,'#996633'),('Oliveira',2131230888,'#669900')
+,('Figueira',2131230888,'#74258e'),('Medronheiro',2131230888,'#aa0316'),('Mato',2131230866,'#e2db00')
+,('Pedras',2131230884,'#adadad');
 
 INSERT INTO 'TaskTypes' (Name, Description)
 VALUES ('Limpeza', ''),('Poda Simples', 'Cortar rebentos de baixo'),('Poda Completa', 'Cortar pernadas')

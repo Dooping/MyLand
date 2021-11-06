@@ -47,6 +47,8 @@ class LandOpenHelper(private val context: Context) : SQLiteOpenHelper(context, L
             upgradeVersion8(db)
         if (oldVersion < 9)
             upgradeVersion9(db)
+        if (oldVersion < 10)
+            upgradeVersion10(db)
         else if (oldVersion < newVersion) {
             dropDatabase(db)
             onCreate(db)
@@ -187,12 +189,18 @@ Land VARCHAR NOT NULL,
         Log.v("DATABASE", "updated to version 9")
     }
 
+    private fun upgradeVersion10(db: SQLiteDatabase) {
+        db.execSQL("UPDATE PlantTypes SET Icon = Icon + 10 WHERE Icon >= 2131230870;")
+        db.execSQL("UPDATE PlantTypes SET Icon = Icon + 6 WHERE Icon < 2131230870;")
+        Log.v("DATABASE", "updated to version 10")
+    }
+
     override fun onConfigure(db: SQLiteDatabase) {
         db.setForeignKeyConstraintsEnabled(true)
     }
 
     companion object {
-        private const val DATABASE_VERSION = 9
+        private const val DATABASE_VERSION = 10
         private const val LAND_TABLE_NAME = "myland.db"
 
         fun getImage(uri: String?): Bitmap? {

@@ -55,6 +55,7 @@ class EditItemTypeFragment : Fragment() {
         list = ArrayList()
         for (i in 0..6) list!!.add(array.getResourceId(i, -1))
         Log.v("images", list.toString())
+        array.recycle()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
