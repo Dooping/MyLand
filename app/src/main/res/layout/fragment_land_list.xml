@@ -13,7 +13,7 @@
         android:layout_height="match_parent"
         app:layoutManager="LinearLayoutManager"
         tools:context="com.gago.david.myland.LandFragment"
-        tools:listitem="@layout/fragment_land">
+        tools:listitem="@layout/land_item">
 
 
     </androidx.recyclerview.widget.RecyclerView>

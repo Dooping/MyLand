@@ -3,31 +3,28 @@ package com.gago.david.myland.models
 import java.util.*
 
 class LandObject {
-    @JvmField
     var name: String
-    @JvmField
     var imageUri: String
-    @JvmField
-    var Description: String
-    @JvmField
+    var description: String
     var area: Double
     var notifications = 0
     var priority = 0
-    @JvmField
     var plants: ArrayList<PlantObject>
+    var totalTasks: Int = 0
 
     constructor(name: String, imageUri: String, description: String, area: Double) {
         this.name = name
         this.imageUri = imageUri
-        Description = description
+        this.description = description
         this.area = area
         plants = ArrayList()
+        totalTasks = 0
     }
 
     constructor(name: String, imageUri: String, description: String, notifications: Int, priority: Int, area: Double) {
         this.name = name
         this.imageUri = imageUri
-        Description = description
+        this.description = description
         plants = ArrayList()
         this.notifications = notifications
         this.priority = priority
@@ -46,10 +43,11 @@ class LandObject {
         return "LandObject{" +
                 "name='" + name + '\'' +
                 ", imageUri='" + imageUri + '\'' +
-                ", Description='" + Description + '\'' +
-                ", notifications=" + notifications +
-                ", priority=" + priority +
-                ", plants=" + plants +
+                ", Description='" + description + '\'' +
+                ", notifications=" + notifications + '\'' +
+                ", totalTasks=" + totalTasks + '\'' +
+                ", priority=" + priority + '\'' +
+                ", plants=" + plants + '\'' +
                 '}'
     }
 }

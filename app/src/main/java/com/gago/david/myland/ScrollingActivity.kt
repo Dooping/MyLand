@@ -205,14 +205,14 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
         landTitle = findViewById(R.id.land_title_size)
         landTitle?.text = MessageFormat.format("{0}{1}", land!!.name, if (land!!.area == 0.0) "" else area)
         description = findViewById(R.id.scrolling_description)
-        description?.text = land!!.Description
+        description?.text = land!!.description
         descriptionLayout = findViewById(R.id.description_layout)
         descriptionLayout?.setOnClickListener {
             val alertDialog = AlertDialog.Builder(this@ScrollingActivity)
             val input = EditText(this@ScrollingActivity)
             if (selected < plantGroups?.keys!!.size + 2) {
                 alertDialog.setTitle(R.string.edit_land)
-                input.setText(land!!.Description)
+                input.setText(land!!.description)
             } else {
                 alertDialog.setTitle(R.string.edit_item)
                 input.setText(land!!.plants[selected - 2 - plantGroups?.keys!!.size].description)
@@ -231,7 +231,7 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
             ) { dialog: DialogInterface?, which: Int ->
                 description?.text = input.text
                 if (selected < plantGroups?.keys!!.size + 2) {
-                    land!!.Description = input.text.toString()
+                    land!!.description = input.text.toString()
                     updateLand()
                 } else {
                     land!!.plants[selected - 2 - plantGroups?.keys!!.size].description = input.text.toString()
@@ -307,8 +307,8 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
         if (selected < 1)
             addTaskButton!!.visibility = View.GONE
         else addTaskButton!!.visibility = View.VISIBLE
-        if (selected < plantGroups?.keys!!.size + 2 && description!!.text.toString() != land!!.Description)
-            setDescription(land!!.Description, R.string.land_state)
+        if (selected < plantGroups?.keys!!.size + 2 && description!!.text.toString() != land!!.description)
+            setDescription(land!!.description, R.string.land_state)
         else if (selected >= plantGroups?.keys!!.size + 2 && description!!.text.toString() != land!!.plants[selected - 2 - plantGroups?.keys!!.size].description) setDescription(land!!.plants[selected - 2 - plantGroups?.keys!!.size].description, R.string.item_state)
     }
 
@@ -633,7 +633,7 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
         val values = ContentValues()
         values.put("Name", land!!.name)
         values.put("ImageUri", land!!.imageUri)
-        values.put("Description", land!!.Description)
+        values.put("Description", land!!.description)
 
 // Insert the new row, returning the primary key value of the new row
         val whereClause = "Name = ?"

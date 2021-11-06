@@ -89,7 +89,7 @@ class LandExporterHelper(private val context: Context) : SQLiteOpenHelper(contex
             val values = ContentValues()
             values.put(LandEntry.COLUMN_NAME, land.name)
             values.put(LandEntry.COLUMN_IMAGE, land.imageUri)
-            values.put(LandEntry.COLUMN_DESCRIPTION, land.Description)
+            values.put(LandEntry.COLUMN_DESCRIPTION, land.description)
             values.put(LandEntry.COLUMN_AREA, land.area)
             db.insert(LandEntry.TABLE_NAME, null, values)
         }

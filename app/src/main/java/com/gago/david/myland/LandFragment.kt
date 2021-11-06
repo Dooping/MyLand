@@ -42,15 +42,15 @@ class LandFragment
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (arguments != null) {
-            mColumnCount = arguments!!.getInt(ARG_COLUMN_COUNT)
+            mColumnCount = requireArguments().getInt(ARG_COLUMN_COUNT)
         }
-        priorities = LandOpenHelper.readPriorities(context!!)
+        priorities = LandOpenHelper.readPriorities(requireContext())
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_land_list, container, false)
-        lands = LandOpenHelper.readLands(context!!)
+        lands = LandOpenHelper.readLands(requireContext())
         if (view is FrameLayout) {
             val context = view.getContext()
             val recyclerView: RecyclerView = view.findViewById(R.id.list)
@@ -66,7 +66,6 @@ class LandFragment
         val btn = view.findViewById<View>(R.id.add_land_button) as FloatingActionButton
         pageLoader = view.findViewById<View>(R.id.pageloader) as PageLoader
         btn.setOnClickListener {
-            Log.i("LAND_LIST", "carregou no botao")
             val intent = Intent(context, AddLandActivity::class.java)
             startActivityForResult(intent, 1)
             pageLoader!!.startProgress()
@@ -107,7 +106,7 @@ class LandFragment
     override fun onResume() {
         super.onResume()
         lands.clear()
-        lands.addAll(LandOpenHelper.readLands(context!!))
+        lands.addAll(LandOpenHelper.readLands(requireContext()))
         adapter!!.notifyDataSetChanged()
     }
 

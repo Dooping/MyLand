@@ -1,5 +1,6 @@
 package com.gago.david.myland
 
+import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
@@ -214,6 +215,7 @@ Land VARCHAR NOT NULL,
             return null
         }
 
+        @SuppressLint("Range")
         fun oldGetImage(context: Context, name: String): Bitmap? {
             val mDbHelper = LandOpenHelper(context)
 
@@ -437,6 +439,7 @@ Land VARCHAR NOT NULL,
             return cursor.count > 0
         }
 
+        @SuppressLint("Range")
         fun readUsers(context: Context): ArrayList<String> {
             val mDbHelper = LandOpenHelper(context)
             val db = mDbHelper.readableDatabase
@@ -503,6 +506,7 @@ Land VARCHAR NOT NULL,
             db.execSQL("update Lands set User = (select Name from Users) where User is null;")
         }
 
+        @SuppressLint("Range")
         fun readLands(context: Context): MutableList<LandObject> {
             val mDbHelper = LandOpenHelper(context)
             val db = mDbHelper.readableDatabase
@@ -510,34 +514,44 @@ Land VARCHAR NOT NULL,
             // Define a projection that specifies which columns from the database
             // you will actually use after this query.
             val projection = arrayOf(
-                    "Lands.Name as 'Name'",
-                    "Lands.ImageUri as 'ImageUri'",
-                    "Lands.Description as 'Description'",
-                    "count('Tasks'.Land) as 'Notification'",
-                    "min('Tasks'.Priority) as 'Priority'",
-                    LandContract.LandEntry.COLUMN_AREA
+                "Lands.Name as 'Name'",
+                "Lands.ImageUri as 'ImageUri'",
+                "Lands.Description as 'Description'",
+                "count('Tasks'.Land) as 'Notification'",
+                "min('Tasks'.Priority) as 'Priority'",
+                LandContract.LandEntry.COLUMN_AREA
             )
 
             // How you want the results sorted in the resulting Cursor
-            val prefs = context.getSharedPreferences(SettingsFragment.MY_PREFS_NAME, Context.MODE_PRIVATE)
+            val prefs =
+                context.getSharedPreferences(SettingsFragment.MY_PREFS_NAME, Context.MODE_PRIVATE)
             val user = prefs.getString("user", "")
             val cursor = db.query(
-                    "Lands left outer join (select * from tasks where completed = 0) as 'Tasks' on (Lands.Name = 'Tasks'.Land AND Lands.User = 'Tasks'.User)",  // The table to query
-                    projection,  // The array of columns to return (pass null to get all)
-                    "Lands.User = ?", arrayOf(user),  // The values for the WHERE clause
-                    "Name",  // don't group the rows
-                    null,  // don't filter by row groups
-                    "Lands.rowid asc" // The sort order
+                """
+                    |Lands left outer join (select * from tasks where completed = 0) as 'Tasks'
+                    |on (Lands.Name = 'Tasks'.Land AND Lands.User = 'Tasks'.User)
+                    |""".trimMargin(),  // The table to query
+                projection,  // The array of columns to return (pass null to get all)
+                "Lands.User = ?", arrayOf(user),  // The values for the WHERE clause
+                "Name",  // don't group the rows
+                null,  // don't filter by row groups
+                "Lands.rowid asc" // The sort order
             )
-            /*Cursor cursor = db.rawQuery("select Name, ImageUri, Description, count(Tasks.Land) as 'Notification' \n" +
-                "from Lands left outer join Tasks on Lands.Name = Tasks.Land\n" +
-                "where Priority is null or Priority = 1\n" +
-                "group by Tasks.Land", null
-        );*/
             val lands: MutableList<LandObject> = ArrayList()
             while (cursor.moveToNext()) {
-                val priority = if (cursor.isNull(cursor.getColumnIndex("Priority"))) 0 else cursor.getInt(cursor.getColumnIndex("Priority"))
-                val o = LandObject(cursor.getString(cursor.getColumnIndex("Name")), cursor.getString(cursor.getColumnIndex("ImageUri")), cursor.getString(cursor.getColumnIndex("Description")), cursor.getInt(cursor.getColumnIndex("Notification")), priority, cursor.getDouble(cursor.getColumnIndex(LandContract.LandEntry.COLUMN_AREA)))
+                val priority = when {
+                    cursor.isNull(cursor.getColumnIndex("Priority")) -> 0
+                    else -> cursor.getInt(cursor.getColumnIndex("Priority"))
+                }
+                val o = LandObject(
+                    cursor.getString(cursor.getColumnIndex("Name")),
+                    cursor.getString(cursor.getColumnIndex("ImageUri")),
+                    cursor.getString(cursor.getColumnIndex("Description")),
+                    cursor.getInt(cursor.getColumnIndex("Notification")),
+                    priority,
+                    cursor.getDouble(cursor.getColumnIndex(LandContract.LandEntry.COLUMN_AREA)),
+                )
+                o.totalTasks = getTotalTasksFromLand(context, o)
                 lands.add(o)
             }
             Log.v("Lands", lands.toString())
@@ -579,18 +593,20 @@ Land VARCHAR NOT NULL,
             return plants
         }
 
+        @SuppressLint("Range")
         fun readPlants(context: Context, name: String?): ArrayList<PlantObject> {
             val mDbHelper = LandOpenHelper(context)
             val db = mDbHelper.readableDatabase
-            val prefs = context.getSharedPreferences(SettingsFragment.MY_PREFS_NAME, Context.MODE_PRIVATE)
+            val prefs =
+                context.getSharedPreferences(SettingsFragment.MY_PREFS_NAME, Context.MODE_PRIVATE)
             val user = prefs.getString("user", "")
             val projection2 = arrayOf(
-                    "rowid",
-                    "Land",
-                    "PlantType",
-                    "Description",
-                    "x",
-                    "y"
+                "rowid",
+                "Land",
+                "PlantType",
+                "Description",
+                "x",
+                "y"
             )
 
             // Filter results WHERE "title" = 'My Title'
@@ -600,21 +616,34 @@ Land VARCHAR NOT NULL,
             val sortOrder2 = "Id ASC"
             val selectionArgs = arrayOf(name, user)
             val cur = db.query(
-                    "Plants",  // The table to query
-                    projection2,  // The array of columns to return (pass null to get all)
-                    selection2,  // The columns for the WHERE clause
-                    selectionArgs,  // The values for the WHERE clause
-                    null,  // don't group the rows
-                    null,  // don't filter by row groups
-                    sortOrder2 // The sort order
+                "Plants",  // The table to query
+                projection2,  // The array of columns to return (pass null to get all)
+                selection2,  // The columns for the WHERE clause
+                selectionArgs,  // The values for the WHERE clause
+                null,  // don't group the rows
+                null,  // don't filter by row groups
+                sortOrder2 // The sort order
             )
             val plants = ArrayList<PlantObject>()
-            while (cur.moveToNext()) plants.add(PlantObject(cur.getInt(cur.getColumnIndex(LandContract.ItemEntry.COLUMN_ID)), cur.getString(cur.getColumnIndex(LandContract.ItemEntry.COLUMN_PLANT_TYPE)), cur.getString(cur.getColumnIndex(LandContract.ItemEntry.COLUMN_DESCRIPTION)), cur.getFloat(cur.getColumnIndex(LandContract.ItemEntry.COLUMN_X)), cur.getFloat(cur.getColumnIndex(LandContract.ItemEntry.COLUMN_Y))))
+            while (cur.moveToNext()) plants.add(
+                PlantObject(
+                    cur.getInt(
+                        cur.getColumnIndex(
+                            LandContract.ItemEntry.COLUMN_ID
+                        )
+                    ),
+                    cur.getString(cur.getColumnIndex(LandContract.ItemEntry.COLUMN_PLANT_TYPE)),
+                    cur.getString(cur.getColumnIndex(LandContract.ItemEntry.COLUMN_DESCRIPTION)),
+                    cur.getFloat(cur.getColumnIndex(LandContract.ItemEntry.COLUMN_X)),
+                    cur.getFloat(cur.getColumnIndex(LandContract.ItemEntry.COLUMN_Y))
+                )
+            )
             cur.close()
             db.close()
             return plants
         }
 
+        @SuppressLint("Range")
         fun readTasks(context: Context, land: String?): ArrayList<TaskObject> {
             val tasks = ArrayList<TaskObject>()
             val mDbHelper = LandOpenHelper(context)
@@ -668,6 +697,7 @@ Land VARCHAR NOT NULL,
             return tasks
         }
 
+        @SuppressLint("Range")
         fun readTaskHistory(context: Context, land: String?): ArrayList<TaskObject> {
             val tasks = ArrayList<TaskObject>()
             val mDbHelper = LandOpenHelper(context)
@@ -748,7 +778,7 @@ Land VARCHAR NOT NULL,
             val values = ContentValues()
             values.put("Name", l.name)
             values.put("ImageUri", l.imageUri)
-            values.put("Description", l.Description)
+            values.put("Description", l.description)
             values.put("Area", l.area)
             values.put("User", user)
 
@@ -770,7 +800,7 @@ Land VARCHAR NOT NULL,
             val db = mDbHelper.writableDatabase
             val values = ContentValues()
             values.put("ImageUri", l.imageUri)
-            values.put("Description", l.Description)
+            values.put("Description", l.description)
             values.put("Area", l.area)
             val whereClause = "Name = ? AND User = ?"
             val whereArgs = arrayOf(l.name, user)
@@ -889,6 +919,25 @@ Land VARCHAR NOT NULL,
                 "user = ? and not archived and completed",
                 arrayOf(user)
             )
+        }
+
+        fun getTotalTasksFromLand(context: Context, land: LandObject): Int {
+            val mDbHelper = LandOpenHelper(context)
+            val db = mDbHelper.readableDatabase
+            val prefs =
+                context.getSharedPreferences(SettingsFragment.MY_PREFS_NAME, Context.MODE_PRIVATE)
+            val user = prefs.getString("user", "")
+
+            val cursor = db.rawQuery("select count(Land) as 'total' \n" +
+                    "from Tasks\n" +
+                    "where Land = ? and User = ? and archived = 0\n", arrayOf(land.name, user))
+
+            var result = 0
+            while (cursor.moveToNext())
+                result = cursor.getInt(0)
+            cursor.close()
+            db.close()
+            return result;
         }
     }
 }
