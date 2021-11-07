@@ -48,6 +48,7 @@ import kotlin.math.roundToInt
 
 import androidx.appcompat.view.menu.MenuBuilder
 import com.google.android.material.appbar.AppBarLayout
+import com.google.android.material.progressindicator.LinearProgressIndicator
 
 
 class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInteractionListener, NavigationView.OnNavigationItemSelectedListener, TaskEditFragment.OnFragmentInteractionListener {
@@ -60,6 +61,7 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
     private lateinit var layers: Array<Drawable?>
     private lateinit var toolbarLayout: CollapsingToolbarLayout
     private lateinit var appBarLayout: AppBarLayout
+    private lateinit var progressBar: LinearProgressIndicator
     private var plantTypeList: ArrayList<PlantTypeObject>? = null
     private var selected = 0
     private var editButton: FloatingActionButton? = null
@@ -193,6 +195,7 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
                 drawTrees()
                 filter()
                 updateHistory()
+                updateProgressBar()
             }
 
             override fun onWheelItemSelected(wheelView: WheelView, position: Int) {}
@@ -252,6 +255,8 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
                 LinearLayoutManager(context)
             adapter = TaskHistoryRecyclerViewAdapter(taskHistoryFiltered, historyEmptyView)
         }
+        progressBar = findViewById(R.id.land_progress)
+        updateProgressBar()
     }
 
     private fun editLand() {
@@ -281,6 +286,25 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
         findViewById<RecyclerView>(R.id.task_history_list).adapter?.notifyDataSetChanged()
     }
 
+    private fun updateProgressBar() {
+        val tasksSize = when {
+            selected == 0 -> tasks.size
+            selected == 1 -> tasks.filter { it.plantIndex == null }.size
+            selected < plantGroups?.keys!!.size + 2 -> {
+                val plantType = plantGroups!!.keys.toList()[selected - 2]
+                val plantIndexes = land!!.plants.filter { it.plantType == plantType }.map { it.id }
+                tasks.filter { plantIndexes.contains(it.plantIndex)}.size
+            }
+            else -> {
+                val plantIndex = land!!.plants[selected - 2 - plantGroups?.keys!!.size].id
+                tasks.filter { it.plantIndex == plantIndex}.size
+            }
+        }
+        val taskHistorySize = taskHistoryFiltered.size
+        val progress = taskHistorySize.toFloat() / (taskHistorySize + tasksSize) * 100
+        progressBar.setProgress(progress.toInt(), true)
+    }
+
     override fun setContentView(view: View) {
         super.setContentView(view)
 
@@ -301,9 +325,7 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
             mAdapter!!.filter.filter(filter)
         } else
             mAdapter!!.filter.filter("item " + land!!.plants[selected - 2 - plantGroups?.keys!!.size].id)
-        if (selected < plantGroups?.keys!!.size + 2)
-            removeButton.setEnabled(false)
-        else removeButton.setEnabled(true)
+        removeButton.isEnabled = selected >= plantGroups?.keys!!.size + 2
         if (selected < 1)
             addTaskButton!!.visibility = View.GONE
         else addTaskButton!!.visibility = View.VISIBLE
@@ -355,16 +377,16 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
         mPaint.style = Paint.Style.STROKE
         mPaint.strokeWidth = 2.5f
         mPaint.isAntiAlias = true
-        val xRatio = toolbarLayout!!.measuredWidth.toFloat() / layers[0]!!.intrinsicWidth.toFloat()
-        val yRatio = toolbarLayout!!.measuredHeight.toFloat() / layers[0]!!.intrinsicHeight.toFloat()
+        val xRatio = toolbarLayout.measuredWidth.toFloat() / layers[0]!!.intrinsicWidth.toFloat()
+        val yRatio = toolbarLayout.measuredHeight.toFloat() / layers[0]!!.intrinsicHeight.toFloat()
         val xSize: Int
         val ySize: Int
         if (xRatio < yRatio) {
-            xSize = Math.round(xRatio * layers[0]!!.intrinsicWidth)
-            ySize = Math.round(xRatio * layers[0]!!.intrinsicHeight)
+            xSize = (xRatio * layers[0]!!.intrinsicWidth).roundToInt()
+            ySize = (xRatio * layers[0]!!.intrinsicHeight).roundToInt()
         } else {
-            xSize = Math.round(yRatio * layers[0]!!.intrinsicWidth)
-            ySize = Math.round(yRatio * layers[0]!!.intrinsicHeight)
+            xSize = (yRatio * layers[0]!!.intrinsicWidth).roundToInt()
+            ySize = (yRatio * layers[0]!!.intrinsicHeight).roundToInt()
         }
         val bitmap = Bitmap.createBitmap(xSize, ySize, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
@@ -374,8 +396,10 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
             //for (group in plantGroups!!.keys){
                 val plantType = plantTypeList!!.stream().filter { it.name == p.plantType } .findAny().get()
                 val d = ContextCompat.getDrawable(this, plantType.icon)
-                d!!.setBounds(Math.round(p.x * canvas.width) - d.intrinsicWidth / 8, Math.round(p.y * canvas.height - d.intrinsicHeight / 8),
-                        Math.round(p.x * canvas.width) + d.intrinsicWidth / 8, Math.round(p.y * canvas.height) + d.intrinsicHeight / 8)
+                d!!.setBounds(
+                    (p.x * canvas.width).roundToInt() - d.intrinsicWidth / 8,
+                    (p.y * canvas.height - d.intrinsicHeight / 8).roundToInt(),
+                        (p.x * canvas.width).roundToInt() + d.intrinsicWidth / 8, (p.y * canvas.height).roundToInt() + d.intrinsicHeight / 8)
                 d.colorFilter = PorterDuffColorFilter(Color.parseColor(plantType.color), PorterDuff.Mode.SRC_IN)
                 //And draw it...
                 d.draw(canvas)
@@ -401,7 +425,7 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
         }*/
         val drawable = BitmapDrawable(resources, bitmap)
         layers[1] = drawable
-        toolbarLayout!!.background = LayerDrawable(layers)
+        toolbarLayout.background = LayerDrawable(layers)
     }
 
     fun removeTree(view: View) {
@@ -776,6 +800,7 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
                 Toast.makeText(this@ScrollingActivity, R.string.task_close_success, Toast.LENGTH_SHORT).show()
                 taskHistory.add(newTask)
                 updateHistory()
+                updateProgressBar()
             } else Toast.makeText(this@ScrollingActivity, R.string.task_close_error, Toast.LENGTH_SHORT).show()
             filter()
         } else {

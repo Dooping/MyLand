@@ -103,6 +103,16 @@
                 android:text="@string/tasks"
                 android:textStyle="bold" />
 
+            <com.google.android.material.progressindicator.LinearProgressIndicator
+                android:id="@+id/land_progress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                app:trackCornerRadius="4dp"
+                app:trackThickness="8dp" />
+
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/task_list"
                 android:layout_width="match_parent"
