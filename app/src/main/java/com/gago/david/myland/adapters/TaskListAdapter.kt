@@ -24,8 +24,7 @@ import java.util.*
 class TaskListAdapter(
     items: ArrayList<TaskObject>,
     private val mListener: TaskEditFragment.OnFragmentInteractionListener?,
-    private val priorities: List<PriorityObject>?,
-    private val emptyView: View
+    private val priorities: List<PriorityObject>?
 ) : RecyclerView.Adapter<TaskListAdapter.ViewHolder>(), Filterable {
     private val mValues: SortedList<TaskObject>
     private val mFilter: CustomFilter
@@ -61,10 +60,6 @@ class TaskListAdapter(
     }
 
     override fun getItemCount(): Int {
-        if (mValues.size() == 0)
-            emptyView.visibility = View.VISIBLE
-        else
-            emptyView.visibility = View.GONE
         return mValues.size()
     }
 

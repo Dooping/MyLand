@@ -742,7 +742,7 @@ Land VARCHAR NOT NULL,
                 if (cl2 != null) cl2.timeInMillis = cursor.getLong(cursor.getColumnIndex("ExpirationDate"))
                 val targetDate = cl2?.time
                 val cl3 = if (cursor.isNull(cursor.getColumnIndex("CompletedDate"))) null else Calendar.getInstance()
-                if (cl3 != null) cl3.timeInMillis = cursor.getLong(cursor.getColumnIndex("ExpirationDate"))
+                if (cl3 != null) cl3.timeInMillis = cursor.getLong(cursor.getColumnIndex("CompletedDate"))
                 val completedDate = cl3?.time
                 val o = TaskObject(
                     cursor.getLong(cursor.getColumnIndex("rowid")),

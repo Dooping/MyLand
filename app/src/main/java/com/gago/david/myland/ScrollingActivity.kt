@@ -62,6 +62,7 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
     private lateinit var toolbarLayout: CollapsingToolbarLayout
     private lateinit var appBarLayout: AppBarLayout
     private lateinit var progressBar: LinearProgressIndicator
+    private lateinit var emptyTaskList: View
     private var plantTypeList: ArrayList<PlantTypeObject>? = null
     private var selected = 0
     private var editButton: FloatingActionButton? = null
@@ -185,8 +186,8 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
         recyclerView.layoutManager =
             LinearLayoutManager(this)
         tasks = LandOpenHelper.readTasks(this, land!!.name)
-        val emptyView = findViewById<View>(R.id.emptyTaskList)
-        mAdapter = TaskListAdapter(tasks, this, priorities, emptyView)
+        emptyTaskList = findViewById<View>(R.id.emptyTaskList)
+        mAdapter = TaskListAdapter(tasks, this, priorities)
         recyclerView.adapter = mAdapter
         wheel = findViewById(R.id.wheelview)
         wheel?.setOnWheelItemSelectedListener(object : OnWheelItemSelectedListener {
@@ -249,11 +250,10 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
 
         taskHistory = LandOpenHelper.readTaskHistory(this, land!!.name)
         taskHistoryFiltered = taskHistory.toMutableList()
-        val historyEmptyView = findViewById<View>(R.id.emptyTaskListHistory)
         findViewById<RecyclerView>(R.id.task_history_list).apply {
             layoutManager =
                 LinearLayoutManager(context)
-            adapter = TaskHistoryRecyclerViewAdapter(taskHistoryFiltered, historyEmptyView)
+            adapter = TaskHistoryRecyclerViewAdapter(taskHistoryFiltered)
         }
         progressBar = findViewById(R.id.land_progress)
         updateProgressBar()
@@ -303,6 +303,9 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
         val taskHistorySize = taskHistoryFiltered.size
         val progress = taskHistorySize.toFloat() / (taskHistorySize + tasksSize) * 100
         progressBar.setProgress(progress.toInt(), true)
+
+        //TODO: refactor
+        emptyTaskList.visibility = if ((taskHistorySize + tasksSize) == 0)  View.VISIBLE else View.GONE
     }
 
     override fun setContentView(view: View) {
