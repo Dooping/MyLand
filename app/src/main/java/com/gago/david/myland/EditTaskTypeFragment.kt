@@ -31,8 +31,8 @@ class EditTaskTypeFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (arguments != null) {
-            task = arguments!!.getSerializable(ARG_PARAM1) as TaskTypeObject?
-            create = arguments!!.getBoolean(ARG_PARAM2)
+            task = requireArguments().getSerializable(ARG_PARAM1) as TaskTypeObject?
+            create = requireArguments().getBoolean(ARG_PARAM2)
         }
     }
 

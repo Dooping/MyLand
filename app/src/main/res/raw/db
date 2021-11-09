@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS Users (
 
 CREATE TABLE IF NOT EXISTS PlantTypes(
 	Name VARCHAR PRIMARY KEY,
-	Icon INTEGER,
+	Icon VARCHAR,
 	Color VARCHAR
 	);
 
@@ -64,9 +64,9 @@ INSERT INTO 'Priorities' (Name, P_order, Color)
 VALUES ('Alta',1,'#B71C1C'),('Media',3,'#fff305'),('Baixa',5,'#12d800');
 
 INSERT INTO 'PlantTypes' (Name, Icon, Color)
-VALUES ('Alfarrobeira',2131230888,'#4d2600'),('Amendoeira',2131230888,'#996633'),('Oliveira',2131230888,'#669900')
-,('Figueira',2131230888,'#74258e'),('Medronheiro',2131230888,'#aa0316'),('Mato',2131230866,'#e2db00')
-,('Pedras',2131230884,'#adadad');
+VALUES ('Alfarrobeira','ic_tree','#4d2600'),('Amendoeira','ic_tree','#996633'),('Oliveira','ic_tree','#669900')
+,('Figueira','ic_tree','#74258e'),('Medronheiro','ic_tree','#aa0316'),('Mato','ic_grass','#e2db00')
+,('Pedras','ic_rock','#adadad');
 
 INSERT INTO 'TaskTypes' (Name, Description)
 VALUES ('Limpeza', ''),('Poda Simples', 'Cortar rebentos de baixo'),('Poda Completa', 'Cortar pernadas')

@@ -50,9 +50,9 @@ class TaskEditFragment : Fragment(), OnItemSelectedListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (arguments != null) {
-            task = arguments!!.getSerializable(ARG_PARAM1) as TaskObject
+            task = requireArguments().getSerializable(ARG_PARAM1) as TaskObject
         }
-        taskTypes = LandOpenHelper.readTaskTypes(context!!)
+        taskTypes = LandOpenHelper.readTaskTypes(requireContext())
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -72,19 +72,19 @@ class TaskEditFragment : Fragment(), OnItemSelectedListener {
             list.add(taskTypes[i].name)
             if (taskTypes[i].name == task.taskType) index = i
         }
-        val adapter = ArrayAdapter(context!!, R.layout.support_simple_spinner_dropdown_item, list)
+        val adapter = ArrayAdapter(requireContext(), R.layout.support_simple_spinner_dropdown_item, list)
         adapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item)
         taskSpinner.adapter = adapter
         taskSpinner.onItemSelectedListener = this
         taskSpinner.setSelection(index)
-        priorities = LandOpenHelper.readPriorities(context!!)
+        priorities = LandOpenHelper.readPriorities(requireContext())
         val list2 = ArrayList<String>()
         var index2 = 0
         for (i in priorities.indices) {
             list2.add(priorities[i].name)
             if (priorities[i].p_order == task.priority) index2 = i
         }
-        val adapter2 = ArrayAdapter(context!!, R.layout.support_simple_spinner_dropdown_item, list2)
+        val adapter2 = ArrayAdapter(requireContext(), R.layout.support_simple_spinner_dropdown_item, list2)
         adapter2.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item)
         prioritySpinner.adapter = adapter2
         prioritySpinner.setSelection(index2)
@@ -100,7 +100,7 @@ class TaskEditFragment : Fragment(), OnItemSelectedListener {
             updateLabel()
         }
         targetDate.setOnClickListener { v: View? ->
-            DatePickerDialog(context!!, date, myCalendar
+            DatePickerDialog(requireContext(), date, myCalendar
                     .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
                     myCalendar.get(Calendar.DAY_OF_MONTH)).show()
         }
@@ -121,7 +121,7 @@ class TaskEditFragment : Fragment(), OnItemSelectedListener {
     }
 
     fun deleteTask(): TaskObject {
-        val success = LandOpenHelper.deleteTask(task, context!!)
+        val success = LandOpenHelper.deleteTask(task, requireContext())
         deleted = true
         if (success) Toast.makeText(context, R.string.delete_task_success, Toast.LENGTH_SHORT).show() else Toast.makeText(context, R.string.delete_task_error, Toast.LENGTH_SHORT).show()
         return task

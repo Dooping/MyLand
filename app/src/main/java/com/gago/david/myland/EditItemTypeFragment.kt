@@ -15,6 +15,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.ImageView
+import androidx.core.content.res.ResourcesCompat
 import br.com.bloder.magic.view.MagicButton
 import com.gago.david.myland.adapters.ImageAdapter
 import com.gago.david.myland.models.PlantTypeObject
@@ -93,10 +94,10 @@ class EditItemTypeFragment : Fragment() {
         val alertDialog = AlertDialog.Builder(context)
         alertDialog.setTitle("Choose image")
         val filter: ColorFilter = PorterDuffColorFilter(Color.parseColor(tintColor), PorterDuff.Mode.SRC_IN)
-        val icon = resources.getDrawable(drawable)
-        icon.colorFilter = filter
+        val icon = ResourcesCompat.getDrawable(resources, drawable, requireContext().theme)
+        icon?.colorFilter = filter
         alertDialog.setIcon(icon)
-        alertDialog.setAdapter(ImageAdapter(activity!!, list!!, Color.parseColor(tintColor))
+        alertDialog.setAdapter(ImageAdapter(requireActivity(), list!!, Color.parseColor(tintColor))
         ) { _, i ->
             imageView.setImageResource(list!![i])
             drawable = list!![i]

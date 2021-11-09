@@ -50,6 +50,10 @@ class LandOpenHelper(private val context: Context) : SQLiteOpenHelper(context, L
             upgradeVersion9(db)
         if (oldVersion < 10)
             upgradeVersion10(db)
+        if (oldVersion < 11)
+            upgradeVersion11(db)
+        if (oldVersion < 12)
+            upgradeVersion12(db)
         else if (oldVersion < newVersion) {
             dropDatabase(db)
             onCreate(db)
@@ -196,12 +200,54 @@ Land VARCHAR NOT NULL,
         Log.v("DATABASE", "updated to version 10")
     }
 
+
+
+    private fun upgradeVersion11(db: SQLiteDatabase) {
+        db.execSQL("UPDATE PlantTypes SET Icon = Icon + 4;")
+        Log.v("DATABASE", "updated to version 11")
+    }
+
+    private fun upgradeVersion12(db: SQLiteDatabase) {
+        db.endTransaction()
+        db.setForeignKeyConstraintsEnabled(false)
+        db.beginTransactionNonExclusive()
+        db.execSQL("ALTER TABLE PlantTypes ADD COLUMN Icon2 TEXT;")
+        db.execSQL("UPDATE PlantTypes SET Icon2 = 'ic_tree' WHERE Icon = 2131230892;")
+        db.execSQL("UPDATE PlantTypes SET Icon2 = 'ic_rock' WHERE Icon = 2131230888;")
+        db.execSQL("UPDATE PlantTypes SET Icon2 = 'ic_grass' WHERE Icon = 2131230870;")
+        db.execSQL("UPDATE PlantTypes SET Icon2 = 'ic_water' WHERE Icon = 2131230893;")
+        db.execSQL("UPDATE PlantTypes SET Icon2 = 'ic_cut' WHERE Icon = 2131230866;")
+        db.execSQL("UPDATE PlantTypes SET Icon2 = 'ic_paper_bag' WHERE Icon = 2131230886;")
+        db.execSQL("UPDATE PlantTypes SET Icon2 = 'ic_watering_can' WHERE Icon = 2131230894;")
+        db.execSQL("UPDATE PlantTypes SET Icon2 = 'ic_tree' WHERE Icon2 is null;")
+
+        db.execSQL("DROP TABLE IF EXISTS plant_types_copy;")
+        db.execSQL("""
+            CREATE TABLE IF NOT EXISTS plant_types_copy(
+                Name VARCHAR PRIMARY KEY,
+                Icon VARCHAR,
+                Color VARCHAR
+            );""".trimIndent())
+        db.execSQL("""
+            INSERT INTO plant_types_copy (Name,Icon,Color) 
+            SELECT Name,Icon2 as Icon,Color
+            FROM PlantTypes;
+        """.trimIndent())
+        db.execSQL("DROP TABLE PlantTypes;")
+        db.execSQL("ALTER TABLE plant_types_copy RENAME TO PlantTypes;")
+        db.setTransactionSuccessful()
+        db.endTransaction()
+        db.setForeignKeyConstraintsEnabled(true)
+        Log.v("DATABASE", "updated to version 12")
+        db.beginTransaction()
+    }
+
     override fun onConfigure(db: SQLiteDatabase) {
         db.setForeignKeyConstraintsEnabled(true)
     }
 
     companion object {
-        private const val DATABASE_VERSION = 10
+        private const val DATABASE_VERSION = 12
         private const val LAND_TABLE_NAME = "myland.db"
 
         fun getImage(uri: String?): Bitmap? {
@@ -585,7 +631,8 @@ Land VARCHAR NOT NULL,
             )
             val plants = ArrayList<PlantTypeObject>()
             while (cursor.moveToNext()) {
-                val o = PlantTypeObject(cursor.getString(0), cursor.getInt(1), cursor.getString(2))
+                val icon = context.resources.getIdentifier(cursor.getString(1), "drawable", context.packageName)
+                val o = PlantTypeObject(cursor.getString(0), icon, cursor.getString(2))
                 plants.add(o)
             }
             cursor.close()
@@ -863,11 +910,13 @@ Land VARCHAR NOT NULL,
         fun addItemType(context: Context, item: PlantTypeObject): Boolean {
             val mDbHelper = LandOpenHelper(context)
 
+            val iconName = context.resources.getResourceEntryName(item.icon)
+
             // Gets the data repository in write mode
             val db = mDbHelper.writableDatabase
             val values = ContentValues()
             values.put("Name", item.name)
-            values.put("Icon", item.icon)
+            values.put("Icon", iconName)
             values.put("Color", item.color)
 
 // Insert the new row, returning the primary key value of the new row

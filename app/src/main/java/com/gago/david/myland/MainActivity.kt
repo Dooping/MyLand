@@ -290,10 +290,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         // Gets the data repository in write mode
         val db = mDbHelper.writableDatabase
 
+        val iconName = resources.getResourceEntryName(itemType.icon)
+
 // Create a new map of values, where column names are the keys
         val values = ContentValues()
         values.put("Name", itemType.name)
-        values.put("Icon", itemType.icon)
+        values.put("Icon", iconName)
         values.put("Color", itemType.color)
 
 // Insert the new row, returning the primary key value of the new row

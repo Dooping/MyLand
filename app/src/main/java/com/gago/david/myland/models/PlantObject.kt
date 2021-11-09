@@ -1,15 +1,10 @@
 package com.gago.david.myland.models
 
 class PlantObject{
-    @JvmField
     var id: Int
-    @JvmField
     var plantType: String
-    @JvmField
     var description: String
-    @JvmField
     var x: Float
-    @JvmField
     var y: Float
 
     constructor(plantType: String, description: String, x: Float, y: Float) {
@@ -49,5 +44,14 @@ class PlantObject{
         if (id != other.id) return false
 
         return true
+    }
+
+    override fun hashCode(): Int {
+        var result = id
+        result = 31 * result + plantType.hashCode()
+        result = 31 * result + description.hashCode()
+        result = 31 * result + x.hashCode()
+        result = 31 * result + y.hashCode()
+        return result
     }
 }
