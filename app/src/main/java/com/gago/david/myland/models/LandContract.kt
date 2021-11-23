@@ -10,6 +10,7 @@ object LandContract {
         const val COLUMN_IMAGE = "ImageUri"
         const val COLUMN_DESCRIPTION = "Description"
         const val COLUMN_AREA = "Area"
+        const val COLUMN_USER = "User"
     }
 
     object ItemEntry : BaseColumns {

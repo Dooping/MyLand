@@ -24,11 +24,11 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
-    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+    <style name="AppTheme.AppBarOverlay" parent="AppTheme" />
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
-    <style name="FullscreenTheme" parent="AppTheme">
+    <style name="FullscreenTheme" parent="AppTheme.Light">
         <item name="android:actionBarStyle">@style/FullscreenActionBarStyle</item>
         <item name="android:windowActionBarOverlay">true</item>
         <item name="android:windowBackground">@null</item>
@@ -43,6 +43,14 @@
     <style name="SpinnerStyle" parent="android:TextAppearance.Widget.TextView.SpinnerItem">
         <item name="android:divider">#565656</item>
         <item name="android:dividerHeight">1dp</item>
+    </style>
+
+    <style name="AppTheme.Light" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:background">@android:color/transparent</item>
     </style>
 
 </resources>

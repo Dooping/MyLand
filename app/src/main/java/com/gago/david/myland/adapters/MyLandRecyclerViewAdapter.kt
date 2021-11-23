@@ -1,8 +1,8 @@
 package com.gago.david.myland.adapters
 
+import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
-import android.util.Log
 import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
@@ -24,7 +24,8 @@ class MyLandRecyclerViewAdapter(
     private val mValues: List<LandObject>,
     private val mListener: LandFragment.OnListFragmentInteractionListener?,
     private val priorities: List<PriorityObject>,
-    private val emptyView: View
+    private val emptyView: View,
+    private val context: Context
 ) : RecyclerView.Adapter<MyLandRecyclerViewAdapter.ViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
@@ -36,7 +37,7 @@ class MyLandRecyclerViewAdapter(
         holder.mItem = mValues[position]
         holder.mIdView.text = holder.mItem!!.name
         holder.mContentView.text = holder.mItem!!.description
-        holder.landImage.setImageBitmap(LandOpenHelper.getImage(holder.mItem!!.imageUri))
+        holder.landImage.setImageBitmap(LandOpenHelper.getImage(context, holder.mItem!!.imageUri))
         holder.number.text = String.format("%d", holder.mItem!!.notifications)
         var colorChanged = false
         for (p in priorities) if (p.p_order == holder.mItem!!.priority) {

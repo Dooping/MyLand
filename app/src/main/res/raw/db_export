@@ -4,7 +4,7 @@ create table if not exists Users (
 
 CREATE TABLE IF NOT EXISTS PlantTypes(
 	Name VARCHAR PRIMARY KEY,
-	Icon INTEGER,
+	Icon VARCHAR,
 	Color VARCHAR
 	);
 

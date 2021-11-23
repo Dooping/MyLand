@@ -15,6 +15,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.ImageView
+import androidx.appcompat.view.ContextThemeWrapper
 import androidx.core.content.res.ResourcesCompat
 import br.com.bloder.magic.view.MagicButton
 import com.gago.david.myland.adapters.ImageAdapter
@@ -56,6 +57,7 @@ class EditItemTypeFragment : Fragment() {
         list = ArrayList()
         for (i in 0..6) list!!.add(array.getResourceId(i, -1))
         Log.v("images", list.toString())
+        Log.v("images", list!!.map { resources.getResourceEntryName(it) }.toString())
         array.recycle()
     }
 
@@ -74,6 +76,7 @@ class EditItemTypeFragment : Fragment() {
         imageView.setColorFilter(Color.parseColor(tintColor), PorterDuff.Mode.SRC_IN)
         editIcon.setMagicButtonClickListener { showAlertDialog() }
         editColor.setMagicButtonClickListener {
+            val contextThemeWrapper = ContextThemeWrapper(activity, R.style.Theme_AppCompat_Light)
             ColorPickerDialog.newBuilder()
                     .setDialogType(ColorPickerDialog.TYPE_PRESETS)
                     .setDialogId(0)

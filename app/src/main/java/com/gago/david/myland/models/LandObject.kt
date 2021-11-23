@@ -11,12 +11,24 @@ class LandObject {
     var priority = 0
     var plants: ArrayList<PlantObject>
     var totalTasks: Int = 0
+    var user: String
 
     constructor(name: String, imageUri: String, description: String, area: Double) {
         this.name = name
         this.imageUri = imageUri
         this.description = description
         this.area = area
+        plants = ArrayList()
+        totalTasks = 0
+        this.user = ""
+    }
+
+    constructor(name: String, imageUri: String, description: String, user: String) {
+        this.name = name
+        this.imageUri = imageUri
+        this.description = description
+        this.area = 0.0
+        this.user = user
         plants = ArrayList()
         totalTasks = 0
     }
@@ -29,6 +41,7 @@ class LandObject {
         this.notifications = notifications
         this.priority = priority
         this.area = area
+        this.user = ""
     }
 
     fun addPlant(plant: PlantObject) {

@@ -107,4 +107,5 @@
     <string name="dialog_new_season_body">Tem a certeza que quer iniciar uma nova temporada?\nTodas as tarefas completas irão desaparecer.</string>
     <string name="toast_new_season_success">A nova temporada começou!</string>
     <string name="start_new_season_button">Começar nova temporada</string>
+    <string name="taking_snapshot_text">A criar imagem...</string>
 </resources>

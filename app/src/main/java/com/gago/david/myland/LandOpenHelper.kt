@@ -3,6 +3,7 @@ package com.gago.david.myland
 import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.content.Context
+import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.graphics.Bitmap
@@ -54,6 +55,8 @@ class LandOpenHelper(private val context: Context) : SQLiteOpenHelper(context, L
             upgradeVersion11(db)
         if (oldVersion < 12)
             upgradeVersion12(db)
+        if (oldVersion < 13)
+            upgradeVersion13(db)
         else if (oldVersion < newVersion) {
             dropDatabase(db)
             onCreate(db)
@@ -153,36 +156,6 @@ Land VARCHAR NOT NULL,
         db.beginTransaction()
     }
 
-    private fun upgradeVersion7(db: SQLiteDatabase) {
-        var db = db
-        val list = readLands(context)
-        for (l in list) {
-            val b = oldGetImage(context, l.imageUri)
-            l.imageUri = saveToInternalStorage(context, b, l.imageUri)
-            updateLand(context, l)
-        }
-        db.endTransaction()
-        db.setForeignKeyConstraintsEnabled(false)
-        db.beginTransaction()
-        db = writableDatabase
-        db.execSQL("""CREATE TABLE IF NOT EXISTS Lands2(
-	Name VARCHAR,
-	ImageUri VARCHAR,
-	Description TEXT,
-	Area Double DEFAULT 0,
-	User VARCHAR DEFAULT null,
-	primary key (Name, User),
-    FOREIGN KEY(User) REFERENCES Users(Name) ON DELETE CASCADE
-	);""")
-        db.execSQL("""INSERT INTO Lands2 (Name, ImageUri, Description, Area, User)
-   SELECT Name, ImageUri, Description, Area, User FROM Lands;""")
-        db.execSQL("DROP TABLE Lands;")
-        db.execSQL("ALTER TABLE Lands2 RENAME TO Lands;")
-        db.endTransaction()
-        db.setForeignKeyConstraintsEnabled(true)
-        db.beginTransaction()
-    }
-
     private fun upgradeVersion8(db: SQLiteDatabase) {
         db.execSQL("ALTER TABLE Tasks ADD COLUMN CompletedDate Long;")
         Log.v("DATABASE", "updated to version 8")
@@ -242,16 +215,72 @@ Land VARCHAR NOT NULL,
         db.beginTransaction()
     }
 
+    private fun upgradeVersion13(db: SQLiteDatabase) {
+        readAllLands(db).forEach {
+            val image = oldGetImage(it.imageUri)!!
+            val filename=it.imageUri.substring(it.imageUri.lastIndexOf("/")+1)
+            it.imageUri = filename
+            addImage(context, image, filename)
+            updateLand(db, it)
+        }
+    }
+
+    private fun updateLand(db: SQLiteDatabase, land: LandObject) {
+            db.execSQL("""
+                |UPDATE ${LandContract.LandEntry.TABLE_NAME}
+                |SET ${LandContract.LandEntry.COLUMN_IMAGE} = ${land.imageUri}
+                |WHERE User = ${land.user} AND Name = ${land.name};
+                |""".trimMargin())
+    }
+
+    private fun readAllLands(db: SQLiteDatabase): List<LandObject> {
+        val projection = arrayOf(
+            LandContract.LandEntry.COLUMN_NAME,
+            LandContract.LandEntry.COLUMN_IMAGE,
+            LandContract.LandEntry.COLUMN_DESCRIPTION,
+            LandContract.LandEntry.COLUMN_USER
+        )
+        val c = db.query(
+            LandContract.LandEntry.TABLE_NAME,
+            projection,
+            null,
+            null,
+            null,
+            null,
+            null
+        )
+        val lands = generateSequence { if (c.moveToNext()) c else null }
+            .map { cursorToLand(it) }
+            .toList()
+
+        c.close()
+        return lands
+    }
+
+    @SuppressLint("Range")
+    fun cursorToLand(cursor: Cursor): LandObject {
+        return LandObject(
+            cursor.getString(cursor.getColumnIndex(LandContract.LandEntry.COLUMN_NAME)),
+            cursor.getString(cursor.getColumnIndex(LandContract.LandEntry.COLUMN_IMAGE)),
+            cursor.getString(cursor.getColumnIndex(LandContract.LandEntry.COLUMN_DESCRIPTION)),
+            cursor.getString(cursor.getColumnIndex(LandContract.LandEntry.COLUMN_USER)),
+        )
+    }
+
     override fun onConfigure(db: SQLiteDatabase) {
         db.setForeignKeyConstraintsEnabled(true)
     }
 
     companion object {
-        private const val DATABASE_VERSION = 12
+        private const val DATABASE_VERSION = 13
         private const val LAND_TABLE_NAME = "myland.db"
 
-        fun getImage(uri: String?): Bitmap? {
+        fun getImage(context: Context, uri: String?): Bitmap? {
             Log.v("GETIMAGE", uri!!)
+            return context.openFileInput(uri).use { BitmapFactory.decodeStream(it) }
+        }
+
+        fun oldGetImage(uri: String): Bitmap? {
             try {
                 val f = File(uri)
                 return BitmapFactory.decodeStream(FileInputStream(f))
@@ -261,66 +290,10 @@ Land VARCHAR NOT NULL,
             return null
         }
 
-        @SuppressLint("Range")
-        fun oldGetImage(context: Context, name: String): Bitmap? {
-            val mDbHelper = LandOpenHelper(context)
-
-            // Gets the data repository in write mode
-            val db = mDbHelper.readableDatabase
-            val projection = arrayOf(
-                    "Name",
-                    "Image"
-            )
-
-            // How you want the results sorted in the resulting Cursor
-            val sortOrder: String? = null
-            val whereClause = "Name = ?"
-            val whereArgs = arrayOf(name)
-            Log.v("GETIMAGE", name)
-            val cur = db.query(
-                    "Images",  // The table to query
-                    projection,  // The array of columns to return (pass null to get all)
-                    whereClause,  // The columns for the WHERE clause
-                    whereArgs,  // The values for the WHERE clause
-                    null,  // don't group the rows
-                    null,  // don't filter by row groups
-                    null // The sort order
-            )
-            if (cur.moveToFirst()) {
-                Log.v("GETIMAGE", cur.getString(cur.getColumnIndex("Name")))
-                Log.v("GETIMAGE", "column index: " + cur.getColumnIndex("Image"))
-                val imgByte = cur.getBlob(cur.getColumnIndex("Image"))
-                val bitmap = BitmapFactory.decodeByteArray(imgByte, 0, imgByte.size)
-                cur.close()
-                db.close()
-                return bitmap
+        private fun saveToInternalStorage(context: Context, bitmapImage: Bitmap?, name: String): Boolean {
+            return context.openFileOutput(name, Context.MODE_PRIVATE).use {
+                bitmapImage!!.compress(Bitmap.CompressFormat.PNG, 100, it)
             }
-            if (!cur.isClosed) {
-                cur.close()
-                db.close()
-            }
-            Log.v("image", "algo falhou")
-            return null
-        }
-
-        private fun saveToInternalStorage(context: Context, bitmapImage: Bitmap?, name: String): String {
-            val newImage = File(name)
-            var fos: FileOutputStream? = null
-            try {
-                newImage.createNewFile()
-                fos = FileOutputStream(newImage)
-                // Use the compress method on the BitMap object to write image to the OutputStream
-                bitmapImage!!.compress(Bitmap.CompressFormat.PNG, 100, fos)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            } finally {
-                try {
-                    fos!!.close()
-                } catch (e: IOException) {
-                    e.printStackTrace()
-                }
-            }
-            return newImage.absolutePath
         }
 
         fun addImage(context: Context, image: Bitmap?): String {
@@ -330,7 +303,8 @@ Land VARCHAR NOT NULL,
 
         fun addImage(context: Context, image: Bitmap?, name: String): String {
             Log.v("ADDIMAGE", name)
-            return saveToInternalStorage(context, image, name)
+            saveToInternalStorage(context, image, name)
+            return name
         }
 
         fun readTaskTypes(context: Context): ArrayList<TaskTypeObject> {
@@ -462,10 +436,9 @@ Land VARCHAR NOT NULL,
             return success
         }
 
-        fun deleteImage(image: String, context: Context): Boolean {
-            if (isImageUsed(context, image)) return false
-            val f = File(image)
-            return f.delete()
+        fun deleteImage(name: String, context: Context): Boolean {
+            Log.v("DELETE_IMAGE", name)
+            return context.deleteFile(name)
         }
 
         private fun isImageUsed(context: Context, image: String): Boolean {
@@ -604,6 +577,78 @@ Land VARCHAR NOT NULL,
             cursor.close()
             db.close()
             return lands
+        }
+
+        @SuppressLint("Range")
+        fun readLandWithArea(landName: String?, context: Context): LandObject {
+            val mDbHelper = LandOpenHelper(context)
+            val db = mDbHelper.readableDatabase
+
+            // Define a projection that specifies which columns from the database
+            // you will actually use after this query.
+            val projection = arrayOf(
+                "Name",
+                "ImageUri",
+                "Description",
+                "Area"
+            )
+
+            // Filter results WHERE "title" = 'My Title'
+            val selection = "Name" + " = ?"
+            val selectionArgs = arrayOf(landName)
+
+            // How you want the results sorted in the resulting Cursor
+            val sortOrder: String? = null
+            val cursor = db.query(
+                "Lands",  // The table to query
+                projection,  // The array of columns to return (pass null to get all)
+                selection,  // The columns for the WHERE clause
+                selectionArgs,  // The values for the WHERE clause
+                null,  // don't group the rows
+                null,  // don't filter by row groups
+                sortOrder // The sort order
+            )
+            cursor.moveToFirst()
+            val l = LandObject(landName!!, cursor.getString(1), cursor.getString(2), cursor.getDouble(cursor.getColumnIndex("Area")))
+            cursor.close()
+            // Define a projection that specifies which columns from the database
+            // you will actually use after this query.
+            val projection2 = arrayOf(
+                "Id",
+                "Land",
+                "PlantType",
+                "Description",
+                "x",
+                "y"
+            )
+
+            // Filter results WHERE "title" = 'My Title'
+            val selection2 = "Land" + " = ?"
+
+            // How you want the results sorted in the resulting Cursor
+            val sortOrder2 = "Id ASC"
+            val cursor2 = db.query(
+                "Plants",  // The table to query
+                projection2,  // The array of columns to return (pass null to get all)
+                selection2,  // The columns for the WHERE clause
+                selectionArgs,  // The values for the WHERE clause
+                null,  // don't group the rows
+                null,  // don't filter by row groups
+                sortOrder2 // The sort order
+            )
+            while (cursor2.moveToNext())
+                l.addPlant(
+                    PlantObject(
+                        cursor2.getInt(cursor2.getColumnIndex("Id")),
+                        cursor2.getString(2),
+                        cursor2.getString(3),
+                        cursor2.getFloat(4),
+                        cursor2.getFloat(5)
+                    )
+                )
+            cursor2.close()
+            db.close()
+            return l
         }
 
         fun readPlantTypes(context: Context): ArrayList<PlantTypeObject> {

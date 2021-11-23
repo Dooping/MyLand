@@ -1,5 +1,6 @@
 package com.gago.david.myland
 
+import android.app.Activity
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
@@ -167,6 +168,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        Log.v("ACTIVITY_RESULT", requestCode.toString())
         if (requestCode == 2) {
             if (resultCode == RESULT_OK) {
                 val menu = data!!.getStringExtra("menu")
@@ -180,9 +182,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     ft.addToBackStack(backStateName)
                     ft.commitAllowingStateLoss()
                 }
-                super.onActivityResult(requestCode, resultCode, data)
             }
         }
+        super.onActivityResult(requestCode, resultCode, data)
     }
 
     override fun selectItem(item: PlantTypeObject) {

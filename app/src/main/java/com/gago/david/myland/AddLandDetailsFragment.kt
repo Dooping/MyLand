@@ -39,15 +39,15 @@ class AddLandDetailsFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (arguments != null) {
-            mParam1 = arguments!!.getString(ARG_PARAM1)
-            mParam2 = arguments!!.getString(ARG_PARAM2)
+            mParam1 = requireArguments().getString(ARG_PARAM1)
+            mParam2 = requireArguments().getString(ARG_PARAM2)
         }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        imageUri = arguments!!.getString("filename")
-        area = arguments!!.getDouble("area")
+        imageUri = requireArguments().getString("filename")
+        area = requireArguments().getDouble("area")
         Log.v("ADDDETAIL", imageUri!!)
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_add_land_details, container, false)
@@ -55,18 +55,18 @@ class AddLandDetailsFragment : Fragment() {
         name = view.findViewById(R.id.land_name)
         description = view.findViewById(R.id.land_description)
         button = view.findViewById(R.id.next_button)
-        image!!.setImageBitmap(LandOpenHelper.getImage(imageUri))
-        button!!.setOnClickListener { addLandQuery() }
+        image.setImageBitmap(LandOpenHelper.getImage(requireContext(), imageUri))
+        button.setOnClickListener { addLandQuery() }
         return view
     }
 
     private fun addLandQuery() {
-        val success = LandOpenHelper.addLand(context!!, LandObject(name!!.text.toString(), imageUri!!, description!!.text.toString(), area!!))
+        val success = LandOpenHelper.addLand(requireContext(), LandObject(name.text.toString(), imageUri!!, description.text.toString(), area!!))
         if (!success) Toast.makeText(context, "Land already exists, choose a different name", Toast.LENGTH_SHORT).show() else {
             created = true
             val intent = Intent(context, ScrollingActivity::class.java)
             val b = Bundle()
-            b.putString("name", name!!.text.toString()) //Your id
+            b.putString("name", name.text.toString()) //Your id
             intent.putExtras(b) //Put your id to your next Intent
             startActivity(intent)
             (activity as MainActivity?)!!.removeLandDetails()
@@ -95,7 +95,7 @@ class AddLandDetailsFragment : Fragment() {
     }
 
     override fun onDestroyView() {
-        if (!created) LandOpenHelper.deleteImage(imageUri!!, context!!)
+        if (!created) LandOpenHelper.deleteImage(imageUri!!, requireContext())
         super.onDestroyView()
     }
 

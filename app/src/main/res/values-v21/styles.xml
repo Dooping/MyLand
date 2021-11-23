@@ -1,9 +1,55 @@
 <resources>
 
-    <!--<style name="AppTheme.NoActionBar">
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
+
+    <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
-        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
-        <item name="android:statusBarColor">@android:color/transparent</item>
-    </style>-->
+        <item name="colorPrimary">@color/colorAccent</item>
+        <item name="colorPrimaryDark">#09582B</item>
+        <item name="colorAccent">#EDEDED</item>
+    </style>
+    <style name="AppTheme.NoActionBar2">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="colorPrimary">@color/colorAccent</item>
+        <item name="colorPrimaryDark">#fff</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
+
+    <style name="AppTheme.AppBarOverlay" parent="AppTheme" />
+
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="FullscreenTheme" parent="AppTheme">
+        <item name="android:actionBarStyle">@style/FullscreenActionBarStyle</item>
+        <item name="android:windowActionBarOverlay">true</item>
+        <item name="android:windowBackground">@null</item>
+        <item name="metaButtonBarStyle">?android:attr/buttonBarStyle</item>
+        <item name="metaButtonBarButtonStyle">?android:attr/buttonBarButtonStyle</item>
+    </style>
+
+    <style name="FullscreenActionBarStyle" parent="Theme.Material3.DayNight">
+        <item name="android:background">@color/black_overlay</item>
+    </style>
+
+    <style name="SpinnerStyle" parent="android:TextAppearance.Widget.TextView.SpinnerItem">
+        <item name="android:divider">#565656</item>
+        <item name="android:dividerHeight">1dp</item>
+    </style>
+
+    <style name="AppTheme.Light" parent="Theme.Material3.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
+
 </resources>

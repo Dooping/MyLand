@@ -2,12 +2,15 @@ package com.gago.david.myland.adapters
 
 import android.content.Context
 import android.graphics.Color
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.graphics.BlendModeColorFilterCompat
+import androidx.core.graphics.BlendModeCompat
 import com.gago.david.myland.R
 import com.gago.david.myland.models.PlantTypeObject
 
@@ -26,7 +29,8 @@ class PopupMenuAdapter(context: Context, objects: List<PlantTypeObject?>) : Arra
         val plantText = newConvertView?.findViewById<TextView>(R.id.plant)
         // Populate the data into the template view using the data object
         icon?.setImageResource(plant!!.icon)
-        icon?.setColorFilter(Color.parseColor(plant?.color))
+        icon?.colorFilter = BlendModeColorFilterCompat.createBlendModeColorFilterCompat(Color.parseColor(plant?.color), BlendModeCompat.SRC_IN)
+        Log.v("popup", Color.parseColor(plant?.color).toString())
         plantText?.text = plant?.name
         newConvertView?.setOnClickListener { mListener?.onMenuItemInteraction(plant) }
         // Return the completed view to render on screen
@@ -39,5 +43,6 @@ class PopupMenuAdapter(context: Context, objects: List<PlantTypeObject?>) : Arra
 
     init {
         mListener = context as OnMenuItemInteractionListener
+        Log.v("POPUP", objects.toString())
     }
 }

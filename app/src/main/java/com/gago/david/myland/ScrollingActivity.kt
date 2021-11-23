@@ -86,7 +86,7 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
         val b = intent.extras
         name = b!!.getString("name")
         if (name == null) finish()
-        land = readLand(name)
+        land = LandOpenHelper.readLandWithArea(name, this)
         priorities = LandOpenHelper.readPriorities(this)
         setContentView(R.layout.activity_scrolling)
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
@@ -156,7 +156,7 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
         addTaskButton?.setOnClickListener { addTaskPressed() }
         toolbarLayout = findViewById(R.id.toolbar_layout)
         layers = arrayOfNulls(2)
-        layers[0] = BitmapDrawable(resources, LandOpenHelper.getImage(land!!.imageUri))
+        layers[0] = BitmapDrawable(resources, LandOpenHelper.getImage(this, land!!.imageUri))
         toolbarLayout.background = layers[0]
         /*try {
             InputStream inputStream = getContentResolver().openInputStream(Uri.parse(land.imageUri));
@@ -201,7 +201,7 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
 
             override fun onWheelItemSelected(wheelView: WheelView, position: Int) {}
         })
-        plantTypeList = readPlantTypes()
+        plantTypeList = LandOpenHelper.readPlantTypes(this)
         val unit = prefs.getInt("unit", 0) //0 is the default value.
         val df = DecimalFormat("#.#")
         val area = if (unit == 0) " (" + land!!.area.roundToInt() + "m\u00B2)" else " (" + df.format(land!!.area / 10000) + "ha)"
@@ -393,11 +393,13 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
         }
         val bitmap = Bitmap.createBitmap(xSize, ySize, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
+        Log.v("draw", land!!.plants.toString())
         if (plantGroups != null)
             for (i in land!!.plants.indices){
                 val p = land!!.plants[i]
             //for (group in plantGroups!!.keys){
                 val plantType = plantTypeList!!.stream().filter { it.name == p.plantType } .findAny().get()
+                Log.v("plantType", plantType.toString())
                 val d = ContextCompat.getDrawable(this, plantType.icon)
                 d!!.setBounds(
                     (p.x * canvas.width).roundToInt() - d.intrinsicWidth / 8,
@@ -511,77 +513,13 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
         return plants
     }
 
-    private fun readLand(landName: String?): LandObject {
-        val mDbHelper = LandOpenHelper(applicationContext)
-        val db = mDbHelper.readableDatabase
-
-        // Define a projection that specifies which columns from the database
-        // you will actually use after this query.
-        val projection = arrayOf(
-                "Name",
-                "ImageUri",
-                "Description",
-                "Area"
-        )
-
-        // Filter results WHERE "title" = 'My Title'
-        val selection = "Name" + " = ?"
-        val selectionArgs = arrayOf(landName)
-
-        // How you want the results sorted in the resulting Cursor
-        val sortOrder: String? = null
-        val cursor = db.query(
-                "Lands",  // The table to query
-                projection,  // The array of columns to return (pass null to get all)
-                selection,  // The columns for the WHERE clause
-                selectionArgs,  // The values for the WHERE clause
-                null,  // don't group the rows
-                null,  // don't filter by row groups
-                sortOrder // The sort order
-        )
-        cursor.moveToFirst()
-        val l = LandObject(landName!!, cursor.getString(1), cursor.getString(2), cursor.getDouble(cursor.getColumnIndex("Area")))
-        cursor.close()
-        // Define a projection that specifies which columns from the database
-        // you will actually use after this query.
-        val projection2 = arrayOf(
-                "Id",
-                "Land",
-                "PlantType",
-                "Description",
-                "x",
-                "y"
-        )
-
-        // Filter results WHERE "title" = 'My Title'
-        val selection2 = "Land" + " = ?"
-
-        // How you want the results sorted in the resulting Cursor
-        val sortOrder2 = "Id ASC"
-        val cursor2 = db.query(
-                "Plants",  // The table to query
-                projection2,  // The array of columns to return (pass null to get all)
-                selection2,  // The columns for the WHERE clause
-                selectionArgs,  // The values for the WHERE clause
-                null,  // don't group the rows
-                null,  // don't filter by row groups
-                sortOrder2 // The sort order
-        )
-        while (cursor2.moveToNext()) l.addPlant(PlantObject(cursor2.getInt(cursor2.getColumnIndex("Id")), cursor2.getString(2), cursor2.getString(3), cursor2.getFloat(4), cursor2.getFloat(5)))
-        Log.v("ScrollingActivity", "" + cursor2.getColumnIndex("Id"))
-        cursor.close()
-        cursor2.close()
-        db.close()
-        return l
-    }
-
     override fun onResume() {
         super.onResume()
         initiateStuff()
     }
 
     private fun initiateStuff() {
-        land = readLand(name)
+        land = LandOpenHelper.readLandWithArea(name, this)
         val strings: MutableList<String> = ArrayList(land!!.plants.size)
         val plants = land!!.plants.toList()
         plantGroups = plants.groupBy { it.plantType }

@@ -48,12 +48,6 @@ class LandImporterHelper(private val context: Context) : SQLiteOpenHelper(contex
     @Throws(IOException::class)
     fun importDatabase(dbPath: Uri): Boolean {
         Log.v("FILE", "path: $dbPath")
-        val contentResolver = context.contentResolver
-        val parcelFileDescriptor: ParcelFileDescriptor? =
-        contentResolver.openFileDescriptor(dbPath, "r")
-        val fileDescriptor: FileDescriptor = parcelFileDescriptor!!.fileDescriptor
-        val f = context.contentResolver.openInputStream(dbPath)
-        //Log.v("FILE", f.path + " " + f.exists())
         val oldDb = File("//data/data/com.gago.david.myland/databases/", LAND_TABLE_NAME)
         context.contentResolver.openInputStream(dbPath).use { `is` ->
             FileOutputStream(oldDb).use { os ->
@@ -188,7 +182,8 @@ class LandImporterHelper(private val context: Context) : SQLiteOpenHelper(contex
         )
         val plants = ArrayList<PlantTypeObject>()
         while (cursor.moveToNext()) {
-            val o = PlantTypeObject(cursor.getString(0), cursor.getInt(1), cursor.getString(2))
+            val icon = context.resources.getIdentifier(cursor.getString(1), "drawable", context.packageName)
+            val o = PlantTypeObject(cursor.getString(0), icon, cursor.getString(2))
             plants.add(o)
         }
         cursor.close()

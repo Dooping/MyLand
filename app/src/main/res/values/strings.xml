@@ -204,4 +204,5 @@
     <string name="dialog_new_season_body">Are you sure you want to start a new season?\nThis will hide all completed tasks.</string>
     <string name="toast_new_season_success">The new season started!</string>
     <string name="start_new_season_button">Start new season</string>
+    <string name="taking_snapshot_text">Creating image...</string>
 </resources>

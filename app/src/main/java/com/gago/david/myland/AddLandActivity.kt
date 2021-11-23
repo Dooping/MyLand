@@ -1,344 +1,258 @@
 package com.gago.david.myland
 
-import android.animation.ObjectAnimator
-import android.animation.TypeEvaluator
-import android.animation.ValueAnimator
-import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.Bitmap
-import android.graphics.Color
-import android.location.Location
 import android.os.Bundle
-import android.os.Handler
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import androidx.appcompat.app.AppCompatActivity
 import android.util.Log
-import android.view.View
-import android.view.animation.BounceInterpolator
 import android.widget.Toast
-import com.gago.david.myland.utils.LatLngInterpolator.Linear
-import com.gago.david.myland.utils.SphericalUtil
-import com.mapbox.android.core.location.LocationEngine
-import com.mapbox.android.core.location.LocationEngineListener
-import com.mapbox.android.core.location.LocationEnginePriority
-import com.mapbox.android.core.location.LocationEngineProvider
-import com.mapbox.android.core.permissions.PermissionsListener
-import com.mapbox.android.core.permissions.PermissionsManager
-import com.mapbox.mapboxsdk.Mapbox
-import com.mapbox.mapboxsdk.annotations.MarkerOptions
-import com.mapbox.mapboxsdk.annotations.PolygonOptions
-import com.mapbox.mapboxsdk.annotations.PolylineOptions
-import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
-import com.mapbox.mapboxsdk.constants.Style
-import com.mapbox.mapboxsdk.geometry.LatLng
-import com.mapbox.mapboxsdk.maps.MapView
-import com.mapbox.mapboxsdk.maps.MapboxMap
-import com.mapbox.mapboxsdk.maps.MapboxMap.OnMapLongClickListener
-import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
-import com.mapbox.mapboxsdk.plugins.locationlayer.LocationLayerPlugin
+import com.gago.david.myland.utils.LocationPermissionHelper
+import com.mapbox.android.gestures.MoveGestureDetector
+import com.mapbox.geojson.Point
+import com.mapbox.geojson.Polygon
+import com.mapbox.maps.*
+import com.mapbox.maps.extension.style.layers.addLayer
+import com.mapbox.maps.extension.style.layers.generated.lineLayer
+import com.mapbox.maps.extension.style.layers.properties.generated.LineCap
+import com.mapbox.maps.extension.style.layers.properties.generated.LineJoin
+import com.mapbox.maps.extension.style.sources.addSource
+import com.mapbox.maps.extension.style.sources.generated.GeoJsonSource
+import com.mapbox.maps.plugin.annotation.annotations
+import com.mapbox.maps.plugin.annotation.generated.*
+import com.mapbox.maps.plugin.gestures.OnMoveListener
+import com.mapbox.maps.plugin.gestures.gestures
+import com.mapbox.maps.plugin.locationcomponent.OnIndicatorPositionChangedListener
+import com.mapbox.maps.plugin.locationcomponent.location
+import com.mapbox.turf.*
 import id.arieridwan.lib.PageLoader
+import java.lang.ref.WeakReference
 import java.util.*
 
-class AddLandActivity : AppCompatActivity(), OnMapReadyCallback, OnMapLongClickListener, LocationEngineListener, PermissionsListener {
+class AddLandActivity : AppCompatActivity() {
     private var mapView: MapView? = null
-    private var mapboxMap: MapboxMap? = null
-    private var locationLayerPlugin: LocationLayerPlugin? = null
-    private var locationEngine: LocationEngine? = null
-    private var permissionsManager: PermissionsManager? = null
-    private var poligon: LinkedList<LatLng>? = null
+    private lateinit var mapboxMap: MapboxMap
+    private var polygon: MutableList<Point> = mutableListOf()
     private var pageLoader: PageLoader? = null
     private var area: Double? = null
-    private val MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 10
-    private val MY_PERMISSIONS_REQUEST_LOCATION = 20
+    private lateinit var locationPermissionHelper: LocationPermissionHelper
+    private lateinit var polylineAnnotationManager: PolylineAnnotationManager
+    private lateinit var circleAnnotationManager: CircleAnnotationManager
+    private var lastLocation: Point? = null
+    private var hasStartedSnapshotGeneration = false
+
+    private val onIndicatorPositionChangedListener = OnIndicatorPositionChangedListener {
+        mapboxMap.setCamera(CameraOptions.Builder().center(it).build())
+        mapView?.gestures?.focalPoint = mapView?.getMapboxMap()?.pixelForCoordinate(it)
+    }
+
+    private val saveLocationListener = OnIndicatorPositionChangedListener {
+        lastLocation = it
+    }
+
+    private val onMoveListener = object : OnMoveListener {
+        override fun onMoveBegin(detector: MoveGestureDetector) {
+            onCameraTrackingDismissed()
+        }
+
+        override fun onMove(detector: MoveGestureDetector): Boolean {
+            return false
+        }
+
+        override fun onMoveEnd(detector: MoveGestureDetector) {}
+    }
+
+    private fun onCameraTrackingDismissed() {
+        mapView?.location?.removeOnIndicatorPositionChangedListener(onIndicatorPositionChangedListener)
+        mapView?.gestures?.removeOnMoveListener(onMoveListener)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Mapbox.getInstance(this, getString(R.string.mapbox_access_token))
         setContentView(R.layout.activity_add_land)
         mapView = findViewById(R.id.mapView)
         pageLoader = findViewById(R.id.pageloader)
         pageLoader?.startProgress()
-        mapView?.onCreate(savedInstanceState)
-        mapView?.getMapAsync(this)
-        poligon = LinkedList()
-    }
-
-    @SuppressLint("RestrictedApi")
-    override fun onMapReady(mapboxMap: MapboxMap) {
-        pageLoader!!.stopProgress()
-        Log.v("MAPBOX", "onMapReady")
-        this@AddLandActivity.mapboxMap = mapboxMap
-        val prefs = getSharedPreferences(SettingsFragment.MY_PREFS_NAME, MODE_PRIVATE)
-        val mapTypePosition = prefs.getInt("mapType", 0)
-        if (mapTypePosition == 0) mapboxMap.setStyle(Style.SATELLITE) else mapboxMap.setStyle(Style.SATELLITE_STREETS)
-        mapboxMap.uiSettings.isTiltGesturesEnabled = false
-        //        mapboxMap.addOnMapLongClickListener(this);
-        enableLocationPlugin()
-        //
-//        locationEngine = new LocationEngineProvider(this).obtainBestLocationEngineAvailable();
-//        locationEngine.setPriority(LocationEnginePriority.HIGH_ACCURACY);
-//        locationEngine.setFastestInterval(1000);
-//        locationEngine.addLocationEngineListener(this);
-//        locationEngine.activate();
-//
-//        int[] padding;
-//        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-//            padding = new int[] {0, 750, 0, 0};
-//        } else {
-//            padding = new int[] {0, 250, 0, 0};
-//        }
-//        LocationLayerOptions options = LocationLayerOptions.builder(this)
-//                .padding(padding)
-//                .build();
-//
-//        locationLayerPlugin = new LocationLayerPlugin(mapView, mapboxMap, locationEngine, options);
-        //locationLayerPlugin.addOnLocationClickListener(this);
-        //locationLayerPlugin.addOnCameraTrackingChangedListener(this);
-
-//        getLifecycle().addObserver(locationLayerPlugin);
-//
-//        if(locationLayerPlugin.getLastKnownLocation() != null) { // Check to ensure coordinates aren't null, probably a better way of doing this...
-//            mapboxMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(locationLayerPlugin.getLastKnownLocation()),16), 3000);
-//        }
-
-
-        //mapboxMap.setMyLocationEnabled(true);
-        mapboxMap.setOnMarkerClickListener { marker ->
-            Log.v("Marker", marker.position.toString())
-            poligon!!.remove(marker.position)
-            marker.remove()
-            if (mapboxMap.polygons.size > 0) mapboxMap.polygons[0].points = poligon
-            true
-        }
-        if (poligon != null) {
-            mapboxMap.addPolygon(PolygonOptions()
-                    .addAll(poligon)
-                    .strokeColor(Color.parseColor("#3bb2d0"))
-                    .fillColor(Color.parseColor("#7cd3ea"))
-                    .alpha(0.7f))
-            for (p in poligon!!) mapboxMap.addMarker(MarkerOptions()
-                    .position(p))
-        }
-        userLocationFAB()
-        val saveButton = findViewById<FloatingActionButton>(R.id.saveButton)
-        saveButton.visibility = View.VISIBLE
-        saveButton.setOnClickListener {
-            pageLoader!!.startProgress()
-            //                locationLayerPlugin.setLocationLayerEnabled(false);
-            var cancel = false
-            if (poligon!!.size > 0) {
-                val latLngBounds = mapboxMap.projection.visibleRegion.latLngBounds
-                for (p in poligon!!) if (!latLngBounds.contains(p)) {
-                    cancel = true
-                    Toast.makeText(baseContext, R.string.markers_visibility_error, Toast.LENGTH_SHORT).show()
-                    pageLoader!!.stopProgress()
-                    //                            locationLayerPlugin.setLocationLayerEnabled(true);
-                }
-                if (!cancel) {
-                    mapboxMap.clear()
-                    poligon!!.add(poligon!!.first)
-                    mapboxMap.addPolyline(PolylineOptions()
-                            .addAll(poligon)
-                            .color(Color.parseColor("#3bb2d0"))).width = 3.0f
-                    area = SphericalUtil.computeArea(poligon!!)
-                    Log.i("AREA", "computeArea " + SphericalUtil.computeArea(poligon!!) + " m2")
-                }
-            }
-            if (!cancel) {
-                val myHandler = Handler()
-                myHandler.postDelayed({
-                    mapboxMap.snapshot(MapboxMap.SnapshotReadyCallback { snapshot ->
-                        val filename = addImage(snapshot)
-                        if (filename != null) {
-                            val data = Intent()
-                            //---set the data to pass back---
-                            data.putExtra("name", filename)
-                            data.putExtra("area", area)
-                            Log.v("MAPBOX", "fileUri: $filename")
-                            setResult(RESULT_OK, data)
-                            //---close the activity---
-                            finish()
-                        }
-                    })
-                }, 50)
-            }
+        polygon = LinkedList()
+        locationPermissionHelper = LocationPermissionHelper(WeakReference(this))
+        locationPermissionHelper.checkPermissions {
+            setupMap()
         }
         val addMarker = findViewById<FloatingActionButton>(R.id.add_marker)
-        addMarker.visibility = View.VISIBLE
-        addMarker.setOnClickListener { onMapLongClick(mapboxMap.cameraPosition.target) }
+        addMarker.setOnClickListener { setVertex(mapboxMap.cameraState.center) }
         val removeMarker = findViewById<FloatingActionButton>(R.id.remove_marker)
-        removeMarker.visibility = View.VISIBLE
-        removeMarker.setOnClickListener {
-            if (poligon!!.size > 0) {
-                poligon!!.removeLast()
-                val marker = mapboxMap.markers[mapboxMap.markers.size - 1]
-                marker.remove()
-                if (mapboxMap.polygons.size > 0) mapboxMap.polygons[0].points = poligon
+        removeMarker.setOnClickListener { removeLastMarker() }
+        val goToLocation = findViewById<FloatingActionButton>(R.id.myLocationButton)
+        goToLocation.setOnClickListener { resetLocation() }
+        val saveButton = findViewById<FloatingActionButton>(R.id.saveButton)
+        saveButton.setOnClickListener { save() }
+    }
+
+    private fun save() {
+        if (!hasStartedSnapshotGeneration) {
+            hasStartedSnapshotGeneration = true
+            if (checkBoundary()) {
+                Toast.makeText(this, R.string.taking_snapshot_text, Toast.LENGTH_LONG).show()
+                startSnapShot()
+            }
+            else {
+                hasStartedSnapshotGeneration = false
+                Toast.makeText(baseContext, R.string.markers_visibility_error, Toast.LENGTH_SHORT).show()
             }
         }
     }
 
-    private fun enableLocationPlugin() {
-//        if (ContextCompat.checkSelfPermission( this,android.Manifest.permission.ACCESS_COARSE_LOCATION ) != PackageManager.PERMISSION_GRANTED )
-//        {
-//            ActivityCompat.requestPermissions(
-//                    this,
-//                    new String [] { android.Manifest.permission.ACCESS_COARSE_LOCATION },
-//                    LocationService.MY_PERMISSION_ACCESS_COURSE_LOCATION
-//            );
-//        }
-
-
-        // Check if permissions are enabled and if not request
-        if (PermissionsManager.areLocationPermissionsGranted(this)) {
-            // Create a location engine instance
-            initializeLocationEngine()
-            locationLayerPlugin = LocationLayerPlugin(mapView!!, mapboxMap!!, locationEngine)
-            //            locationLayerPlugin.setLocationLayerEnabled(true);
-            lifecycle.addObserver(locationLayerPlugin!!)
-        } else {
-            permissionsManager = PermissionsManager(this)
-            permissionsManager!!.requestLocationPermissions(this)
-        }
+    private fun checkBoundary(): Boolean {
+        val pixelsForCoordinates = mapboxMap.pixelsForCoordinates(polygon)
+        return pixelsForCoordinates.all { it.x >= 0 && it.y >= 0 }
     }
 
-    private fun initializeLocationEngine() {
-        locationEngine = LocationEngineProvider(this).obtainBestLocationEngineAvailable()
-        locationEngine!!.priority = LocationEnginePriority.HIGH_ACCURACY
-        locationEngine!!.addLocationEngineListener(this)
-        locationEngine!!.activate()
-        //        Location lastLocation = locationEngine.getLastLocation();
-//        if (lastLocation != null) {
-//            setCameraPosition(lastLocation);
-//        } else {
-//            locationEngine.addLocationEngineListener(this);
-//        }
-    }
+    private fun startSnapShot() {
+        mapboxMap.getStyle { style ->
+            val polygonGeoJSON = Polygon.fromLngLats(listOf(polygon))
+            area = TurfMeasurement.area(polygonGeoJSON)
+            val snapshotter = buildSnapshotter(style, polygonGeoJSON)
+            snapshotter.start {
+                val snapshot = it?.bitmap()
 
-    private fun setCameraPosition(location: Location) {
-        mapboxMap!!.animateCamera(CameraUpdateFactory.newLatLngZoom(
-                LatLng(location.latitude, location.longitude), 16.0), 3000)
-    }
-
-    private fun addImage(bitmap: Bitmap): String? {
-        val name = LandOpenHelper.addImage(this, bitmap)
-        if (name == null) Toast.makeText(this, R.string.image_add_error, Toast.LENGTH_SHORT).show()
-        return name
-    }
-
-    override fun onConnected() {
-//        if (locationEngine != null)
-//            locationEngine.requestLocationUpdates();
-    }
-
-    override fun onLocationChanged(location: Location) {
-        mapboxMap!!.animateCamera(CameraUpdateFactory.newLatLngZoom(
-                LatLng(location.latitude, location.longitude), 16.0), 3000)
-        if (locationEngine != null) locationEngine!!.removeLocationEngineListener(this)
-    }
-
-    @SuppressLint("RestrictedApi")
-    private fun userLocationFAB() {
-        val FAB = findViewById<FloatingActionButton>(R.id.myLocationButton)
-        FAB.visibility = View.VISIBLE
-        FAB.setOnClickListener {
-            if (locationLayerPlugin!!.lastKnownLocation != null) { // Check to ensure coordinates aren't null, probably a better way of doing this...
-                mapboxMap!!.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(locationLayerPlugin!!.lastKnownLocation), 16.0), 3000)
+                if (snapshot != null) {
+                    val filename = addImage(snapshot)
+                    val data = Intent()
+                    //---set the data to pass back---
+                    data.putExtra("name", filename)
+                    data.putExtra("area", area)
+                    Log.v("MAPBOX", "fileUri: $filename")
+                    Log.v("MAPBOX", "area: $area")
+                    setResult(RESULT_OK, data)
+                    //---close the activity---
+                    finish()
+                }
             }
         }
     }
 
-    // Add the mapView lifecycle to the activity's lifecycle methods
-    public override fun onStart() {
-        super.onStart()
-        mapView!!.onStart()
-        //        if (locationEngine != null) {
-//            locationEngine.requestLocationUpdates();
-//            locationEngine.addLocationEngineListener(this);
-//        }
+    private fun buildSnapshotter(
+        style: Style,
+        polygonGeoJSON: Polygon
+    ): Snapshotter {
+        val mapSnapshotOptions =
+            MapSnapshotOptions.Builder().pixelRatio(style.pixelRatio).size(mapboxMap.getSize())
+                .resourceOptions(mapboxMap.getResourceOptions()).build()
+        val snapshotter = Snapshotter(
+            this,
+            mapSnapshotOptions,
+            SnapshotOverlayOptions(showLogo = false, showAttributes = false)
+        )
+        snapshotter.setStyleUri(Style.SATELLITE)
+        snapshotter.setStyleListener(object : SnapshotStyleListener {
+            override fun onDidFinishLoadingStyle(style: Style) {
+                drawPolygon(style, polygonGeoJSON)
+            }
+        })
+        snapshotter.setCamera(mapboxMap.cameraState.toCameraOptions())
+        snapshotter.setSize(mapboxMap.getSize())
+        snapshotter.setTileMode(false)
+        return snapshotter
     }
 
-    public override fun onResume() {
-        super.onResume()
-        mapView!!.onResume()
+    private fun drawPolygon(style: Style, polygonGeoJSON: Polygon) {
+        style.addSource(GeoJsonSource.Builder("land").geometry(polygonGeoJSON).build())
+        style.addLayer(lineLayer("area", "land") {
+            lineColor("#3bb2d0")
+            lineCap(LineCap.ROUND)
+            lineJoin(LineJoin.ROUND)
+            lineWidth(8.0)
+        })
     }
 
-    public override fun onPause() {
-        super.onPause()
-        mapView!!.onPause()
+    private fun resetLocation() {
+        mapboxMap.setCamera(CameraOptions.Builder().center(lastLocation).build())
+        mapView?.location?.addOnIndicatorPositionChangedListener(onIndicatorPositionChangedListener)
+        mapView?.gestures?.addOnMoveListener(onMoveListener)
     }
 
-    override fun onLowMemory() {
-        super.onLowMemory()
-        mapView!!.onLowMemory()
-    }
+    private fun setupMap() {
 
-    override fun onStop() {
-        super.onStop()
-        mapView!!.onStop()
-        if (locationEngine != null) {
-            locationEngine!!.removeLocationEngineListener(this)
-            locationEngine!!.removeLocationUpdates()
+        val prefs = getSharedPreferences(SettingsFragment.MY_PREFS_NAME, MODE_PRIVATE)
+        mapboxMap = mapView?.getMapboxMap()!!
+        mapboxMap.setCamera(CameraOptions.Builder().center(Point.fromLngLat(-9.198105, 38.666578)).zoom(14.0).build())
+        val style = when (prefs.getInt("mapType", 0)) {
+            0 -> Style.SATELLITE
+            else -> Style.SATELLITE_STREETS
         }
-        pageLoader!!.stopProgress()
+        mapboxMap.loadStyleUri(
+            style
+        )
+        // After the style is loaded, initialize the Location component.
+        {
+            pageLoader?.stopProgress()
+            initLocationComponent()
+            setupGesturesListener()
+        }
+
+        // Create an instance of the Annotation API and get the CircleAnnotationManager.
+        val annotationApi = mapView?.annotations
+        polylineAnnotationManager = annotationApi!!.createPolylineAnnotationManager(mapView!!)
+        circleAnnotationManager = annotationApi.createCircleAnnotationManager(mapView!!)
+
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        mapView!!.onDestroy()
-        if (locationEngine != null) {
-            locationEngine!!.deactivate()
+    private fun setupGesturesListener() {
+        mapView?.gestures?.addOnMoveListener(onMoveListener)
+    }
+
+    private fun initLocationComponent() {
+        mapView?.location?.updateSettings {
+            enabled = true
+            pulsingEnabled = true
+        }
+        mapView?.location?.addOnIndicatorPositionChangedListener(onIndicatorPositionChangedListener)
+        mapView?.location?.addOnIndicatorPositionChangedListener(saveLocationListener)
+    }
+
+    private fun addImage(bitmap: Bitmap): String {
+        return LandOpenHelper.addImage(this, bitmap)
+    }
+
+    private fun updatePolygon() {
+        polylineAnnotationManager.deleteAll()
+        if (polygon.size >= 2) {
+            val polylineAnnotationOptions: PolylineAnnotationOptions = PolylineAnnotationOptions()
+                .withLineWidth(2.0)
+                .withLineColor("#3bb2d0")
+                .withPoints(polygon + polygon[0])
+            polylineAnnotationManager.create(polylineAnnotationOptions)
         }
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        outState.putSerializable("polygon", poligon)
-        super.onSaveInstanceState(outState)
-        mapView!!.onSaveInstanceState(outState)
+    private fun addMarker(point: Point) {
+        val circleAnnotationOptions: CircleAnnotationOptions = CircleAnnotationOptions()
+            .withPoint(point)
+            .withCircleRadius(6.0)
+            .withCircleColor("#7cd3ea")
+            .withCircleStrokeWidth(2.0)
+            .withCircleStrokeColor("#3bb2d0")
+        circleAnnotationManager.create(circleAnnotationOptions)
     }
 
-    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
-        super.onRestoreInstanceState(savedInstanceState)
-        poligon = savedInstanceState.getSerializable("polygon") as LinkedList<LatLng>
-        mapView!!.getMapAsync(this)
+    private fun removeLastMarker() {
+        if (polygon.isNotEmpty()) {
+            polygon.removeLast()
+            updatePolygon()
+            circleAnnotationManager.delete(circleAnnotationManager.annotations.last())
+            Log.v("MAPBOX", "marker removed")
+        }
     }
 
-    override fun onMapLongClick(point: LatLng) {
-        val marker = mapboxMap!!.addMarker(MarkerOptions()
-                .position(point))
-        val bearing = mapboxMap!!.cameraPosition.bearing
-        val start: LatLng = SphericalUtil.computeOffset(marker.position, 5.0, bearing)
-        marker.position = start
-        val interpolator = Linear()
-        val bounceInterpolator = BounceInterpolator()
-        val markerAnimator: ValueAnimator = ObjectAnimator.ofObject(marker, "position",
-                TypeEvaluator<LatLng> { fraction: Float, a: LatLng?, b: LatLng? -> interpolator.interpolate(fraction, a!!, b!!) }, marker.position, point)
-        markerAnimator.interpolator = bounceInterpolator
-        markerAnimator.duration = 1000
-        markerAnimator.start()
-        poligon!!.add(point)
-        if (mapboxMap!!.polygons.size > 0) mapboxMap!!.polygons[0].addPoint(point) else mapboxMap!!.addPolygon(PolygonOptions()
-                .addAll(poligon)
-                .strokeColor(Color.parseColor("#3bb2d0"))
-                .fillColor(Color.parseColor("#7cd3ea"))
-                .alpha(0.7f))
+    private fun setVertex(point: Point): Boolean {
+        polygon.add(point)
+        updatePolygon()
+        addMarker(point)
         Log.v("MAPBOX", "marker added")
+        return true;
     }
 
-    override fun onExplanationNeeded(permissionsToExplain: List<String>) {
-        //
-    }
-
-    override fun onPermissionResult(granted: Boolean) {
-        if (granted) {
-            Log.v("Permission", "granted")
-            enableLocationPlugin()
-        } else {
-            Toast.makeText(this, "ahsd", Toast.LENGTH_LONG).show()
-            finish()
-        }
-    }
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+    /*override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         permissionsManager!!.onRequestPermissionsResult(requestCode, permissions, grantResults)
-    }
+    }*/
 }

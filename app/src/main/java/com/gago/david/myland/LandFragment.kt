@@ -57,7 +57,7 @@ class LandFragment
             recyclerView.layoutManager =
                 LinearLayoutManager(context)
             val emptyListView = view.findViewById<View>(R.id.land_list_empty)
-            adapter = MyLandRecyclerViewAdapter(lands, mListener, priorities, emptyListView)
+            adapter = MyLandRecyclerViewAdapter(lands, mListener, priorities, emptyListView, requireContext())
             recyclerView.adapter = adapter
         }
         //lands = new ArrayList<>();
@@ -66,7 +66,7 @@ class LandFragment
         val btn = view.findViewById<View>(R.id.add_land_button) as FloatingActionButton
         pageLoader = view.findViewById<View>(R.id.pageloader) as PageLoader
         btn.setOnClickListener {
-            val intent = Intent(context, AddLandActivity::class.java)
+            val intent = Intent(activity, AddLandActivity::class.java)
             startActivityForResult(intent, 1)
             pageLoader!!.startProgress()
         }
@@ -74,6 +74,7 @@ class LandFragment
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        Log.v("ACTIVITY_RESULT_FRAGMENT", requestCode.toString())
         if (requestCode == 1) {
             if (resultCode == Activity.RESULT_OK) {
                 val filename = data!!.getStringExtra("name")

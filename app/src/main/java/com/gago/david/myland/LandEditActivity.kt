@@ -47,7 +47,7 @@ class LandEditActivity : AppCompatActivity(), OnMenuItemInteractionListener {
     private lateinit var layers: Array<Drawable?>
     var photo: PhotoView? = null
     private var first = true
-    private var plantTypeList: ArrayList<PlantTypeObject?>? = null
+    private lateinit var plantTypeList: ArrayList<PlantTypeObject>
     private var addedPlants: Stack<PlantObject> = Stack()
     private var mContentView: View? = null
     private lateinit var removePlantButton: CircleImageView
@@ -103,12 +103,11 @@ class LandEditActivity : AppCompatActivity(), OnMenuItemInteractionListener {
         photo = mContentView as PhotoView?
         val b = intent.extras
         val name = b!!.getString("name")
-        land = readLand(name)
-        plantTypeList = readPlantTypes()
+        land = LandOpenHelper.readLandWithArea(name, this)
+        plantTypeList = LandOpenHelper.readPlantTypes(this)
 
-        //photo.setImageURI(Uri.parse(land.imageUri));
         layers = arrayOfNulls(2)
-        layers[0] = BitmapDrawable(resources, LandOpenHelper.getImage(land!!.imageUri))
+        layers[0] = BitmapDrawable(resources, LandOpenHelper.getImage(this, land!!.imageUri))
         layers[1] = ColorDrawable(Color.TRANSPARENT)
         photo!!.setImageDrawable(LayerDrawable(layers))
         photo!!.viewTreeObserver.addOnGlobalLayoutListener {
@@ -192,107 +191,11 @@ class LandEditActivity : AppCompatActivity(), OnMenuItemInteractionListener {
         photo!!.setImageDrawable(LayerDrawable(layers))
     }
 
-    private fun readLand(landName: String?): LandObject {
-        val mDbHelper = LandOpenHelper(applicationContext)
-        val db = mDbHelper.readableDatabase
-
-        // Define a projection that specifies which columns from the database
-        // you will actually use after this query.
-        val projection = arrayOf(
-                "Name",
-                "ImageUri",
-                "Description",
-                "Area"
-        )
-
-        // Filter results WHERE "title" = 'My Title'
-        val selection = "Name" + " = ?"
-        val selectionArgs = arrayOf(landName)
-
-        // How you want the results sorted in the resulting Cursor
-        val sortOrder: String? = null
-        val cursor = db.query(
-                "Lands",  // The table to query
-                projection,  // The array of columns to return (pass null to get all)
-                selection,  // The columns for the WHERE clause
-                selectionArgs,  // The values for the WHERE clause
-                null,  // don't group the rows
-                null,  // don't filter by row groups
-                sortOrder // The sort order
-        )
-        cursor.moveToFirst()
-        val l = LandObject(landName!!, cursor.getString(1), cursor.getString(2), cursor.getDouble(cursor.getColumnIndex("Area")))
-        cursor.close()
-        // Define a projection that specifies which columns from the database
-        // you will actually use after this query.
-        val projection2 = arrayOf(
-                "Id",
-                "Land",
-                "PlantType",
-                "Description",
-                "x",
-                "y"
-        )
-
-        // Filter results WHERE "title" = 'My Title'
-        val selection2 = "Land" + " = ?"
-
-        // How you want the results sorted in the resulting Cursor
-        val sortOrder2 = "Id ASC"
-        val cursor2 = db.query(
-                "Plants",  // The table to query
-                projection2,  // The array of columns to return (pass null to get all)
-                selection2,  // The columns for the WHERE clause
-                selectionArgs,  // The values for the WHERE clause
-                null,  // don't group the rows
-                null,  // don't filter by row groups
-                sortOrder2 // The sort order
-        )
-        while (cursor2.moveToNext())
-            l.addPlant(PlantObject(cursor2.getInt(1), cursor2.getString(2), cursor2.getString(3), cursor2.getFloat(4), cursor2.getFloat(5)))
-        cursor2.close()
-        db.close()
-        return l
-    }
-
-    private fun readPlantTypes(): ArrayList<PlantTypeObject?> {
-        val mDbHelper = LandOpenHelper(applicationContext)
-        val db = mDbHelper.readableDatabase
-
-        // Define a projection that specifies which columns from the database
-        // you will actually use after this query.
-        val projection = arrayOf(
-                "Name",
-                "Icon",
-                "Color"
-        )
-
-        // How you want the results sorted in the resulting Cursor
-        val sortOrder: String? = null
-        val cursor = db.query(
-                "PlantTypes",  // The table to query
-                projection,  // The array of columns to return (pass null to get all)
-                null,  // The columns for the WHERE clause
-                null,  // The values for the WHERE clause
-                null,  // don't group the rows
-                null,  // don't filter by row groups
-                sortOrder // The sort order
-        )
-        val plants = ArrayList<PlantTypeObject?>()
-        while (cursor.moveToNext()) {
-            val o = PlantTypeObject(cursor.getString(0), cursor.getInt(1), cursor.getString(2))
-            plants.add(o)
-        }
-        cursor.close()
-        db.close()
-        return plants
-    }
-
     private fun popupWindowsort(): PopupWindow {
 
         // initialize a pop up window type
         popupWindow = PopupWindow(applicationContext)
-        val sortList = readPlantTypes()
+        val sortList = LandOpenHelper.readPlantTypes(this)
         val adapter = PopupMenuAdapter(this, sortList)
         // the drop down list is a list view
         val listViewSort = ListView(this)

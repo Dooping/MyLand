@@ -57,7 +57,7 @@ class LandExporterHelper(private val context: Context) : SQLiteOpenHelper(contex
         val itemTypes: List<PlantTypeObject> = readPlantTypes(context)
         val tasks: MutableList<TaskObject> = ArrayList()
         for (land in lands) {
-            addImage(getImage(land.imageUri), land.imageUri)
+            addImage(getImage(context, land.imageUri), land.imageUri)
             writePlants(readPlants(context, land.name), land.name)
             tasks.addAll(readTasks(context, land.name))
         }
@@ -127,8 +127,9 @@ class LandExporterHelper(private val context: Context) : SQLiteOpenHelper(contex
         val db = writableDatabase
         for (p in itemTypes) {
             val values = ContentValues()
+            val iconName = context.resources.getResourceEntryName(p.icon)
             values.put(ItemTypeEntry.COLUMN_NAME, p.name)
-            values.put(ItemTypeEntry.COLUMN_ICON, p.icon)
+            values.put(ItemTypeEntry.COLUMN_ICON, iconName)
             values.put(ItemTypeEntry.COLUMN_COLOR, p.color)
             db.insert(ItemTypeEntry.TABLE_NAME, null, values)
         }
