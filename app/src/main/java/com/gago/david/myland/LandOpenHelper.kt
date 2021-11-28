@@ -943,6 +943,7 @@ Land VARCHAR NOT NULL,
             values.put("Priority", t.priority)
             values.put("CreationDate", t.creationDate.time)
             if (t.targetDate != null) values.put("ExpirationDate", t.targetDate!!.time)
+            values.put("Archived", t.archived)
             values.put("Completed", t.completed)
             values.put("Observations", t.observations)
 

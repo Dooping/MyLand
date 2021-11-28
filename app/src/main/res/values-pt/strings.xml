@@ -108,4 +108,5 @@
     <string name="toast_new_season_success">A nova temporada começou!</string>
     <string name="start_new_season_button">Começar nova temporada</string>
     <string name="taking_snapshot_text">A criar imagem...</string>
+    <string name="color_picker_title">Escolha a cor</string>
 </resources>

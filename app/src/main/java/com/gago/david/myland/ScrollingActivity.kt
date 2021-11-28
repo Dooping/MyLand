@@ -41,7 +41,6 @@ import com.gago.david.myland.models.TaskObject
 import com.gago.david.myland.models.*
 import com.lantouzi.wheelview.WheelView
 import com.lantouzi.wheelview.WheelView.OnWheelItemSelectedListener
-import java.text.DecimalFormat
 import java.text.MessageFormat
 import java.util.*
 import kotlin.math.roundToInt
@@ -49,6 +48,7 @@ import kotlin.math.roundToInt
 import androidx.appcompat.view.menu.MenuBuilder
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.progressindicator.LinearProgressIndicator
+import java.text.NumberFormat
 
 
 class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInteractionListener, NavigationView.OnNavigationItemSelectedListener, TaskEditFragment.OnFragmentInteractionListener {
@@ -203,8 +203,10 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
         })
         plantTypeList = LandOpenHelper.readPlantTypes(this)
         val unit = prefs.getInt("unit", 0) //0 is the default value.
-        val df = DecimalFormat("#.#")
-        val area = if (unit == 0) " (" + land!!.area.roundToInt() + "m\u00B2)" else " (" + df.format(land!!.area / 10000) + "ha)"
+        val area = when (unit) {
+            0 -> " (" + NumberFormat.getInstance().format(land!!.area.roundToInt()) + "m\u00B2)"
+            else -> " (" + NumberFormat.getInstance().format(land!!.area / 10000) + "ha)"
+        }
         title = ""
         landTitle = findViewById(R.id.land_title_size)
         landTitle?.text = MessageFormat.format("{0}{1}", land!!.name, if (land!!.area == 0.0) "" else area)
@@ -573,6 +575,7 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
             values.put("Priority", t.priority)
             values.put("CreationDate", t.creationDate.time)
             if (t.targetDate != null) values.put("ExpirationDate", t.targetDate!!.time)
+            values.put("Archived", t.archived)
             values.put("Completed", t.completed)
             values.put("Observations", t.observations)
 

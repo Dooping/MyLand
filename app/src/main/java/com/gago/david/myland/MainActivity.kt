@@ -29,10 +29,9 @@ import com.gago.david.myland.adapters.TaskTypeAdapter
 import com.gago.david.myland.models.LandObject
 import com.gago.david.myland.models.PlantTypeObject
 import com.gago.david.myland.models.TaskTypeObject
-import com.jaredrummler.android.colorpicker.ColorPickerDialogListener
 import java.util.*
 
-class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, LandFragment.OnListFragmentInteractionListener, AddLandDetailsFragment.OnFragmentInteractionListener, SettingsFragment.OnListFragmentInteractionListener, OnTaskListFragmentInteractionListener, EditTaskTypeFragment.OnFragmentInteractionListener, EditItemTypeFragment.OnFragmentInteractionListener, ColorPickerDialogListener {
+class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, LandFragment.OnListFragmentInteractionListener, AddLandDetailsFragment.OnFragmentInteractionListener, SettingsFragment.OnListFragmentInteractionListener, OnTaskListFragmentInteractionListener, EditTaskTypeFragment.OnFragmentInteractionListener, EditItemTypeFragment.OnFragmentInteractionListener {
     private var logout = false
     private var tasks: ArrayList<TaskTypeObject>? = null
     private var taskTypeAdapter: TaskTypeAdapter? = null
@@ -338,14 +337,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
     }
 
-    override fun onColorSelected(dialogId: Int, color: Int) {
+    fun onColorSelected(color: Int) {
         val strColor = String.format("#%06X", 0xFFFFFF and color)
         if (fragment is EditItemTypeFragment) {
             (fragment as EditItemTypeFragment).setColor(strColor)
         }
     }
-
-    override fun onDialogDismissed(dialogId: Int) {}
 
     companion object {
         private const val INTENT_USER = "user"

@@ -15,12 +15,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.ImageView
-import androidx.appcompat.view.ContextThemeWrapper
 import androidx.core.content.res.ResourcesCompat
 import br.com.bloder.magic.view.MagicButton
 import com.gago.david.myland.adapters.ImageAdapter
+import com.gago.david.myland.fragments.ColorPickerDialogFragment
 import com.gago.david.myland.models.PlantTypeObject
-import com.jaredrummler.android.colorpicker.ColorPickerDialog
 import java.util.*
 
 /**
@@ -76,13 +75,8 @@ class EditItemTypeFragment : Fragment() {
         imageView.setColorFilter(Color.parseColor(tintColor), PorterDuff.Mode.SRC_IN)
         editIcon.setMagicButtonClickListener { showAlertDialog() }
         editColor.setMagicButtonClickListener {
-            val contextThemeWrapper = ContextThemeWrapper(activity, R.style.Theme_AppCompat_Light)
-            ColorPickerDialog.newBuilder()
-                    .setDialogType(ColorPickerDialog.TYPE_PRESETS)
-                    .setDialogId(0)
-                    .setColor(Color.parseColor(tintColor))
-                    .setShowAlphaSlider(false)
-                    .show(activity)
+            val colorPickerDialogFragment = ColorPickerDialogFragment(tintColor)
+            colorPickerDialogFragment.show(childFragmentManager, "color_picker")
         }
         button.setOnClickListener {
             item.name = nameView.text.toString()
@@ -130,6 +124,7 @@ class EditItemTypeFragment : Fragment() {
     }
 
     fun setColor(color: String?) {
+        Log.v("COLOR", color!!)
         imageView.setColorFilter(Color.parseColor(color), PorterDuff.Mode.SRC_IN)
         tintColor = color
     }
