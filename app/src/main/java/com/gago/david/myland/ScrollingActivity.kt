@@ -46,6 +46,7 @@ import java.util.*
 import kotlin.math.roundToInt
 
 import androidx.appcompat.view.menu.MenuBuilder
+import com.gago.david.myland.fragments.DeleteItemDialogFragment
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.progressindicator.LinearProgressIndicator
 import java.text.NumberFormat
@@ -442,30 +443,21 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
             plantTypeObject = pl
             break
         }
-        val alertDialog = AlertDialog.Builder(view.rootView.context)
-        alertDialog.setTitle(p.plantType)
-        alertDialog.setMessage(R.string.remove_tree)
-        val filter: ColorFilter = PorterDuffColorFilter(Color.parseColor(plantTypeObject!!.color), PorterDuff.Mode.SRC_IN)
-        val icon = view.rootView.context.resources.getDrawable(plantTypeObject.icon, theme)
-        icon.colorFilter = filter
-        alertDialog.setIcon(icon)
-        alertDialog.setPositiveButton(R.string.yes
-        ) { _: DialogInterface?, _: Int ->
-            val plant:PlantObject = land!!.plants[selected - 2 - plantGroups?.keys!!.size]
-            LandOpenHelper.deletePlantObject(this, plant)
-            val id = plant.id
-            selected--
-            val iterator = tasks.iterator()
-            while (iterator.hasNext()) {
-                val t = iterator.next()
-                if (t.plantIndex != null && t.plantIndex == id) iterator.remove()
-            }
-            filter()
-            initiateStuff()
+        DeleteItemDialogFragment(plantTypeObject!!).show(supportFragmentManager, "delete-item-dialog")
+    }
+
+    fun deleteSelectedItem() {
+        val plant: PlantObject = land!!.plants[selected - 2 - plantGroups?.keys!!.size]
+        LandOpenHelper.deletePlantObject(this, plant)
+        val id = plant.id
+        selected--
+        val iterator = tasks.iterator()
+        while (iterator.hasNext()) {
+            val t = iterator.next()
+            if (t.plantIndex != null && t.plantIndex == id) iterator.remove()
         }
-        alertDialog.setNegativeButton(R.string.no
-        ) { dialog: DialogInterface, _: Int -> dialog.cancel() }
-        alertDialog.show()
+        filter()
+        initiateStuff()
     }
 
     private fun deleteLand(view: View) {
