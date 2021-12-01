@@ -1,9 +1,7 @@
 package com.gago.david.myland
 
 import android.annotation.SuppressLint
-import android.app.AlertDialog
 import android.content.ContentValues
-import android.content.DialogInterface
 import android.graphics.*
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.ColorDrawable
@@ -22,6 +20,7 @@ import android.view.WindowManager
 import android.widget.*
 import com.gago.david.myland.adapters.PopupMenuAdapter
 import com.gago.david.myland.adapters.PopupMenuAdapter.OnMenuItemInteractionListener
+import com.gago.david.myland.fragments.AddItemDialogFragment
 import com.gago.david.myland.models.LandContract
 import com.gago.david.myland.models.LandObject
 import com.gago.david.myland.models.PlantObject
@@ -271,32 +270,17 @@ class LandEditActivity : AppCompatActivity(), OnMenuItemInteractionListener {
 
     override fun onMenuItemInteraction(item: PlantTypeObject?) {
         popupWindow!!.dismiss()
-        val alertDialog = AlertDialog.Builder(this)
-        alertDialog.setTitle(item!!.name)
-        alertDialog.setMessage(R.string.state)
-        val input = EditText(this)
-        val lp = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.MATCH_PARENT)
-        input.layoutParams = lp
-        alertDialog.setView(input)
-        val filter: ColorFilter = PorterDuffColorFilter(Color.parseColor(item.color), PorterDuff.Mode.SRC_IN)
-        val icon = resources.getDrawable(item.icon)
-        icon.colorFilter = filter
-        alertDialog.setIcon(icon)
-        alertDialog.setPositiveButton("OK"
-        ) { _, _ ->
-            val p = PlantObject(item.name, input.text.toString(), tempX, tempY)
-            land!!.addPlant(p)
-            addedPlants.push(p)
-            addPlantQuery(p)
-            drawTrees()
-            removePlantButton.circleBackgroundColor = Color.RED
-            Log.v("plant", land.toString())
-        }
-        alertDialog.setNegativeButton(resources.getString(R.string.cancel)
-        ) { dialog: DialogInterface, _: Int -> dialog.cancel() }
-        alertDialog.show()
+        AddItemDialogFragment(item!!).show(supportFragmentManager, "add-item-dialog")
+    }
+
+    fun addItemDialogOkButton(description: String, plantTypeName: String) {
+        val p = PlantObject(plantTypeName, description, tempX, tempY)
+        land!!.addPlant(p)
+        addedPlants.push(p)
+        addPlantQuery(p)
+        drawTrees()
+        removePlantButton.circleBackgroundColor = Color.RED
+        Log.v("plant", land.toString())
     }
 
     private fun addPlantQuery(p: PlantObject) {

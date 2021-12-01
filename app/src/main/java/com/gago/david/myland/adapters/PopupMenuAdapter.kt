@@ -30,7 +30,6 @@ class PopupMenuAdapter(context: Context, objects: List<PlantTypeObject?>) : Arra
         // Populate the data into the template view using the data object
         icon?.setImageResource(plant!!.icon)
         icon?.colorFilter = BlendModeColorFilterCompat.createBlendModeColorFilterCompat(Color.parseColor(plant?.color), BlendModeCompat.SRC_IN)
-        Log.v("popup", Color.parseColor(plant?.color).toString())
         plantText?.text = plant?.name
         newConvertView?.setOnClickListener { mListener?.onMenuItemInteraction(plant) }
         // Return the completed view to render on screen
@@ -43,6 +42,5 @@ class PopupMenuAdapter(context: Context, objects: List<PlantTypeObject?>) : Arra
 
     init {
         mListener = context as OnMenuItemInteractionListener
-        Log.v("POPUP", objects.toString())
     }
 }

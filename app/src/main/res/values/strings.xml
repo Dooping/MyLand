@@ -206,4 +206,5 @@
     <string name="start_new_season_button">Start new season</string>
     <string name="taking_snapshot_text">Creating image...</string>
     <string name="color_picker_title">Pick a color</string>
+    <string name="add_item_dialog_state_hints">In danger of falling, near road, etc...</string>
 </resources>
