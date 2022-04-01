@@ -12,8 +12,12 @@ class LandObject {
     var plants: ArrayList<PlantObject>
     var totalTasks: Int = 0
     var user: String
+    var lat: Double = 0.0
+    var lon: Double = 0.0
+    var zoom: Double = 0.0
+    var bearing: Double = 0.0
 
-    constructor(name: String, imageUri: String, description: String, area: Double) {
+    constructor(name: String, imageUri: String, description: String, area: Double, lat: Double, lon: Double, zoom: Double, bearing: Double) {
         this.name = name
         this.imageUri = imageUri
         this.description = description
@@ -21,6 +25,10 @@ class LandObject {
         plants = ArrayList()
         totalTasks = 0
         this.user = ""
+        this.lat = lat
+        this.lon = lon
+        this.zoom = zoom
+        this.bearing = bearing
     }
 
     constructor(name: String, imageUri: String, description: String, user: String) {
@@ -33,7 +41,7 @@ class LandObject {
         totalTasks = 0
     }
 
-    constructor(name: String, imageUri: String, description: String, notifications: Int, priority: Int, area: Double) {
+    constructor(name: String, imageUri: String, description: String, notifications: Int, priority: Int, area: Double, lat: Double, lon: Double, zoom: Double, bearing: Double) {
         this.name = name
         this.imageUri = imageUri
         this.description = description
@@ -42,6 +50,10 @@ class LandObject {
         this.priority = priority
         this.area = area
         this.user = ""
+        this.lat = lat
+        this.lon = lon
+        this.zoom = zoom
+        this.bearing = bearing
     }
 
     fun addPlant(plant: PlantObject) {
@@ -53,14 +65,21 @@ class LandObject {
     }
 
     override fun toString(): String {
-        return "LandObject{" +
-                "name='" + name + '\'' +
-                ", imageUri='" + imageUri + '\'' +
-                ", Description='" + description + '\'' +
-                ", notifications=" + notifications + '\'' +
-                ", totalTasks=" + totalTasks + '\'' +
-                ", priority=" + priority + '\'' +
-                ", plants=" + plants + '\'' +
-                '}'
+        return "LandObject(" +
+                "name='$name', " +
+                "imageUri='$imageUri', " +
+                "description='$description', " +
+                "area=$area, " +
+                "notifications=$notifications, " +
+                "priority=$priority, " +
+                "plants=$plants, " +
+                "totalTasks=$totalTasks, " +
+                "user='$user', " +
+                "lat=$lat, " +
+                "lon=$lon, " +
+                "zoom=$zoom, " +
+                "bearing=$bearing" +
+                ")"
     }
+
 }

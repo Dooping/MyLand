@@ -57,6 +57,8 @@ class LandOpenHelper(private val context: Context) : SQLiteOpenHelper(context, L
             upgradeVersion12(db)
         if (oldVersion < 13)
             upgradeVersion13(db)
+        if (oldVersion < 14)
+            upgradeVersion14(db)
         else if (oldVersion < newVersion) {
             dropDatabase(db)
             onCreate(db)
@@ -222,6 +224,7 @@ Land VARCHAR NOT NULL,
             it.imageUri = filename
             addImage(context, image, filename)
             updateLand(db, it)
+            Log.v("DATABASE", "updated to version 13")
         }
     }
 
@@ -267,12 +270,20 @@ Land VARCHAR NOT NULL,
         )
     }
 
+    private fun upgradeVersion14(db: SQLiteDatabase) {
+        db.execSQL("ALTER TABLE ${LandContract.LandEntry.TABLE_NAME} ADD COLUMN ${LandContract.LandEntry.COLUMN_BEARING} Double default 0;")
+        db.execSQL("ALTER TABLE ${LandContract.LandEntry.TABLE_NAME} ADD COLUMN ${LandContract.LandEntry.COLUMN_CENTER_LAT} Float default 0;")
+        db.execSQL("ALTER TABLE ${LandContract.LandEntry.TABLE_NAME} ADD COLUMN ${LandContract.LandEntry.COLUMN_CENTER_LON} Float default 0;")
+        db.execSQL("ALTER TABLE ${LandContract.LandEntry.TABLE_NAME} ADD COLUMN ${LandContract.LandEntry.COLUMN_ZOOM} Float default 0;")
+        Log.v("DATABASE", "updated to version 14")
+    }
+
     override fun onConfigure(db: SQLiteDatabase) {
         db.setForeignKeyConstraintsEnabled(true)
     }
 
     companion object {
-        private const val DATABASE_VERSION = 13
+        private const val DATABASE_VERSION = 14
         private const val LAND_TABLE_NAME = "myland.db"
 
         fun getImage(context: Context, uri: String?): Bitmap? {
@@ -538,7 +549,11 @@ Land VARCHAR NOT NULL,
                 "Lands.Description as 'Description'",
                 "count('Tasks'.Land) as 'Notification'",
                 "min('Tasks'.Priority) as 'Priority'",
-                LandContract.LandEntry.COLUMN_AREA
+                LandContract.LandEntry.COLUMN_AREA,
+                LandContract.LandEntry.COLUMN_CENTER_LAT,
+                LandContract.LandEntry.COLUMN_CENTER_LON,
+                LandContract.LandEntry.COLUMN_ZOOM,
+                LandContract.LandEntry.COLUMN_BEARING
             )
 
             // How you want the results sorted in the resulting Cursor
@@ -569,6 +584,10 @@ Land VARCHAR NOT NULL,
                     cursor.getInt(cursor.getColumnIndex("Notification")),
                     priority,
                     cursor.getDouble(cursor.getColumnIndex(LandContract.LandEntry.COLUMN_AREA)),
+                    cursor.getDouble(cursor.getColumnIndex(LandContract.LandEntry.COLUMN_CENTER_LAT)),
+                    cursor.getDouble(cursor.getColumnIndex(LandContract.LandEntry.COLUMN_CENTER_LON)),
+                    cursor.getDouble(cursor.getColumnIndex(LandContract.LandEntry.COLUMN_ZOOM)),
+                    cursor.getDouble(cursor.getColumnIndex(LandContract.LandEntry.COLUMN_BEARING))
                 )
                 o.totalTasks = getTotalTasksFromLand(context, o)
                 lands.add(o)
@@ -587,10 +606,14 @@ Land VARCHAR NOT NULL,
             // Define a projection that specifies which columns from the database
             // you will actually use after this query.
             val projection = arrayOf(
-                "Name",
-                "ImageUri",
-                "Description",
-                "Area"
+                LandContract.LandEntry.COLUMN_NAME,
+                LandContract.LandEntry.COLUMN_IMAGE,
+                LandContract.LandEntry.COLUMN_DESCRIPTION,
+                LandContract.LandEntry.COLUMN_AREA,
+                LandContract.LandEntry.COLUMN_CENTER_LAT,
+                LandContract.LandEntry.COLUMN_CENTER_LON,
+                LandContract.LandEntry.COLUMN_ZOOM,
+                LandContract.LandEntry.COLUMN_BEARING
             )
 
             // Filter results WHERE "title" = 'My Title'
@@ -609,7 +632,14 @@ Land VARCHAR NOT NULL,
                 sortOrder // The sort order
             )
             cursor.moveToFirst()
-            val l = LandObject(landName!!, cursor.getString(1), cursor.getString(2), cursor.getDouble(cursor.getColumnIndex("Area")))
+            val l = LandObject(landName!!,
+                cursor.getString(cursor.getColumnIndex(LandContract.LandEntry.COLUMN_IMAGE)),
+                cursor.getString(cursor.getColumnIndex(LandContract.LandEntry.COLUMN_DESCRIPTION)),
+                cursor.getDouble(cursor.getColumnIndex(LandContract.LandEntry.COLUMN_AREA)),
+                cursor.getDouble(cursor.getColumnIndex(LandContract.LandEntry.COLUMN_CENTER_LAT)),
+                cursor.getDouble(cursor.getColumnIndex(LandContract.LandEntry.COLUMN_CENTER_LON)),
+                cursor.getDouble(cursor.getColumnIndex(LandContract.LandEntry.COLUMN_ZOOM)),
+                cursor.getDouble(cursor.getColumnIndex(LandContract.LandEntry.COLUMN_BEARING)))
             cursor.close()
             // Define a projection that specifies which columns from the database
             // you will actually use after this query.
@@ -872,6 +902,10 @@ Land VARCHAR NOT NULL,
             values.put("ImageUri", l.imageUri)
             values.put("Description", l.description)
             values.put("Area", l.area)
+            values.put("center_lat", l.lat)
+            values.put("center_lon", l.lon)
+            values.put("zoom", l.zoom)
+            values.put("bearing", l.bearing)
             values.put("User", user)
 
 // Insert the new row, returning the primary key value of the new row

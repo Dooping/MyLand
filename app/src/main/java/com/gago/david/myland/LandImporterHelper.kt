@@ -1,5 +1,6 @@
 package com.gago.david.myland
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
@@ -95,6 +96,7 @@ class LandImporterHelper(private val context: Context) : SQLiteOpenHelper(contex
         return true
     }
 
+    @SuppressLint("Range")
     private fun getImage(name: String): Bitmap? {
         val db = readableDatabase
         val projection = arrayOf(
@@ -191,6 +193,7 @@ class LandImporterHelper(private val context: Context) : SQLiteOpenHelper(contex
         return plants
     }
 
+    @SuppressLint("Range")
     private fun readLands(): List<LandObject> {
         val db = readableDatabase
 
@@ -200,7 +203,11 @@ class LandImporterHelper(private val context: Context) : SQLiteOpenHelper(contex
                 LandEntry.COLUMN_NAME,
                 LandEntry.COLUMN_IMAGE,
                 LandEntry.COLUMN_DESCRIPTION,
-                LandEntry.COLUMN_AREA
+                LandEntry.COLUMN_AREA,
+                LandEntry.COLUMN_CENTER_LAT,
+                LandEntry.COLUMN_CENTER_LON,
+                LandEntry.COLUMN_ZOOM,
+                LandEntry.COLUMN_BEARING
         )
         val cursor = db.query(
                 LandEntry.TABLE_NAME,  // The table to query
@@ -218,7 +225,16 @@ class LandImporterHelper(private val context: Context) : SQLiteOpenHelper(contex
         );*/
         val lands: MutableList<LandObject> = ArrayList()
         while (cursor.moveToNext()) {
-            val o = LandObject(cursor.getString(cursor.getColumnIndex(LandEntry.COLUMN_NAME)), cursor.getString(cursor.getColumnIndex(LandEntry.COLUMN_IMAGE)), cursor.getString(cursor.getColumnIndex(LandEntry.COLUMN_DESCRIPTION)), cursor.getDouble(cursor.getColumnIndex(LandEntry.COLUMN_AREA)))
+            val o = LandObject(
+                cursor.getString(cursor.getColumnIndex(LandEntry.COLUMN_NAME)),
+                cursor.getString(cursor.getColumnIndex(LandEntry.COLUMN_IMAGE)),
+                cursor.getString(cursor.getColumnIndex(LandEntry.COLUMN_DESCRIPTION)),
+                cursor.getDouble(cursor.getColumnIndex(LandEntry.COLUMN_AREA)),
+                cursor.getDouble(cursor.getColumnIndex(LandEntry.COLUMN_CENTER_LAT)),
+                cursor.getDouble(cursor.getColumnIndex(LandEntry.COLUMN_CENTER_LON)),
+                cursor.getDouble(cursor.getColumnIndex(LandEntry.COLUMN_ZOOM)),
+                cursor.getDouble(cursor.getColumnIndex(LandEntry.COLUMN_BEARING))
+            )
             lands.add(o)
         }
 
@@ -228,6 +244,7 @@ class LandImporterHelper(private val context: Context) : SQLiteOpenHelper(contex
         return lands
     }
 
+    @SuppressLint("Range")
     private fun readPlants(name: String): ArrayList<PlantObject> {
         val db = readableDatabase
         val projection2 = arrayOf(
@@ -262,6 +279,7 @@ class LandImporterHelper(private val context: Context) : SQLiteOpenHelper(contex
         return plants
     }
 
+    @SuppressLint("Range")
     private fun readTasks(land: String): ArrayList<TaskObject> {
         val db = readableDatabase
 

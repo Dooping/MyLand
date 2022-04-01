@@ -137,12 +137,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         setTitle(title)
     }
 
-    fun addLandDetails(filename: String?, area: Double?) {
+    fun addLandDetails(filename: String?, area: Double, lat: Double, lon: Double, zoom: Double, bearing: Double) {
         setActionBarTitle("Land Details")
         val fragment: Fragment = AddLandDetailsFragment()
         val args = Bundle()
         args.putString("filename", filename)
-        args.putDouble("area", area!!)
+        args.putDouble("area", area)
+        args.putDouble("lat", lat)
+        args.putDouble("lon", lon)
+        args.putDouble("zoom", zoom)
+        args.putDouble("bearing", bearing)
         fragment.arguments = args
         supportFragmentManager.beginTransaction()
                 .replace(R.id.fragment_container, fragment).addToBackStack("main").commit()

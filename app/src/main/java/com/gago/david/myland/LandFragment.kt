@@ -79,7 +79,11 @@ class LandFragment
             if (resultCode == Activity.RESULT_OK) {
                 val filename = data!!.getStringExtra("name")
                 val area = data.getDoubleExtra("area", 0.0)
-                (activity as MainActivity?)!!.addLandDetails(filename, area)
+                val lat = data.getDoubleExtra("lat", 0.0)
+                val lon = data.getDoubleExtra("lon", 0.0)
+                val zoom = data.getDoubleExtra("zoom", 0.0)
+                val bearing = data.getDoubleExtra("bearing", 0.0)
+                (activity as MainActivity?)!!.addLandDetails(filename, area, lat, lon, zoom, bearing)
             }
         }
     }

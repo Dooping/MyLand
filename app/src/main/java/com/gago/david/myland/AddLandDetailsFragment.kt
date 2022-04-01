@@ -34,6 +34,10 @@ class AddLandDetailsFragment : Fragment() {
 
     private var imageUri: String? = null
     private var area: Double? = null
+    private var lat: Double? = null
+    private var lon: Double? = null
+    private var zoom: Double? = null
+    private var bearing: Double? = null
     private var created = false
     private var mListener: OnFragmentInteractionListener? = null
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,7 +52,10 @@ class AddLandDetailsFragment : Fragment() {
                               savedInstanceState: Bundle?): View? {
         imageUri = requireArguments().getString("filename")
         area = requireArguments().getDouble("area")
-        Log.v("ADDDETAIL", imageUri!!)
+        lat = requireArguments().getDouble("lat", 0.0)
+        lon = requireArguments().getDouble("lon", 0.0)
+        zoom = requireArguments().getDouble("zoom", 0.0)
+        bearing = requireArguments().getDouble("bearing", 0.0)
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_add_land_details, container, false)
         image = view.findViewById(R.id.land_detail_image)
@@ -61,8 +68,24 @@ class AddLandDetailsFragment : Fragment() {
     }
 
     private fun addLandQuery() {
-        val success = LandOpenHelper.addLand(requireContext(), LandObject(name.text.toString(), imageUri!!, description.text.toString(), area!!))
-        if (!success) Toast.makeText(context, "Land already exists, choose a different name", Toast.LENGTH_SHORT).show() else {
+        val success = LandOpenHelper.addLand(
+            requireContext(),
+            LandObject(
+                name.text.toString(),
+                imageUri!!,
+                description.text.toString(),
+                area!!,
+                lat!!,
+                lon!!,
+                zoom!!,
+                bearing!!
+            )
+        )
+        if (!success) Toast.makeText(
+            context,
+            "Land already exists, choose a different name",
+            Toast.LENGTH_SHORT
+        ).show() else {
             created = true
             val intent = Intent(context, ScrollingActivity::class.java)
             val b = Bundle()

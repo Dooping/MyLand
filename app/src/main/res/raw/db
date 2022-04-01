@@ -14,6 +14,10 @@ CREATE TABLE IF NOT EXISTS Lands(
 	Description TEXT,
 	Area Double DEFAULT 0,
 	User VARCHAR DEFAULT null,
+	bearing DOUBLE default 0,
+	center_lat FLOAT default 0,
+	center_lon FLOAT default 0,
+	zoom FLOAT default 0,
 	primary key (Name, User),
     FOREIGN KEY(User) REFERENCES Users(Name) ON DELETE CASCADE
 	);

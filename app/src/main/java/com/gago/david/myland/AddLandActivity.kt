@@ -109,6 +109,12 @@ class AddLandActivity : AppCompatActivity() {
 
     private fun startSnapShot() {
         mapboxMap.getStyle { style ->
+            val latitude = mapboxMap.cameraState.center.latitude()
+            val longitude = mapboxMap.cameraState.center.longitude()
+            val zoom = mapboxMap.cameraState.zoom
+            val bearing = mapboxMap.cameraState.bearing
+
+
             val polygonGeoJSON = Polygon.fromLngLats(listOf(polygon))
             area = TurfMeasurement.area(polygonGeoJSON)
             val snapshotter = buildSnapshotter(style, polygonGeoJSON)
@@ -121,8 +127,10 @@ class AddLandActivity : AppCompatActivity() {
                     //---set the data to pass back---
                     data.putExtra("name", filename)
                     data.putExtra("area", area)
-                    Log.v("MAPBOX", "fileUri: $filename")
-                    Log.v("MAPBOX", "area: $area")
+                    data.putExtra("lat", latitude)
+                    data.putExtra("lon", longitude)
+                    data.putExtra("zoom", zoom)
+                    data.putExtra("bearing", bearing)
                     setResult(RESULT_OK, data)
                     //---close the activity---
                     finish()

@@ -91,6 +91,10 @@ class LandExporterHelper(private val context: Context) : SQLiteOpenHelper(contex
             values.put(LandEntry.COLUMN_IMAGE, land.imageUri)
             values.put(LandEntry.COLUMN_DESCRIPTION, land.description)
             values.put(LandEntry.COLUMN_AREA, land.area)
+            values.put(LandEntry.COLUMN_CENTER_LAT, land.lat)
+            values.put(LandEntry.COLUMN_CENTER_LON, land.lon)
+            values.put(LandEntry.COLUMN_ZOOM, land.zoom)
+            values.put(LandEntry.COLUMN_BEARING, land.bearing)
             db.insert(LandEntry.TABLE_NAME, null, values)
         }
         close()
