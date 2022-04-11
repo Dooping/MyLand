@@ -83,7 +83,8 @@ class LandFragment
                 val lon = data.getDoubleExtra("lon", 0.0)
                 val zoom = data.getDoubleExtra("zoom", 0.0)
                 val bearing = data.getDoubleExtra("bearing", 0.0)
-                (activity as MainActivity?)!!.addLandDetails(filename, area, lat, lon, zoom, bearing)
+                val polygon = data.getStringExtra("polygon")
+                (activity as MainActivity?)!!.addLandDetails(filename, area, lat, lon, zoom, bearing, polygon)
             }
         }
     }

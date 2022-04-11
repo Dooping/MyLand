@@ -11,7 +11,7 @@
 
     <!-- Set the starting camera position and map style using xml-->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/add_marker"
+        android:id="@+id/place_object"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
@@ -34,7 +34,7 @@
         tools:visibility="visible" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/remove_marker"
+        android:id="@+id/remove_object"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_above="@+id/saveButton"
@@ -70,7 +70,7 @@
     <com.mapbox.maps.MapView
         android:id="@+id/mapView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent" />
 
     <id.arieridwan.lib.PageLoader
         android:id="@+id/pageloader"

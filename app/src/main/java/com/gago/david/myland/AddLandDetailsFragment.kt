@@ -38,6 +38,7 @@ class AddLandDetailsFragment : Fragment() {
     private var lon: Double? = null
     private var zoom: Double? = null
     private var bearing: Double? = null
+    private var polygon: String? = null
     private var created = false
     private var mListener: OnFragmentInteractionListener? = null
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,6 +57,7 @@ class AddLandDetailsFragment : Fragment() {
         lon = requireArguments().getDouble("lon", 0.0)
         zoom = requireArguments().getDouble("zoom", 0.0)
         bearing = requireArguments().getDouble("bearing", 0.0)
+        polygon = requireArguments().getString("polygon", "")
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_add_land_details, container, false)
         image = view.findViewById(R.id.land_detail_image)
@@ -78,7 +80,8 @@ class AddLandDetailsFragment : Fragment() {
                 lat!!,
                 lon!!,
                 zoom!!,
-                bearing!!
+                bearing!!,
+                polygon!!
             )
         )
         if (!success) Toast.makeText(

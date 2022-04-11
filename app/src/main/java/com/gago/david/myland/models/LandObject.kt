@@ -16,8 +16,9 @@ class LandObject {
     var lon: Double = 0.0
     var zoom: Double = 0.0
     var bearing: Double = 0.0
+    var polygon: String?
 
-    constructor(name: String, imageUri: String, description: String, area: Double, lat: Double, lon: Double, zoom: Double, bearing: Double) {
+    constructor(name: String, imageUri: String, description: String, area: Double, lat: Double, lon: Double, zoom: Double, bearing: Double, polygon: String) {
         this.name = name
         this.imageUri = imageUri
         this.description = description
@@ -29,6 +30,7 @@ class LandObject {
         this.lon = lon
         this.zoom = zoom
         this.bearing = bearing
+        this.polygon = polygon
     }
 
     constructor(name: String, imageUri: String, description: String, user: String) {
@@ -39,9 +41,10 @@ class LandObject {
         this.user = user
         plants = ArrayList()
         totalTasks = 0
+        polygon = null
     }
 
-    constructor(name: String, imageUri: String, description: String, notifications: Int, priority: Int, area: Double, lat: Double, lon: Double, zoom: Double, bearing: Double) {
+    constructor(name: String, imageUri: String, description: String, notifications: Int, priority: Int, area: Double, lat: Double, lon: Double, zoom: Double, bearing: Double, polygon: String) {
         this.name = name
         this.imageUri = imageUri
         this.description = description
@@ -54,6 +57,7 @@ class LandObject {
         this.lon = lon
         this.zoom = zoom
         this.bearing = bearing
+        this.polygon = polygon
     }
 
     fun addPlant(plant: PlantObject) {

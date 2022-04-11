@@ -12,6 +12,7 @@ object LandContract {
         const val COLUMN_AREA = "Area"
         const val COLUMN_USER = "User"
         const val COLUMN_BEARING = "bearing"
+        const val COLUMN_POLYGON = "polygon"
         const val COLUMN_CENTER_LAT = "center_lat"
         const val COLUMN_CENTER_LON = "center_lon"
         const val COLUMN_ZOOM = "zoom"

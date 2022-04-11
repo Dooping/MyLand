@@ -200,14 +200,15 @@ class LandImporterHelper(private val context: Context) : SQLiteOpenHelper(contex
         // Define a projection that specifies which columns from the database
         // you will actually use after this query.
         val projection = arrayOf(
-                LandEntry.COLUMN_NAME,
-                LandEntry.COLUMN_IMAGE,
-                LandEntry.COLUMN_DESCRIPTION,
-                LandEntry.COLUMN_AREA,
-                LandEntry.COLUMN_CENTER_LAT,
-                LandEntry.COLUMN_CENTER_LON,
-                LandEntry.COLUMN_ZOOM,
-                LandEntry.COLUMN_BEARING
+            LandEntry.COLUMN_NAME,
+            LandEntry.COLUMN_IMAGE,
+            LandEntry.COLUMN_DESCRIPTION,
+            LandEntry.COLUMN_AREA,
+            LandEntry.COLUMN_CENTER_LAT,
+            LandEntry.COLUMN_CENTER_LON,
+            LandEntry.COLUMN_ZOOM,
+            LandEntry.COLUMN_BEARING,
+            LandEntry.COLUMN_POLYGON
         )
         val cursor = db.query(
                 LandEntry.TABLE_NAME,  // The table to query
@@ -233,7 +234,8 @@ class LandImporterHelper(private val context: Context) : SQLiteOpenHelper(contex
                 cursor.getDouble(cursor.getColumnIndex(LandEntry.COLUMN_CENTER_LAT)),
                 cursor.getDouble(cursor.getColumnIndex(LandEntry.COLUMN_CENTER_LON)),
                 cursor.getDouble(cursor.getColumnIndex(LandEntry.COLUMN_ZOOM)),
-                cursor.getDouble(cursor.getColumnIndex(LandEntry.COLUMN_BEARING))
+                cursor.getDouble(cursor.getColumnIndex(LandEntry.COLUMN_BEARING)),
+                cursor.getString(cursor.getColumnIndex(LandEntry.COLUMN_POLYGON))
             )
             lands.add(o)
         }

@@ -59,6 +59,8 @@ class LandOpenHelper(private val context: Context) : SQLiteOpenHelper(context, L
             upgradeVersion13(db)
         if (oldVersion < 14)
             upgradeVersion14(db)
+        if (oldVersion < 15)
+            upgradeVersion15(db)
         else if (oldVersion < newVersion) {
             dropDatabase(db)
             onCreate(db)
@@ -278,12 +280,17 @@ Land VARCHAR NOT NULL,
         Log.v("DATABASE", "updated to version 14")
     }
 
+    private fun upgradeVersion15(db: SQLiteDatabase) {
+        db.execSQL("ALTER TABLE ${LandContract.LandEntry.TABLE_NAME} ADD COLUMN ${LandContract.LandEntry.COLUMN_POLYGON} VARCHAR;")
+        Log.v("DATABASE", "updated to version 14")
+    }
+
     override fun onConfigure(db: SQLiteDatabase) {
         db.setForeignKeyConstraintsEnabled(true)
     }
 
     companion object {
-        private const val DATABASE_VERSION = 14
+        private const val DATABASE_VERSION = 15
         private const val LAND_TABLE_NAME = "myland.db"
 
         fun getImage(context: Context, uri: String?): Bitmap? {
@@ -553,7 +560,8 @@ Land VARCHAR NOT NULL,
                 LandContract.LandEntry.COLUMN_CENTER_LAT,
                 LandContract.LandEntry.COLUMN_CENTER_LON,
                 LandContract.LandEntry.COLUMN_ZOOM,
-                LandContract.LandEntry.COLUMN_BEARING
+                LandContract.LandEntry.COLUMN_BEARING,
+                LandContract.LandEntry.COLUMN_POLYGON
             )
 
             // How you want the results sorted in the resulting Cursor
@@ -587,7 +595,8 @@ Land VARCHAR NOT NULL,
                     cursor.getDouble(cursor.getColumnIndex(LandContract.LandEntry.COLUMN_CENTER_LAT)),
                     cursor.getDouble(cursor.getColumnIndex(LandContract.LandEntry.COLUMN_CENTER_LON)),
                     cursor.getDouble(cursor.getColumnIndex(LandContract.LandEntry.COLUMN_ZOOM)),
-                    cursor.getDouble(cursor.getColumnIndex(LandContract.LandEntry.COLUMN_BEARING))
+                    cursor.getDouble(cursor.getColumnIndex(LandContract.LandEntry.COLUMN_BEARING)),
+                    cursor.getString(cursor.getColumnIndex(LandContract.LandEntry.COLUMN_POLYGON))
                 )
                 o.totalTasks = getTotalTasksFromLand(context, o)
                 lands.add(o)
@@ -613,7 +622,8 @@ Land VARCHAR NOT NULL,
                 LandContract.LandEntry.COLUMN_CENTER_LAT,
                 LandContract.LandEntry.COLUMN_CENTER_LON,
                 LandContract.LandEntry.COLUMN_ZOOM,
-                LandContract.LandEntry.COLUMN_BEARING
+                LandContract.LandEntry.COLUMN_BEARING,
+                LandContract.LandEntry.COLUMN_POLYGON
             )
 
             // Filter results WHERE "title" = 'My Title'
@@ -639,7 +649,8 @@ Land VARCHAR NOT NULL,
                 cursor.getDouble(cursor.getColumnIndex(LandContract.LandEntry.COLUMN_CENTER_LAT)),
                 cursor.getDouble(cursor.getColumnIndex(LandContract.LandEntry.COLUMN_CENTER_LON)),
                 cursor.getDouble(cursor.getColumnIndex(LandContract.LandEntry.COLUMN_ZOOM)),
-                cursor.getDouble(cursor.getColumnIndex(LandContract.LandEntry.COLUMN_BEARING)))
+                cursor.getDouble(cursor.getColumnIndex(LandContract.LandEntry.COLUMN_BEARING)),
+                cursor.getString(cursor.getColumnIndex(LandContract.LandEntry.COLUMN_POLYGON)))
             cursor.close()
             // Define a projection that specifies which columns from the database
             // you will actually use after this query.
@@ -906,6 +917,7 @@ Land VARCHAR NOT NULL,
             values.put("center_lon", l.lon)
             values.put("zoom", l.zoom)
             values.put("bearing", l.bearing)
+            values.put("polygon", l.polygon)
             values.put("User", user)
 
 // Insert the new row, returning the primary key value of the new row

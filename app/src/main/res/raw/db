@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS Lands(
 	center_lat FLOAT default 0,
 	center_lon FLOAT default 0,
 	zoom FLOAT default 0,
+	polygon VARCHAR,
 	primary key (Name, User),
     FOREIGN KEY(User) REFERENCES Users(Name) ON DELETE CASCADE
 	);

@@ -78,9 +78,9 @@ class AddLandActivity : AppCompatActivity() {
         locationPermissionHelper.checkPermissions {
             setupMap()
         }
-        val addMarker = findViewById<FloatingActionButton>(R.id.add_marker)
+        val addMarker = findViewById<FloatingActionButton>(R.id.place_object)
         addMarker.setOnClickListener { setVertex(mapboxMap.cameraState.center) }
-        val removeMarker = findViewById<FloatingActionButton>(R.id.remove_marker)
+        val removeMarker = findViewById<FloatingActionButton>(R.id.remove_object)
         removeMarker.setOnClickListener { removeLastMarker() }
         val goToLocation = findViewById<FloatingActionButton>(R.id.myLocationButton)
         goToLocation.setOnClickListener { resetLocation() }
@@ -131,6 +131,7 @@ class AddLandActivity : AppCompatActivity() {
                     data.putExtra("lon", longitude)
                     data.putExtra("zoom", zoom)
                     data.putExtra("bearing", bearing)
+                    data.putExtra("polygon", polygonGeoJSON.toJson())
                     setResult(RESULT_OK, data)
                     //---close the activity---
                     finish()
@@ -200,8 +201,8 @@ class AddLandActivity : AppCompatActivity() {
 
         // Create an instance of the Annotation API and get the CircleAnnotationManager.
         val annotationApi = mapView?.annotations
-        polylineAnnotationManager = annotationApi!!.createPolylineAnnotationManager(mapView!!)
-        circleAnnotationManager = annotationApi.createCircleAnnotationManager(mapView!!)
+        polylineAnnotationManager = annotationApi!!.createPolylineAnnotationManager()
+        circleAnnotationManager = annotationApi.createCircleAnnotationManager()
 
     }
 

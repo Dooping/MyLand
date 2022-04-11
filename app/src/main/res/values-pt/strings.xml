@@ -110,4 +110,5 @@
     <string name="taking_snapshot_text">A criar imagem...</string>
     <string name="color_picker_title">Escolha a cor</string>
     <string name="add_item_dialog_state_hints">Em perigo de air, perto de estrada, etc...</string>
+    <string name="helper_edit_land_long_press">Fique a pressionar o botão do objeto para mudar o tipo</string>
 </resources>

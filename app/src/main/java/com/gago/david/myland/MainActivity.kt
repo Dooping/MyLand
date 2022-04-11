@@ -137,7 +137,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         setTitle(title)
     }
 
-    fun addLandDetails(filename: String?, area: Double, lat: Double, lon: Double, zoom: Double, bearing: Double) {
+    fun addLandDetails(filename: String?, area: Double, lat: Double, lon: Double, zoom: Double, bearing: Double, polygon: String?) {
         setActionBarTitle("Land Details")
         val fragment: Fragment = AddLandDetailsFragment()
         val args = Bundle()
@@ -147,6 +147,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         args.putDouble("lon", lon)
         args.putDouble("zoom", zoom)
         args.putDouble("bearing", bearing)
+        args.putString("polygon", polygon)
         fragment.arguments = args
         supportFragmentManager.beginTransaction()
                 .replace(R.id.fragment_container, fragment).addToBackStack("main").commit()

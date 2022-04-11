@@ -263,7 +263,7 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
     }
 
     private fun editLand() {
-        val intent = Intent(applicationContext, LandEditActivity::class.java)
+        val intent = Intent(applicationContext, LandEditMapActivity::class.java)
         val b1 = Bundle()
         b1.putString("name", name)
         intent.putExtras(b1)
