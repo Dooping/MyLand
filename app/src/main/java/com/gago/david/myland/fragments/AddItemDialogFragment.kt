@@ -11,7 +11,6 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.DialogFragment
-import com.gago.david.myland.LandEditActivity
 import com.gago.david.myland.R
 import com.gago.david.myland.models.PlantTypeObject
 
@@ -21,7 +20,7 @@ class AddItemDialogFragment(val item: PlantTypeObject) : DialogFragment() {
         val description = view.findViewById<EditText>(R.id.description)
 
         val builder: AlertDialog.Builder = AlertDialog.Builder(activity)
-            .setPositiveButton("Ok") { _, _ -> (activity as LandEditActivity).addItemDialogOkButton(description.text.toString(), item.name) }
+            //.setPositiveButton("Ok") { _, _ -> (activity as LandEditActivity).addItemDialogOkButton(description.text.toString(), item.name) }
             .setNegativeButton(R.string.cancel) { _, _ ->  }
         val icon = view.findViewById<ImageView>(R.id.icon)
         icon.setImageResource(item.icon)

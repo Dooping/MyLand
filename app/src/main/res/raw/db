@@ -29,8 +29,8 @@ CREATE TABLE IF NOT EXISTS Plants(
 	User VARCHAR,
     PlantType VARCHAR,
     description TEXT,
-	x FLOAT,
-	y FLOAT,
+	lat FLOAT default 0,
+	lon FLOAT default 0,
     FOREIGN KEY(Land, User) REFERENCES Lands(Name, User) ON DELETE CASCADE,
     FOREIGN KEY(PlantType) REFERENCES PlantTypes(Name)
 	);

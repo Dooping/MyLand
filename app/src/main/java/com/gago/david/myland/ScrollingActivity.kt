@@ -377,7 +377,7 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
     }
 
     private fun drawTrees() {
-        val r = 15
+        /*val r = 15
         val mPaint = Paint()
         mPaint.color = Color.RED
         mPaint.style = Paint.Style.STROKE
@@ -416,24 +416,9 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
 
 
             }
-        /*for (i in land!!.plants.indices) {
-            val p = land!!.plants[i]
-            for (type in plantTypeList!!)
-                if (type.name == p.plantType) {
-                    val d = ContextCompat.getDrawable(this, type.icon)
-                    d!!.setBounds(Math.round(p.x * canvas.width) - d.intrinsicWidth / 8, Math.round(p.y * canvas.height - d.intrinsicHeight / 8),
-                            Math.round(p.x * canvas.width) + d.intrinsicWidth / 8, Math.round(p.y * canvas.height) + d.intrinsicHeight / 8)
-                    d.colorFilter = PorterDuffColorFilter(Color.parseColor(type.color), PorterDuff.Mode.SRC_IN)
-                    //And draw it...
-                    d.draw(canvas)
-                    if (i + 2 + plantTypeList!!.size == selected || selected == 0 || selected - 2 < plantTypeList!!.size && selected > 1 && p.plantType == plantTypeList!![selected - 2].name)
-                        canvas.drawCircle(p.x * canvas.width, p.y * canvas.height, r.toFloat(), mPaint)
-                    break
-                }
-        }*/
         val drawable = BitmapDrawable(resources, bitmap)
         layers[1] = drawable
-        toolbarLayout.background = LayerDrawable(layers)
+        toolbarLayout.background = LayerDrawable(layers)*/
     }
 
     fun removeTree(view: View) {
@@ -619,8 +604,8 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
         values.put("Land", land!!.name)
         values.put("description", p.description)
         values.put("PlantType", p.plantType)
-        values.put("x", p.x)
-        values.put("y", p.y)
+        values.put("lat", p.lat)
+        values.put("lon", p.lon)
 
 // Insert the new row, returning the primary key value of the new row
         val whereClause = "Id = ?"

@@ -254,8 +254,8 @@ class LandImporterHelper(private val context: Context) : SQLiteOpenHelper(contex
                 ItemEntry.COLUMN_LAND,
                 ItemEntry.COLUMN_DESCRIPTION,
                 ItemEntry.COLUMN_PLANT_TYPE,
-                ItemEntry.COLUMN_X,
-                ItemEntry.COLUMN_Y
+                ItemEntry.COLUMN_LAT,
+                ItemEntry.COLUMN_LON
         )
 
         // Filter results WHERE "title" = 'My Title'
@@ -274,7 +274,7 @@ class LandImporterHelper(private val context: Context) : SQLiteOpenHelper(contex
                 sortOrder2 // The sort order
         )
         val plants = ArrayList<PlantObject>()
-        while (cur.moveToNext()) plants.add(PlantObject(cur.getInt(cur.getColumnIndex(ItemEntry.COLUMN_ID)), cur.getString(cur.getColumnIndex(ItemEntry.COLUMN_PLANT_TYPE)), cur.getString(cur.getColumnIndex(ItemEntry.COLUMN_DESCRIPTION)), cur.getFloat(cur.getColumnIndex(ItemEntry.COLUMN_X)), cur.getFloat(cur.getColumnIndex(ItemEntry.COLUMN_Y))))
+        while (cur.moveToNext()) plants.add(PlantObject(cur.getInt(cur.getColumnIndex(ItemEntry.COLUMN_ID)), cur.getString(cur.getColumnIndex(ItemEntry.COLUMN_PLANT_TYPE)), cur.getString(cur.getColumnIndex(ItemEntry.COLUMN_DESCRIPTION)), cur.getFloat(cur.getColumnIndex(ItemEntry.COLUMN_LAT)), cur.getFloat(cur.getColumnIndex(ItemEntry.COLUMN_LON))))
         cur.close()
         db.close()
         Log.v("Read plants", plants.toString())

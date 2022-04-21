@@ -61,6 +61,8 @@ class LandOpenHelper(private val context: Context) : SQLiteOpenHelper(context, L
             upgradeVersion14(db)
         if (oldVersion < 15)
             upgradeVersion15(db)
+        if (oldVersion < 16)
+            upgradeVersion16(db)
         else if (oldVersion < newVersion) {
             dropDatabase(db)
             onCreate(db)
@@ -282,7 +284,13 @@ Land VARCHAR NOT NULL,
 
     private fun upgradeVersion15(db: SQLiteDatabase) {
         db.execSQL("ALTER TABLE ${LandContract.LandEntry.TABLE_NAME} ADD COLUMN ${LandContract.LandEntry.COLUMN_POLYGON} VARCHAR;")
-        Log.v("DATABASE", "updated to version 14")
+        Log.v("DATABASE", "updated to version 15")
+    }
+
+    private fun upgradeVersion16(db: SQLiteDatabase) {
+        db.execSQL("ALTER TABLE ${LandContract.ItemEntry.TABLE_NAME} ADD COLUMN ${LandContract.ItemEntry.COLUMN_LAT} Float default 0;")
+        db.execSQL("ALTER TABLE ${LandContract.ItemEntry.TABLE_NAME} ADD COLUMN ${LandContract.ItemEntry.COLUMN_LON} Float default 0;")
+        Log.v("DATABASE", "updated to version 16")
     }
 
     override fun onConfigure(db: SQLiteDatabase) {
@@ -290,7 +298,7 @@ Land VARCHAR NOT NULL,
     }
 
     companion object {
-        private const val DATABASE_VERSION = 15
+        private const val DATABASE_VERSION = 16
         private const val LAND_TABLE_NAME = "myland.db"
 
         fun getImage(context: Context, uri: String?): Bitmap? {
@@ -659,8 +667,8 @@ Land VARCHAR NOT NULL,
                 "Land",
                 "PlantType",
                 "Description",
-                "x",
-                "y"
+                "lat",
+                "lon"
             )
 
             // Filter results WHERE "title" = 'My Title'
@@ -738,8 +746,8 @@ Land VARCHAR NOT NULL,
                 "Land",
                 "PlantType",
                 "Description",
-                "x",
-                "y"
+                "lat",
+                "lon"
             )
 
             // Filter results WHERE "title" = 'My Title'
@@ -767,8 +775,8 @@ Land VARCHAR NOT NULL,
                     ),
                     cur.getString(cur.getColumnIndex(LandContract.ItemEntry.COLUMN_PLANT_TYPE)),
                     cur.getString(cur.getColumnIndex(LandContract.ItemEntry.COLUMN_DESCRIPTION)),
-                    cur.getFloat(cur.getColumnIndex(LandContract.ItemEntry.COLUMN_X)),
-                    cur.getFloat(cur.getColumnIndex(LandContract.ItemEntry.COLUMN_Y))
+                    cur.getFloat(cur.getColumnIndex(LandContract.ItemEntry.COLUMN_LAT)),
+                    cur.getFloat(cur.getColumnIndex(LandContract.ItemEntry.COLUMN_LON))
                 )
             )
             cur.close()
@@ -964,8 +972,8 @@ Land VARCHAR NOT NULL,
             values.put("User", user)
             values.put("PlantType", p.plantType)
             values.put("Description", p.description)
-            values.put("x", p.x)
-            values.put("y", p.y)
+            values.put("lat", p.lat)
+            values.put("lon", p.lon)
 
 // Insert the new row, returning the primary key value of the new row
             val newRowId = db.insert("Plants", null, values)

@@ -7,11 +7,9 @@ import android.graphics.PorterDuff
 import android.graphics.PorterDuffColorFilter
 import android.os.Bundle
 import android.view.View
-import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.DialogFragment
-import com.gago.david.myland.LandEditActivity
 import com.gago.david.myland.R
 import com.gago.david.myland.ScrollingActivity
 import com.gago.david.myland.models.PlantTypeObject

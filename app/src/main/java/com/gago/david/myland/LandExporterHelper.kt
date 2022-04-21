@@ -109,8 +109,8 @@ class LandExporterHelper(private val context: Context) : SQLiteOpenHelper(contex
             values.put(ItemEntry.COLUMN_LAND, land)
             values.put(ItemEntry.COLUMN_PLANT_TYPE, p.plantType)
             values.put(ItemEntry.COLUMN_DESCRIPTION, p.description)
-            values.put(ItemEntry.COLUMN_X, p.x)
-            values.put(ItemEntry.COLUMN_Y, p.y)
+            values.put(ItemEntry.COLUMN_LAT, p.lat)
+            values.put(ItemEntry.COLUMN_LON, p.lon)
             db.insert(ItemEntry.TABLE_NAME, null, values)
         }
         close()

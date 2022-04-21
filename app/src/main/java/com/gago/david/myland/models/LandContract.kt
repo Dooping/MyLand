@@ -25,8 +25,8 @@ object LandContract {
         const val COLUMN_USER = "User"
         const val COLUMN_PLANT_TYPE = "PlantType"
         const val COLUMN_DESCRIPTION = "description"
-        const val COLUMN_X = "x"
-        const val COLUMN_Y = "y"
+        const val COLUMN_LAT = "lat"
+        const val COLUMN_LON = "lon"
     }
 
     object TaskTypeEntry : BaseColumns {

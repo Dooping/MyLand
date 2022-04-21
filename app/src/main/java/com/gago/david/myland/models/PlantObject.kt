@@ -4,23 +4,23 @@ class PlantObject{
     var id: Int
     var plantType: String
     var description: String
-    var x: Float
-    var y: Float
+    var lat: Float = 0.0F
+    var lon: Float = 0.0F
 
-    constructor(plantType: String, description: String, x: Float, y: Float) {
+    constructor(plantType: String, description: String, lat: Float, lon: Float) {
         this.plantType = plantType
         this.description = description
-        this.x = x
-        this.y = y
         id = -1
+        this.lat = lat
+        this.lon = lon
     }
 
-    constructor(id: Int, plantType: String, description: String, x: Float, y: Float) {
+    constructor(id: Int, plantType: String, description: String, lat: Float, lon: Float) {
         this.id = id
         this.plantType = plantType
         this.description = description
-        this.x = x
-        this.y = y
+        this.lat = lat
+        this.lon = lon
     }
 
 
@@ -30,8 +30,8 @@ class PlantObject{
                 "id=" + id +
                 ", plantType='" + plantType + '\'' +
                 ", description='" + description + '\'' +
-                ", x=" + x +
-                ", y=" + y +
+                ", lat=" + lat +
+                ", lon=" + lon +
                 '}'
     }
 
@@ -50,8 +50,8 @@ class PlantObject{
         var result = id
         result = 31 * result + plantType.hashCode()
         result = 31 * result + description.hashCode()
-        result = 31 * result + x.hashCode()
-        result = 31 * result + y.hashCode()
+        result = 31 * result + lat.hashCode()
+        result = 31 * result + lon.hashCode()
         return result
     }
 }
