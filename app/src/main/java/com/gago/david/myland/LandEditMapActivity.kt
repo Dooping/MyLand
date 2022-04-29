@@ -1,12 +1,23 @@
 package com.gago.david.myland
 
-import androidx.appcompat.app.AppCompatActivity
+import android.content.Context
+import android.content.res.ColorStateList
+import android.graphics.*
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import androidx.annotation.DrawableRes
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.content.res.AppCompatResources
+import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.DrawableCompat
 import com.gago.david.myland.adapters.PopupMenuAdapter
+import com.gago.david.myland.fragments.AddItemDialogFragment
 import com.gago.david.myland.models.LandObject
+import com.gago.david.myland.models.PlantObject
 import com.gago.david.myland.models.PlantTypeObject
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.mapbox.geojson.Point
@@ -15,18 +26,21 @@ import com.mapbox.maps.CameraOptions
 import com.mapbox.maps.MapView
 import com.mapbox.maps.Style
 import com.mapbox.maps.plugin.annotation.annotations
-import com.mapbox.maps.plugin.annotation.generated.PolylineAnnotationManager
-import com.mapbox.maps.plugin.annotation.generated.PolylineAnnotationOptions
-import com.mapbox.maps.plugin.annotation.generated.createPolylineAnnotationManager
+import com.mapbox.maps.plugin.annotation.generated.*
 
-lateinit var mapView: MapView
-lateinit var placeObject: FloatingActionButton
-lateinit var removeObject: FloatingActionButton
-var alertDialog : AlertDialog? = null
-var land: LandObject? = null
-private lateinit var polylineAnnotationManager: PolylineAnnotationManager
 
 class LandEditMapActivity : AppCompatActivity(), PopupMenuAdapter.OnMenuItemInteractionListener {
+    private lateinit var mapView: MapView
+    private lateinit var placeObject: FloatingActionButton
+    private lateinit var removeObject: FloatingActionButton
+    private var alertDialog : AlertDialog? = null
+    private var land: LandObject? = null
+    private lateinit var polylineAnnotationManager: PolylineAnnotationManager
+    private lateinit var annotationManager: PointAnnotationManager
+    private var selectedObjectType: PlantTypeObject? = null
+    private var addedObjects: List<PlantObject> = emptyList()
+    private var addedAnnotations: List<PointAnnotation> = emptyList()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_land_edit_map)
@@ -35,6 +49,7 @@ class LandEditMapActivity : AppCompatActivity(), PopupMenuAdapter.OnMenuItemInte
         mapView.getMapboxMap().loadStyleUri(Style.SATELLITE)
         val annotationApi = mapView.annotations
         polylineAnnotationManager = annotationApi.createPolylineAnnotationManager()
+        annotationManager = annotationApi.createPointAnnotationManager()
 
         val b = intent.extras
         val name = b!!.getString("name")
@@ -49,19 +64,81 @@ class LandEditMapActivity : AppCompatActivity(), PopupMenuAdapter.OnMenuItemInte
         removeObject = findViewById(R.id.remove_object)
 
         placeObject.setOnLongClickListener {
-            val sortList = LandOpenHelper.readPlantTypes(this)
-            val adapter = PopupMenuAdapter(this, sortList)
-            val alertDialogBuilder = AlertDialog.Builder(this)
-            alertDialogBuilder.setAdapter(adapter) { dialog, _ -> dialog.dismiss() }
-            alertDialog = alertDialogBuilder.show()
+            showObjectTypeDialog()
             false
         }
 
         placeObject.setOnClickListener {
-            Toast.makeText(baseContext, R.string.helper_edit_land_long_press, Toast.LENGTH_SHORT).show()
+            if (selectedObjectType == null)
+                showObjectTypeDialog()
+            else
+                AddItemDialogFragment(
+                    selectedObjectType!!,
+                    mapView.getMapboxMap().cameraState.center).show(supportFragmentManager, "add-item-dialog")
         }
 
+        removeObject.setOnClickListener {
+            removeLastObject()
+        }
 
+        checkRemoveButtonVisibility()
+    }
+
+    private fun removeLastObject() {
+        if (addedObjects.isNotEmpty()) {
+            val last = addedObjects.last()
+            addedObjects = addedObjects.dropLast(1)
+            land!!.removePlant(last)
+            annotationManager.delete(addedAnnotations.last())
+            addedAnnotations = addedAnnotations.dropLast(1)
+        }
+        checkRemoveButtonVisibility()
+    }
+
+    private fun addObject(center: Point, p: PlantObject) {
+        val icon = getObjectIconPainted(selectedObjectType!!.icon)
+
+        val pointAnnotationOptions: PointAnnotationOptions = PointAnnotationOptions()
+            .withPoint(center)
+            .withIconImage(icon)
+        addedAnnotations = addedAnnotations + annotationManager.create(pointAnnotationOptions)
+        land!!.addPlant(p)
+        addedObjects = addedObjects + p
+        checkRemoveButtonVisibility()
+        LandOpenHelper.addPlant(this, p, land!!.name)
+    }
+
+    fun addItemDialogOkButton(description: String, plantTypeName: String, center: Point) {
+        val p = PlantObject(plantTypeName, description, center.latitude(), center.longitude())
+        addObject(center, p)
+    }
+
+    private fun checkRemoveButtonVisibility() {
+        removeObject.isEnabled = addedObjects.isNotEmpty()
+        removeObject.backgroundTintList = ColorStateList.valueOf(if (addedObjects.isNotEmpty()) Color.RED else Color.GRAY)
+    }
+
+    private fun getObjectIconPainted(iconRes: Int): Bitmap {
+        val myIcon = ContextCompat.getDrawable(this, iconRes)
+        val bitmap = (myIcon as BitmapDrawable).bitmap.copy(Bitmap.Config.ARGB_8888, true);
+        val paint = Paint()
+        val filter: ColorFilter = PorterDuffColorFilter(
+            Color.parseColor(selectedObjectType!!.color),
+            PorterDuff.Mode.SRC_IN
+        )
+        paint.colorFilter = filter
+
+        val canvas = Canvas(bitmap)
+        canvas.drawBitmap(bitmap, 0.0F, 0.0F, paint)
+        return bitmap
+    }
+
+    private fun showObjectTypeDialog() {
+        val sortList = LandOpenHelper.readPlantTypes(this)
+        val adapter = PopupMenuAdapter(this, sortList)
+        val alertDialogBuilder = AlertDialog.Builder(this)
+        alertDialogBuilder.setAdapter(adapter) { dialog, _ -> dialog.dismiss() }
+        alertDialog = alertDialogBuilder.show()
     }
 
     private fun setCameraPosition(land: LandObject) {
@@ -82,6 +159,12 @@ class LandEditMapActivity : AppCompatActivity(), PopupMenuAdapter.OnMenuItemInte
 
     override fun onMenuItemInteraction(item: PlantTypeObject?) {
         Toast.makeText(baseContext, item?.name, Toast.LENGTH_SHORT).show()
+        selectedObjectType = item!!
+        changeButtonIcon(item)
         alertDialog?.dismiss()
+    }
+
+    private fun changeButtonIcon(item: PlantTypeObject) {
+        placeObject.foreground = ContextCompat.getDrawable(this, item.icon)
     }
 }

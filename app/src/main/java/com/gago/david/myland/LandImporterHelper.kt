@@ -274,7 +274,7 @@ class LandImporterHelper(private val context: Context) : SQLiteOpenHelper(contex
                 sortOrder2 // The sort order
         )
         val plants = ArrayList<PlantObject>()
-        while (cur.moveToNext()) plants.add(PlantObject(cur.getInt(cur.getColumnIndex(ItemEntry.COLUMN_ID)), cur.getString(cur.getColumnIndex(ItemEntry.COLUMN_PLANT_TYPE)), cur.getString(cur.getColumnIndex(ItemEntry.COLUMN_DESCRIPTION)), cur.getFloat(cur.getColumnIndex(ItemEntry.COLUMN_LAT)), cur.getFloat(cur.getColumnIndex(ItemEntry.COLUMN_LON))))
+        while (cur.moveToNext()) plants.add(PlantObject(cur.getInt(cur.getColumnIndex(ItemEntry.COLUMN_ID)), cur.getString(cur.getColumnIndex(ItemEntry.COLUMN_PLANT_TYPE)), cur.getString(cur.getColumnIndex(ItemEntry.COLUMN_DESCRIPTION)), cur.getDouble(cur.getColumnIndex(ItemEntry.COLUMN_LAT)), cur.getDouble(cur.getColumnIndex(ItemEntry.COLUMN_LON))))
         cur.close()
         db.close()
         Log.v("Read plants", plants.toString())

@@ -4,10 +4,10 @@ class PlantObject{
     var id: Int
     var plantType: String
     var description: String
-    var lat: Float = 0.0F
-    var lon: Float = 0.0F
+    var lat: Double = 0.0
+    var lon: Double = 0.0
 
-    constructor(plantType: String, description: String, lat: Float, lon: Float) {
+    constructor(plantType: String, description: String, lat: Double, lon: Double) {
         this.plantType = plantType
         this.description = description
         id = -1
@@ -15,7 +15,7 @@ class PlantObject{
         this.lon = lon
     }
 
-    constructor(id: Int, plantType: String, description: String, lat: Float, lon: Float) {
+    constructor(id: Int, plantType: String, description: String, lat: Double, lon: Double) {
         this.id = id
         this.plantType = plantType
         this.description = description

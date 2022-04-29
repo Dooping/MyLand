@@ -691,8 +691,8 @@ Land VARCHAR NOT NULL,
                         cursor2.getInt(cursor2.getColumnIndex("Id")),
                         cursor2.getString(2),
                         cursor2.getString(3),
-                        cursor2.getFloat(4),
-                        cursor2.getFloat(5)
+                        cursor2.getDouble(4),
+                        cursor2.getDouble(5)
                     )
                 )
             cursor2.close()
@@ -775,8 +775,8 @@ Land VARCHAR NOT NULL,
                     ),
                     cur.getString(cur.getColumnIndex(LandContract.ItemEntry.COLUMN_PLANT_TYPE)),
                     cur.getString(cur.getColumnIndex(LandContract.ItemEntry.COLUMN_DESCRIPTION)),
-                    cur.getFloat(cur.getColumnIndex(LandContract.ItemEntry.COLUMN_LAT)),
-                    cur.getFloat(cur.getColumnIndex(LandContract.ItemEntry.COLUMN_LON))
+                    cur.getDouble(cur.getColumnIndex(LandContract.ItemEntry.COLUMN_LAT)),
+                    cur.getDouble(cur.getColumnIndex(LandContract.ItemEntry.COLUMN_LON))
                 )
             )
             cur.close()

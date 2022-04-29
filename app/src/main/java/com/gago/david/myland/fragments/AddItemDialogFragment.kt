@@ -11,16 +11,18 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.DialogFragment
+import com.gago.david.myland.LandEditMapActivity
 import com.gago.david.myland.R
 import com.gago.david.myland.models.PlantTypeObject
+import com.mapbox.geojson.Point
 
-class AddItemDialogFragment(val item: PlantTypeObject) : DialogFragment() {
+class AddItemDialogFragment(val item: PlantTypeObject, val center: Point) : DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val view: View = layoutInflater.inflate(R.layout.add_item_dialog, null)
         val description = view.findViewById<EditText>(R.id.description)
 
         val builder: AlertDialog.Builder = AlertDialog.Builder(activity)
-            //.setPositiveButton("Ok") { _, _ -> (activity as LandEditActivity).addItemDialogOkButton(description.text.toString(), item.name) }
+            .setPositiveButton("Ok") { _, _ -> (activity as LandEditMapActivity).addItemDialogOkButton(description.text.toString(), item.name, center) }
             .setNegativeButton(R.string.cancel) { _, _ ->  }
         val icon = view.findViewById<ImageView>(R.id.icon)
         icon.setImageResource(item.icon)
@@ -30,4 +32,6 @@ class AddItemDialogFragment(val item: PlantTypeObject) : DialogFragment() {
         builder.setView(view)
         return builder.create()
     }
+
+
 }
