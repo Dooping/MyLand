@@ -57,6 +57,7 @@ class LandEditMapActivity : AppCompatActivity(), PopupMenuAdapter.OnMenuItemInte
 
         setCameraPosition(land!!)
         setLandBorders(land!!)
+        setExistingObjects(land!!.plants)
 
         Toast.makeText(baseContext, R.string.helper_edit_land_long_press, Toast.LENGTH_LONG).show()
 
@@ -84,6 +85,19 @@ class LandEditMapActivity : AppCompatActivity(), PopupMenuAdapter.OnMenuItemInte
         checkRemoveButtonVisibility()
     }
 
+    private fun setExistingObjects(objects: List<PlantObject>) {
+        val objectTypes = LandOpenHelper.readPlantTypes(this)
+        objects.forEach {
+            val type = objectTypes.find { type -> type.name == it.plantType }!!
+            val icon = getObjectIconPainted(type)
+
+            val pointAnnotationOptions: PointAnnotationOptions = PointAnnotationOptions()
+                .withPoint(Point.fromLngLat(it.lon, it.lat))
+                .withIconImage(icon)
+            annotationManager.create(pointAnnotationOptions)
+        }
+    }
+
     private fun removeLastObject() {
         if (addedObjects.isNotEmpty()) {
             val last = addedObjects.last()
@@ -96,7 +110,7 @@ class LandEditMapActivity : AppCompatActivity(), PopupMenuAdapter.OnMenuItemInte
     }
 
     private fun addObject(center: Point, p: PlantObject) {
-        val icon = getObjectIconPainted(selectedObjectType!!.icon)
+        val icon = getObjectIconPainted(selectedObjectType!!)
 
         val pointAnnotationOptions: PointAnnotationOptions = PointAnnotationOptions()
             .withPoint(center)
@@ -118,12 +132,12 @@ class LandEditMapActivity : AppCompatActivity(), PopupMenuAdapter.OnMenuItemInte
         removeObject.backgroundTintList = ColorStateList.valueOf(if (addedObjects.isNotEmpty()) Color.RED else Color.GRAY)
     }
 
-    private fun getObjectIconPainted(iconRes: Int): Bitmap {
-        val myIcon = ContextCompat.getDrawable(this, iconRes)
+    private fun getObjectIconPainted(type: PlantTypeObject): Bitmap {
+        val myIcon = ContextCompat.getDrawable(this, type.icon)
         val bitmap = (myIcon as BitmapDrawable).bitmap.copy(Bitmap.Config.ARGB_8888, true);
         val paint = Paint()
         val filter: ColorFilter = PorterDuffColorFilter(
-            Color.parseColor(selectedObjectType!!.color),
+            Color.parseColor(type.color),
             PorterDuff.Mode.SRC_IN
         )
         paint.colorFilter = filter
