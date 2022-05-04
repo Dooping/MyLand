@@ -11,45 +11,46 @@ import android.content.Intent
 import android.graphics.*
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
-import android.graphics.drawable.LayerDrawable
 import android.os.Bundle
-import com.google.android.material.appbar.CollapsingToolbarLayout
-import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.android.material.navigation.NavigationView
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
-import androidx.core.content.ContextCompat
-import androidx.core.view.GravityCompat
-import androidx.drawerlayout.widget.DrawerLayout
-import androidx.appcompat.app.ActionBarDrawerToggle
-import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import androidx.appcompat.widget.Toolbar
 import android.util.Log
-import android.view.Menu
-import android.view.MenuItem
-import android.view.View
+import android.view.*
 import android.view.animation.AlphaAnimation
 import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.view.menu.MenuBuilder
+import androidx.appcompat.widget.Toolbar
+import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.content.ContextCompat
+import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.gago.david.myland.adapters.TaskHistoryRecyclerViewAdapter
 import com.gago.david.myland.adapters.TaskListAdapter
-import com.gago.david.myland.models.TaskObject
+import com.gago.david.myland.fragments.DeleteItemDialogFragment
 import com.gago.david.myland.models.*
+import com.google.android.material.appbar.AppBarLayout
+import com.google.android.material.appbar.CollapsingToolbarLayout
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.navigation.NavigationView
+import com.google.android.material.progressindicator.LinearProgressIndicator
 import com.lantouzi.wheelview.WheelView
 import com.lantouzi.wheelview.WheelView.OnWheelItemSelectedListener
+import com.mapbox.geojson.Point
+import com.mapbox.geojson.Polygon
+import com.mapbox.maps.CameraOptions
+import com.mapbox.maps.MapView
+import com.mapbox.maps.plugin.annotation.annotations
+import com.mapbox.maps.plugin.annotation.generated.*
 import java.text.MessageFormat
-import java.util.*
-import kotlin.math.roundToInt
-
-import androidx.appcompat.view.menu.MenuBuilder
-import com.gago.david.myland.fragments.DeleteItemDialogFragment
-import com.google.android.material.appbar.AppBarLayout
-import com.google.android.material.progressindicator.LinearProgressIndicator
 import java.text.NumberFormat
+import kotlin.math.roundToInt
 
 
 class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInteractionListener, NavigationView.OnNavigationItemSelectedListener, TaskEditFragment.OnFragmentInteractionListener {
@@ -81,6 +82,9 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
     private var fragment: Fragment? = null
     private var priorities: List<PriorityObject>? = null
     private var plantGroups: Map<String, List<PlantObject>>? = null
+    private lateinit var mapView: MapView
+    private lateinit var polylineAnnotationManager: PolylineAnnotationManager
+    private lateinit var annotationManager: PointAnnotationManager
     @SuppressLint("RestrictedApi")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -156,9 +160,28 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
         addTaskButton = findViewById(R.id.add_task_button)
         addTaskButton?.setOnClickListener { addTaskPressed() }
         toolbarLayout = findViewById(R.id.toolbar_layout)
-        layers = arrayOfNulls(2)
-        layers[0] = BitmapDrawable(resources, LandOpenHelper.getImage(this, land!!.imageUri))
-        toolbarLayout.background = layers[0]
+        mapView = findViewById(R.id.mapView)
+        val annotationApi = mapView.annotations
+        polylineAnnotationManager = annotationApi.createPolylineAnnotationManager()
+        annotationManager = annotationApi.createPointAnnotationManager()
+
+        setCameraPosition(land!!)
+        setLandBorders(land!!)
+        setExistingObjects(land!!.plants)
+
+        val coordinatorLayout: CoordinatorLayout = findViewById(R.id.coordinatorLayout)
+        mapView.setOnTouchListener { _, event ->
+            when (event.action) {
+                MotionEvent.ACTION_MOVE -> coordinatorLayout.requestDisallowInterceptTouchEvent(true)
+                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> coordinatorLayout.requestDisallowInterceptTouchEvent(
+                    false
+                )
+            }
+            super.onTouchEvent(event)
+        }
+        //layers = arrayOfNulls(2)
+        //layers[0] = BitmapDrawable(resources, LandOpenHelper.getImage(this, land!!.imageUri))
+        //toolbarLayout.background = layers[0]
         /*try {
             InputStream inputStream = getContentResolver().openInputStream(Uri.parse(land.imageUri));
             Drawable yourDrawable = Drawable.createFromStream(inputStream, land.imageUri );
@@ -260,6 +283,50 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
         }
         progressBar = findViewById(R.id.land_progress)
         updateProgressBar()
+    }
+
+    private fun setCameraPosition(land: LandObject) {
+        val point = Point.fromLngLat(land.lon, land.lat)
+        mapView.getMapboxMap().setCamera(CameraOptions.Builder().center(point).bearing(land.bearing).zoom(land.zoom).build())
+    }
+
+    private fun setLandBorders(land: LandObject) {
+        val polygon = Polygon.fromJson(land.polygon!!).coordinates()[0]
+        if (polygon.size >= 2) {
+            val polylineAnnotationOptions: PolylineAnnotationOptions = PolylineAnnotationOptions()
+                .withLineWidth(2.0)
+                .withLineColor("#3bb2d0")
+                .withPoints((polygon + polygon[0]) as List<Point>)
+            polylineAnnotationManager.create(polylineAnnotationOptions)
+        }
+    }
+
+    private fun setExistingObjects(objects: List<PlantObject>) {
+        val objectTypes = LandOpenHelper.readPlantTypes(this)
+        objects.forEach {
+            val type = objectTypes.find { type -> type.name == it.plantType }!!
+            val icon = getObjectIconPainted(type)
+
+            val pointAnnotationOptions: PointAnnotationOptions = PointAnnotationOptions()
+                .withPoint(Point.fromLngLat(it.lon, it.lat))
+                .withIconImage(icon)
+            annotationManager.create(pointAnnotationOptions)
+        }
+    }
+
+    private fun getObjectIconPainted(type: PlantTypeObject): Bitmap {
+        val myIcon = ContextCompat.getDrawable(this, type.icon)
+        val bitmap = (myIcon as BitmapDrawable).bitmap.copy(Bitmap.Config.ARGB_8888, true);
+        val paint = Paint()
+        val filter: ColorFilter = PorterDuffColorFilter(
+            Color.parseColor(type.color),
+            PorterDuff.Mode.SRC_IN
+        )
+        paint.colorFilter = filter
+
+        val canvas = Canvas(bitmap)
+        canvas.drawBitmap(bitmap, 0.0F, 0.0F, paint)
+        return bitmap
     }
 
     private fun editLand() {
@@ -753,4 +820,10 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
         editButton!!.visibility = View.VISIBLE
         mAdapter!!.notifyDataSetChanged()
     }
+
+//    override fun onTouchEvent(ev: MotionEvent): Boolean {
+//        Toast.makeText(this, "onTouch", Toast.LENGTH_SHORT).show()
+//        return true
+//    }
+
 }
