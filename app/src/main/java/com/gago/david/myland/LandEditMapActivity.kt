@@ -1,19 +1,13 @@
 package com.gago.david.myland
 
-import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.*
 import android.graphics.drawable.BitmapDrawable
-import android.graphics.drawable.Drawable
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
-import androidx.annotation.DrawableRes
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
-import androidx.core.graphics.drawable.DrawableCompat
 import com.gago.david.myland.adapters.PopupMenuAdapter
 import com.gago.david.myland.fragments.AddItemDialogFragment
 import com.gago.david.myland.models.LandObject
@@ -27,6 +21,8 @@ import com.mapbox.maps.MapView
 import com.mapbox.maps.Style
 import com.mapbox.maps.plugin.annotation.annotations
 import com.mapbox.maps.plugin.annotation.generated.*
+import com.mapbox.maps.plugin.gestures.addOnMapClickListener
+import com.mapbox.turf.TurfMeasurement
 
 
 class LandEditMapActivity : AppCompatActivity(), PopupMenuAdapter.OnMenuItemInteractionListener {
@@ -40,6 +36,7 @@ class LandEditMapActivity : AppCompatActivity(), PopupMenuAdapter.OnMenuItemInte
     private var selectedObjectType: PlantTypeObject? = null
     private var addedObjects: List<PlantObject> = emptyList()
     private var addedAnnotations: List<PointAnnotation> = emptyList()
+    private var selectedObject: PlantObject? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,6 +55,12 @@ class LandEditMapActivity : AppCompatActivity(), PopupMenuAdapter.OnMenuItemInte
         setCameraPosition(land!!)
         setLandBorders(land!!)
         setExistingObjects(land!!.plants)
+
+        mapView.getMapboxMap().addOnMapClickListener {
+            selectClosestObject(it)
+            setExistingObjects(land!!.plants)
+            true
+        }
 
         Toast.makeText(baseContext, R.string.helper_edit_land_long_press, Toast.LENGTH_LONG).show()
 
@@ -85,11 +88,19 @@ class LandEditMapActivity : AppCompatActivity(), PopupMenuAdapter.OnMenuItemInte
         checkRemoveButtonVisibility()
     }
 
+    private fun selectClosestObject(click: Point) {
+        val min = land!!.plants.minByOrNull { plantObject -> TurfMeasurement.distance(Point.fromLngLat(plantObject.lon, plantObject.lat), click) }
+        min?.let {
+            selectedObject = it
+        }
+    }
+
     private fun setExistingObjects(objects: List<PlantObject>) {
+        annotationManager.deleteAll()
         val objectTypes = LandOpenHelper.readPlantTypes(this)
         objects.forEach {
             val type = objectTypes.find { type -> type.name == it.plantType }!!
-            val icon = getObjectIconPainted(type)
+            val icon = getObjectIconPainted(type, selectedObject == it)
 
             val pointAnnotationOptions: PointAnnotationOptions = PointAnnotationOptions()
                 .withPoint(Point.fromLngLat(it.lon, it.lat))
