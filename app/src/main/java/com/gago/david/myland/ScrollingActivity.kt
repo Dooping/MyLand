@@ -10,7 +10,6 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.*
 import android.graphics.drawable.BitmapDrawable
-import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.util.Log
 import android.view.*
@@ -48,6 +47,8 @@ import com.mapbox.maps.CameraOptions
 import com.mapbox.maps.MapView
 import com.mapbox.maps.plugin.annotation.annotations
 import com.mapbox.maps.plugin.annotation.generated.*
+import com.mapbox.maps.plugin.gestures.addOnMapClickListener
+import com.mapbox.turf.TurfMeasurement
 import java.text.MessageFormat
 import java.text.NumberFormat
 import kotlin.math.roundToInt
@@ -60,7 +61,6 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
     private var land: LandObject? = null
     private var name: String? = null
     private var first = true
-    private lateinit var layers: Array<Drawable?>
     private lateinit var toolbarLayout: CollapsingToolbarLayout
     private lateinit var appBarLayout: AppBarLayout
     private lateinit var progressBar: LinearProgressIndicator
@@ -85,6 +85,7 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
     private lateinit var mapView: MapView
     private lateinit var polylineAnnotationManager: PolylineAnnotationManager
     private lateinit var annotationManager: PointAnnotationManager
+    private var selectedObjects: List<PlantObject> = emptyList()
     @SuppressLint("RestrictedApi")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -165,10 +166,6 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
         polylineAnnotationManager = annotationApi.createPolylineAnnotationManager()
         annotationManager = annotationApi.createPointAnnotationManager()
 
-        setCameraPosition(land!!)
-        setLandBorders(land!!)
-        setExistingObjects(land!!.plants)
-
         val coordinatorLayout: CoordinatorLayout = findViewById(R.id.coordinatorLayout)
         mapView.setOnTouchListener { _, event ->
             when (event.action) {
@@ -179,18 +176,15 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
             }
             super.onTouchEvent(event)
         }
-        //layers = arrayOfNulls(2)
-        //layers[0] = BitmapDrawable(resources, LandOpenHelper.getImage(this, land!!.imageUri))
-        //toolbarLayout.background = layers[0]
-        /*try {
-            InputStream inputStream = getContentResolver().openInputStream(Uri.parse(land.imageUri));
-            Drawable yourDrawable = Drawable.createFromStream(inputStream, land.imageUri );
-            layers[0] = yourDrawable;
-            toolbarLayout.setBackground(yourDrawable);
-        } catch (FileNotFoundException e) {
-            //yourDrawable = getResources().getDrawable(R.drawable.default_image);
-        }*/toolbarLayout.viewTreeObserver?.addOnGlobalLayoutListener {
+        mapView.getMapboxMap().addOnMapClickListener {
+            selectClosestObject(it)
+            setExistingObjects(land!!.plants)
+            true
+        }
+
+        toolbarLayout.viewTreeObserver?.addOnGlobalLayoutListener {
             if (first) {
+                filter()
                 drawTrees()
                 first = false
             }
@@ -217,8 +211,8 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
         wheel?.setOnWheelItemSelectedListener(object : OnWheelItemSelectedListener {
             override fun onWheelItemChanged(wheelView: WheelView, position: Int) {
                 selected = position
-                drawTrees()
                 filter()
+                drawTrees()
                 updateHistory()
                 updateProgressBar()
             }
@@ -254,7 +248,7 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
             input.layoutParams = lp
             alertDialog.setView(input)
             val filter: ColorFilter = PorterDuffColorFilter(resources.getColor(R.color.colorAccent), PorterDuff.Mode.SRC_IN)
-            val icon = resources.getDrawable(R.drawable.ic_action_edit)
+            val icon = resources.getDrawable(R.drawable.ic_action_edit, theme)
             icon.colorFilter = filter
             alertDialog.setIcon(icon)
             alertDialog.setPositiveButton("OK"
@@ -285,6 +279,15 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
         updateProgressBar()
     }
 
+    private fun selectClosestObject(click: Point) {
+        val min = land!!.plants.minByOrNull { plantObject -> TurfMeasurement.distance(Point.fromLngLat(plantObject.lon, plantObject.lat), click) }
+        min?.let {
+            selectedObjects = listOf(it)
+            val indexOfObject = land?.plants?.indexOf(it)!! + 2 + plantGroups?.keys!!.size
+            wheel?.smoothSelectIndex(indexOfObject)
+        }
+    }
+
     private fun setCameraPosition(land: LandObject) {
         val point = Point.fromLngLat(land.lon, land.lat)
         mapView.getMapboxMap().setCamera(CameraOptions.Builder().center(point).bearing(land.bearing).zoom(land.zoom).build())
@@ -302,10 +305,12 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
     }
 
     private fun setExistingObjects(objects: List<PlantObject>) {
+        annotationManager.deleteAll()
         val objectTypes = LandOpenHelper.readPlantTypes(this)
         objects.forEach {
             val type = objectTypes.find { type -> type.name == it.plantType }!!
-            val icon = getObjectIconPainted(type)
+            val selected = selectedObjects.contains(it)
+            val icon = getObjectIconPainted(type, selected)
 
             val pointAnnotationOptions: PointAnnotationOptions = PointAnnotationOptions()
                 .withPoint(Point.fromLngLat(it.lon, it.lat))
@@ -314,7 +319,7 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
         }
     }
 
-    private fun getObjectIconPainted(type: PlantTypeObject): Bitmap {
+    private fun getObjectIconPainted(type: PlantTypeObject, selected: Boolean = false): Bitmap {
         val myIcon = ContextCompat.getDrawable(this, type.icon)
         val bitmap = (myIcon as BitmapDrawable).bitmap.copy(Bitmap.Config.ARGB_8888, true);
         val paint = Paint()
@@ -326,6 +331,14 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
 
         val canvas = Canvas(bitmap)
         canvas.drawBitmap(bitmap, 0.0F, 0.0F, paint)
+        if (selected) {
+            val mPaint = Paint()
+            mPaint.color = Color.RED
+            mPaint.style = Paint.Style.STROKE
+            mPaint.strokeWidth = 2.5f
+            mPaint.isAntiAlias = true
+            canvas.drawCircle(canvas.width.toFloat() / 2, canvas.height.toFloat() / 2, 50f, mPaint)
+        }
         return bitmap
     }
 
@@ -386,19 +399,30 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
 
     @SuppressLint("RestrictedApi")
     private fun filter() {
-        if (selected == 0)
-            mAdapter!!.filter.filter("all")
-        else if (selected == 1)
-            mAdapter!!.filter.filter("land")
-        else if (selected < plantGroups?.keys!!.size + 2) {
-            var filter = "group"
-            for (p in land!!.plants)
-                if (plantGroups!!.keys.toList()[selected - 2] == p.plantType)
-                    filter = filter + " " + p.id
-            mAdapter!!.filter.filter(filter)
-        } else
-            mAdapter!!.filter.filter("item " + land!!.plants[selected - 2 - plantGroups?.keys!!.size].id)
-        removeButton.isEnabled = selected >= plantGroups?.keys!!.size + 2
+        selectedObjects = emptyList()
+        when {
+            selected == 0 -> {
+                mAdapter!!.filter.filter("all")
+                selectedObjects = land?.plants?.toList()!!
+            }
+            selected == 1 -> mAdapter!!.filter.filter("land")
+
+            selected < plantGroups?.keys!!.size + 2 -> {
+                var filter = "group"
+                for (p in land!!.plants)
+                    if (plantGroups!!.keys.toList()[selected - 2] == p.plantType) {
+                        filter = filter + " " + p.id
+                        selectedObjects = selectedObjects + p
+                    }
+                mAdapter!!.filter.filter(filter)
+            }
+            else -> {
+                mAdapter!!.filter.filter("item " + land!!.plants[selected - 2 - plantGroups?.keys!!.size].id)
+                selectedObjects = listOf(land!!.plants[selected - 2 - plantGroups?.keys!!.size])
+            }
+        }
+        if (!first)
+            removeButton.isEnabled = selected >= plantGroups?.keys!!.size + 2
         if (selected < 1)
             addTaskButton!!.visibility = View.GONE
         else addTaskButton!!.visibility = View.VISIBLE
@@ -414,17 +438,18 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
         args.putString("land", land!!.name)
         var type = "all"
         val list = ArrayList<Int>()
-        if (wheel!!.selectedPosition == 0)
-            for (p in land!!.plants) list.add(p.id)
-        else if (wheel!!.selectedPosition == 1)
-            type = "land"
-        else if (wheel!!.selectedPosition - 2 < plantGroups?.keys!!.size) {
-            for (p in land!!.plants)
-                if (plantGroups!!.keys.toList()[wheel!!.selectedPosition - 2] == p.plantType) list.add(p.id)
-                    type = "group"
-        } else {
-            list.add(land!!.plants[wheel!!.selectedPosition - 2 - plantGroups?.keys!!.size].id)
-            type = "item"
+        when {
+            wheel!!.selectedPosition == 0 -> for (p in land!!.plants) list.add(p.id)
+            wheel!!.selectedPosition == 1 -> type = "land"
+            wheel!!.selectedPosition - 2 < plantGroups?.keys!!.size -> {
+                for (p in land!!.plants)
+                    if (plantGroups!!.keys.toList()[wheel!!.selectedPosition - 2] == p.plantType) list.add(p.id)
+                type = "group"
+            }
+            else -> {
+                list.add(land!!.plants[wheel!!.selectedPosition - 2 - plantGroups?.keys!!.size].id)
+                type = "item"
+            }
         }
         Log.v("ScrollingActivity", "type:$type list:$list")
         args.putString("type", type)
@@ -440,52 +465,11 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
                 .commit()
         editButton!!.visibility = View.VISIBLE
         addTaskButton!!.visibility = View.GONE
-        removeButton.setEnabled(false)
+        removeButton.isEnabled = false
     }
 
     private fun drawTrees() {
-        /*val r = 15
-        val mPaint = Paint()
-        mPaint.color = Color.RED
-        mPaint.style = Paint.Style.STROKE
-        mPaint.strokeWidth = 2.5f
-        mPaint.isAntiAlias = true
-        val xRatio = toolbarLayout.measuredWidth.toFloat() / layers[0]!!.intrinsicWidth.toFloat()
-        val yRatio = toolbarLayout.measuredHeight.toFloat() / layers[0]!!.intrinsicHeight.toFloat()
-        val xSize: Int
-        val ySize: Int
-        if (xRatio < yRatio) {
-            xSize = (xRatio * layers[0]!!.intrinsicWidth).roundToInt()
-            ySize = (xRatio * layers[0]!!.intrinsicHeight).roundToInt()
-        } else {
-            xSize = (yRatio * layers[0]!!.intrinsicWidth).roundToInt()
-            ySize = (yRatio * layers[0]!!.intrinsicHeight).roundToInt()
-        }
-        val bitmap = Bitmap.createBitmap(xSize, ySize, Bitmap.Config.ARGB_8888)
-        val canvas = Canvas(bitmap)
-        Log.v("draw", land!!.plants.toString())
-        if (plantGroups != null)
-            for (i in land!!.plants.indices){
-                val p = land!!.plants[i]
-            //for (group in plantGroups!!.keys){
-                val plantType = plantTypeList!!.stream().filter { it.name == p.plantType } .findAny().get()
-                Log.v("plantType", plantType.toString())
-                val d = ContextCompat.getDrawable(this, plantType.icon)
-                d!!.setBounds(
-                    (p.x * canvas.width).roundToInt() - d.intrinsicWidth / 8,
-                    (p.y * canvas.height - d.intrinsicHeight / 8).roundToInt(),
-                        (p.x * canvas.width).roundToInt() + d.intrinsicWidth / 8, (p.y * canvas.height).roundToInt() + d.intrinsicHeight / 8)
-                d.colorFilter = PorterDuffColorFilter(Color.parseColor(plantType.color), PorterDuff.Mode.SRC_IN)
-                //And draw it...
-                d.draw(canvas)
-                if (i + 2 + plantGroups!!.keys.size == selected || selected == 0 || selected - 2 < plantGroups!!.keys.size && selected > 1 && p.plantType == plantGroups!!.keys.toList()[selected - 2])
-                    canvas.drawCircle(p.x * canvas.width, p.y * canvas.height, r.toFloat(), mPaint)
-
-
-            }
-        val drawable = BitmapDrawable(resources, bitmap)
-        layers[1] = drawable
-        toolbarLayout.background = LayerDrawable(layers)*/
+        setExistingObjects(land!!.plants)
     }
 
     fun removeTree(view: View) {
@@ -526,39 +510,6 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
         alertDialog.show()
     }
 
-    private fun readPlantTypes(): ArrayList<PlantTypeObject> {
-        val mDbHelper = LandOpenHelper(applicationContext)
-        val db = mDbHelper.readableDatabase
-
-        // Define a projection that specifies which columns from the database
-        // you will actually use after this query.
-        val projection = arrayOf(
-                "Name",
-                "Icon",
-                "Color"
-        )
-
-        // How you want the results sorted in the resulting Cursor
-        val sortOrder: String? = null
-        val cursor = db.query(
-                "PlantTypes",  // The table to query
-                projection,  // The array of columns to return (pass null to get all)
-                null,  // The columns for the WHERE clause
-                null,  // The values for the WHERE clause
-                null,  // don't group the rows
-                null,  // don't filter by row groups
-                sortOrder // The sort order
-        )
-        val plants = ArrayList<PlantTypeObject>()
-        while (cursor.moveToNext()) {
-            val o = PlantTypeObject(cursor.getString(0), cursor.getInt(1), cursor.getString(2))
-            plants.add(o)
-        }
-        cursor.close()
-        db.close()
-        return plants
-    }
-
     override fun onResume() {
         super.onResume()
         initiateStuff()
@@ -571,23 +522,26 @@ class ScrollingActivity : AppCompatActivity(), AddTaskFragment.OnFragmentInterac
         plantGroups = plants.groupBy { it.plantType }
         strings.add(resources.getString(R.string.all_tasks))
         strings.add(resources.getString(R.string.land))
-        for (p in plantTypeList!!)
-            if (plantGroups!!.containsKey(p.name))
-                strings.add(p.name + " (" + plantGroups!!.getOrDefault(p.name, listOf()).size + ")")
+        for (p in plantGroups!!.keys)
+            if (plantGroups!!.containsKey(p))
+                strings.add(p + " (" + plantGroups!!.getOrDefault(p, listOf()).size + ")")
         for (p in land!!.plants)
                 strings.add(p.plantType)
         wheel!!.items = strings
         wheel!!.minSelectableIndex = 0
         wheel!!.maxSelectableIndex = strings.size - 1
 
-        if (!first) drawTrees()
+        setCameraPosition(land!!)
+        setLandBorders(land!!)
+
+        drawTrees()
     }
 
     @SuppressLint("RestrictedApi")
     fun showButtons() {
         editButton!!.visibility = View.VISIBLE
         addTaskButton!!.visibility = View.VISIBLE
-        if (selected > plantGroups?.keys!!.size + 1) removeButton.setEnabled(true)
+        if (selected > plantGroups?.keys!!.size + 1) removeButton.isEnabled = true
     }
 
     override fun onFragmentInteraction(tasks: ArrayList<TaskObject>?) {

@@ -132,7 +132,7 @@ class LandEditMapActivity : AppCompatActivity(), PopupMenuAdapter.OnMenuItemInte
         removeObject.backgroundTintList = ColorStateList.valueOf(if (addedObjects.isNotEmpty()) Color.RED else Color.GRAY)
     }
 
-    private fun getObjectIconPainted(type: PlantTypeObject): Bitmap {
+    private fun getObjectIconPainted(type: PlantTypeObject, selected: Boolean = false): Bitmap {
         val myIcon = ContextCompat.getDrawable(this, type.icon)
         val bitmap = (myIcon as BitmapDrawable).bitmap.copy(Bitmap.Config.ARGB_8888, true);
         val paint = Paint()
@@ -144,6 +144,14 @@ class LandEditMapActivity : AppCompatActivity(), PopupMenuAdapter.OnMenuItemInte
 
         val canvas = Canvas(bitmap)
         canvas.drawBitmap(bitmap, 0.0F, 0.0F, paint)
+        if (selected) {
+            val mPaint = Paint()
+            mPaint.color = Color.RED
+            mPaint.style = Paint.Style.STROKE
+            mPaint.strokeWidth = 2.5f
+            mPaint.isAntiAlias = true
+            canvas.drawCircle(canvas.width.toFloat() / 2, canvas.height.toFloat() / 2, 50f, mPaint)
+        }
         return bitmap
     }
 
