@@ -91,25 +91,29 @@ class LandEditMapActivity : AppCompatActivity(), PopupMenuAdapter.OnMenuItemInte
 
         deleteObject.setOnClickListener {
             selectedObject?.let {
-                val alert = AlertDialog.Builder(this)
-                    .setMessage(R.string.remove_tree)
-                    .setCancelable(false)
-                    .setPositiveButton(R.string.yes) { _, _ ->
-                        LandOpenHelper.deletePlantObject(this, it)
-                        land!!.removePlant(it)
-                        selectedObject = null
-                        setExistingObjects(land!!.plants)
-                        checkDeleteButtonVisibility()
-                    }
-                    .setNegativeButton(R.string.no) { dialog, _ ->
-                        dialog.dismiss()
-                    }.create()
-                alert.show()
+                deleteObject(it)
             }
         }
 
         checkRemoveButtonVisibility()
         checkDeleteButtonVisibility()
+    }
+
+    private fun deleteObject(objectToDelete: PlantObject) {
+        val alert = AlertDialog.Builder(this)
+            .setMessage(R.string.remove_tree)
+            .setCancelable(false)
+            .setPositiveButton(R.string.yes) { _, _ ->
+                LandOpenHelper.deletePlantObject(this, objectToDelete)
+                land!!.removePlant(objectToDelete)
+                selectedObject = null
+                setExistingObjects(land!!.plants)
+                checkDeleteButtonVisibility()
+            }
+            .setNegativeButton(R.string.no) { dialog, _ ->
+                dialog.dismiss()
+            }.create()
+        alert.show()
     }
 
     private fun selectClosestObject(click: Point) {
