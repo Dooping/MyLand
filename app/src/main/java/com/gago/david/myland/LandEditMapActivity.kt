@@ -29,6 +29,8 @@ class LandEditMapActivity : AppCompatActivity(), PopupMenuAdapter.OnMenuItemInte
     private lateinit var mapView: MapView
     private lateinit var placeObject: FloatingActionButton
     private lateinit var removeObject: FloatingActionButton
+    private lateinit var deleteObject: FloatingActionButton
+    private lateinit var moveObject: FloatingActionButton
     private var alertDialog : AlertDialog? = null
     private var land: LandObject? = null
     private lateinit var polylineAnnotationManager: PolylineAnnotationManager
@@ -66,6 +68,8 @@ class LandEditMapActivity : AppCompatActivity(), PopupMenuAdapter.OnMenuItemInte
 
         placeObject = findViewById(R.id.place_object)
         removeObject = findViewById(R.id.remove_object)
+        deleteObject = findViewById(R.id.delete_object)
+        moveObject = findViewById(R.id.move_object)
 
         placeObject.setOnLongClickListener {
             showObjectTypeDialog()
@@ -85,13 +89,34 @@ class LandEditMapActivity : AppCompatActivity(), PopupMenuAdapter.OnMenuItemInte
             removeLastObject()
         }
 
+        deleteObject.setOnClickListener {
+            selectedObject?.let {
+                val alert = AlertDialog.Builder(this)
+                    .setMessage(R.string.remove_tree)
+                    .setCancelable(false)
+                    .setPositiveButton(R.string.yes) { _, _ ->
+                        LandOpenHelper.deletePlantObject(this, it)
+                        land!!.removePlant(it)
+                        selectedObject = null
+                        setExistingObjects(land!!.plants)
+                        checkDeleteButtonVisibility()
+                    }
+                    .setNegativeButton(R.string.no) { dialog, _ ->
+                        dialog.dismiss()
+                    }.create()
+                alert.show()
+            }
+        }
+
         checkRemoveButtonVisibility()
+        checkDeleteButtonVisibility()
     }
 
     private fun selectClosestObject(click: Point) {
         val min = land!!.plants.minByOrNull { plantObject -> TurfMeasurement.distance(Point.fromLngLat(plantObject.lon, plantObject.lat), click) }
         min?.let {
             selectedObject = it
+            checkDeleteButtonVisibility()
         }
     }
 
@@ -114,6 +139,7 @@ class LandEditMapActivity : AppCompatActivity(), PopupMenuAdapter.OnMenuItemInte
             val last = addedObjects.last()
             addedObjects = addedObjects.dropLast(1)
             land!!.removePlant(last)
+            LandOpenHelper.deletePlantObject(this, last)
             annotationManager.delete(addedAnnotations.last())
             addedAnnotations = addedAnnotations.dropLast(1)
         }
@@ -141,6 +167,11 @@ class LandEditMapActivity : AppCompatActivity(), PopupMenuAdapter.OnMenuItemInte
     private fun checkRemoveButtonVisibility() {
         removeObject.isEnabled = addedObjects.isNotEmpty()
         removeObject.backgroundTintList = ColorStateList.valueOf(if (addedObjects.isNotEmpty()) Color.RED else Color.GRAY)
+    }
+
+    private fun checkDeleteButtonVisibility() {
+        deleteObject.isEnabled = selectedObject != null
+        deleteObject.backgroundTintList = ColorStateList.valueOf(if (selectedObject != null) Color.RED else Color.GRAY)
     }
 
     private fun getObjectIconPainted(type: PlantTypeObject, selected: Boolean = false): Bitmap {

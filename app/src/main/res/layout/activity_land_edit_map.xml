@@ -74,6 +74,53 @@
             mapbox:elevation="6dp"
             mapbox:pressedTranslationZ="12dp"
             tools:visibility="visible" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/move_object"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="false"
+            android:layout_alignParentBottom="true"
+            android:layout_gravity="bottom|end"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="20dp"
+            android:layout_marginBottom="20dp"
+            android:alpha="0.8"
+            android:backgroundTint="@color/colorAccent"
+            android:foreground="@drawable/ic_baseline_open_with_24"
+            android:foregroundGravity="center"
+            android:foregroundTint="@color/white"
+            android:visibility="visible"
+            app:elevation="10dp"
+            mapbox:borderWidth="0dp"
+            mapbox:pressedTranslationZ="12dp"
+            tools:visibility="visible" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/delete_object"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/saveButton"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="false"
+            android:layout_alignParentBottom="true"
+            android:layout_gravity="bottom|end"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="20dp"
+            android:layout_marginBottom="100dp"
+            android:alpha="0.8"
+            android:foreground="@drawable/ic_baseline_delete_24"
+            android:foregroundGravity="center"
+            android:foregroundTint="@color/white"
+            android:visibility="visible"
+            app:backgroundTint="@android:color/holo_red_dark"
+            mapbox:borderWidth="0dp"
+            mapbox:elevation="6dp"
+            mapbox:pressedTranslationZ="12dp"
+            tools:visibility="visible" />
     </com.mapbox.maps.MapView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
