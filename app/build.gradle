@@ -27,6 +27,7 @@ android {
         abortOnError false
         disable 'LogNotTimber', 'StringFormatInTimber', 'ThrowableNotAtBeginning', 'BinaryOperationInTimber', 'TimberArgCount', 'TimberArgTypes', 'TimberTagLength', 'TimberExceptionLogging'
     }
+    namespace 'com.gago.david.myland'
 }
 
 repositories {

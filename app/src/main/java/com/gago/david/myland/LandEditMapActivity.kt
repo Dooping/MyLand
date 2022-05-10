@@ -1,9 +1,11 @@
 package com.gago.david.myland
 
+import android.animation.Animator
 import android.content.res.ColorStateList
 import android.graphics.*
 import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -19,10 +21,14 @@ import com.mapbox.geojson.Polygon
 import com.mapbox.maps.CameraOptions
 import com.mapbox.maps.MapView
 import com.mapbox.maps.Style
+import com.mapbox.maps.plugin.animation.MapAnimationOptions.Companion.mapAnimationOptions
+import com.mapbox.maps.plugin.animation.flyTo
 import com.mapbox.maps.plugin.annotation.annotations
 import com.mapbox.maps.plugin.annotation.generated.*
 import com.mapbox.maps.plugin.gestures.addOnMapClickListener
+import com.mapbox.maps.toCameraOptions
 import com.mapbox.turf.TurfMeasurement
+import java.util.ArrayList
 
 
 class LandEditMapActivity : AppCompatActivity(), PopupMenuAdapter.OnMenuItemInteractionListener {
@@ -37,8 +43,11 @@ class LandEditMapActivity : AppCompatActivity(), PopupMenuAdapter.OnMenuItemInte
     private lateinit var annotationManager: PointAnnotationManager
     private var selectedObjectType: PlantTypeObject? = null
     private var addedObjects: List<PlantObject> = emptyList()
-    private var addedAnnotations: List<PointAnnotation> = emptyList()
+    private var addedAnnotations: MutableList<PointAnnotation> = mutableListOf()
     private var selectedObject: PlantObject? = null
+    private var movingObject = false
+    private var allObjectAnnotations: Map<Int, PointAnnotation> = emptyMap()
+    private lateinit var crosshair: ImageView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,6 +79,7 @@ class LandEditMapActivity : AppCompatActivity(), PopupMenuAdapter.OnMenuItemInte
         removeObject = findViewById(R.id.remove_object)
         deleteObject = findViewById(R.id.delete_object)
         moveObject = findViewById(R.id.move_object)
+        crosshair = findViewById(R.id.crosshair)
 
         placeObject.setOnLongClickListener {
             showObjectTypeDialog()
@@ -92,11 +102,99 @@ class LandEditMapActivity : AppCompatActivity(), PopupMenuAdapter.OnMenuItemInte
         deleteObject.setOnClickListener {
             selectedObject?.let {
                 deleteObject(it)
-            }
+            } ?: Toast.makeText(this, getString(R.string.no_object_selected), Toast.LENGTH_SHORT).show()
+        }
+
+        moveObject.setOnClickListener {
+            selectedObject?.let {
+                moveObject(it)
+            } ?: Toast.makeText(this, getString(R.string.no_object_selected), Toast.LENGTH_SHORT).show()
         }
 
         checkRemoveButtonVisibility()
         checkDeleteButtonVisibility()
+    }
+
+    private fun moveObject(plantObject: PlantObject) {
+        val objectTypes = LandOpenHelper.readPlantTypes(this)
+        if (!movingObject) {
+            startObjectMoving(plantObject, objectTypes)
+        }  else {
+            stopObjectMoving(objectTypes, plantObject)
+        }
+
+        checkAddButtonVisibility()
+        checkDeleteButtonVisibility()
+        checkRemoveButtonVisibility()
+    }
+
+    private fun stopObjectMoving(
+        objectTypes: ArrayList<PlantTypeObject>,
+        plantObject: PlantObject
+    ) {
+        movingObject = false
+        mapView.getMapboxMap().cameraState.center
+        val type = objectTypes.find { type -> type.name == plantObject.plantType }!!
+        val icon = getObjectIconPainted(type, true)
+        val center = mapView.getMapboxMap().cameraState.center
+
+        val pointAnnotationOptions: PointAnnotationOptions = PointAnnotationOptions()
+            .withPoint(center)
+            .withIconImage(icon)
+        val newAnnotation = annotationManager.create(pointAnnotationOptions)
+        plantObject.lat = center.latitude()
+        plantObject.lon = center.longitude()
+        val oldAnnotation = allObjectAnnotations[plantObject.id]
+        allObjectAnnotations = allObjectAnnotations + (plantObject.id to newAnnotation)
+        LandOpenHelper.updatePlant(this, plantObject, land!!.name)
+        addedAnnotations += newAnnotation
+        if (addedObjects.contains(plantObject)) {
+            val index = addedAnnotations.indexOf(oldAnnotation)
+            addedAnnotations[index] = newAnnotation
+        }
+        selectClosestObject(center)
+        crosshair.setImageResource(R.drawable.red_marker)
+    }
+
+    private fun startObjectMoving(
+        plantObject: PlantObject,
+        objectTypes: ArrayList<PlantTypeObject>
+    ) {
+        movingObject = true
+        val mapbox = mapView.getMapboxMap()
+        mapbox.flyTo(
+            mapbox.cameraState.toCameraOptions().toBuilder()
+                .center(Point.fromLngLat(plantObject.lon, plantObject.lat)).build(),
+            mapAnimationOptions {
+                animatorListener(object : Animator.AnimatorListener {
+                    override fun onAnimationStart(animation: Animator?) {
+
+                    }
+
+                    override fun onAnimationEnd(animation: Animator?) {
+                        allObjectAnnotations[plantObject.id]?.let {
+                            annotationManager.delete(it)
+                            Toast.makeText(
+                                this@LandEditMapActivity,
+                                R.string.edit_object_position,
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                        val type = objectTypes.find { type -> type.name == plantObject.plantType }!!
+                        val icon = getObjectIconPainted(type, true)
+                        crosshair.setImageBitmap(icon)
+                    }
+
+                    override fun onAnimationCancel(animation: Animator?) {
+
+                    }
+
+                    override fun onAnimationRepeat(animation: Animator?) {
+
+                    }
+                })
+            }
+        )
     }
 
     private fun deleteObject(objectToDelete: PlantObject) {
@@ -134,7 +232,8 @@ class LandEditMapActivity : AppCompatActivity(), PopupMenuAdapter.OnMenuItemInte
             val pointAnnotationOptions: PointAnnotationOptions = PointAnnotationOptions()
                 .withPoint(Point.fromLngLat(it.lon, it.lat))
                 .withIconImage(icon)
-            annotationManager.create(pointAnnotationOptions)
+            val newAnnotation = annotationManager.create(pointAnnotationOptions)
+            allObjectAnnotations = allObjectAnnotations + (it.id to newAnnotation)
         }
     }
 
@@ -145,7 +244,8 @@ class LandEditMapActivity : AppCompatActivity(), PopupMenuAdapter.OnMenuItemInte
             land!!.removePlant(last)
             LandOpenHelper.deletePlantObject(this, last)
             annotationManager.delete(addedAnnotations.last())
-            addedAnnotations = addedAnnotations.dropLast(1)
+            addedAnnotations.dropLast(1)
+            allObjectAnnotations = allObjectAnnotations - last.id
         }
         checkRemoveButtonVisibility()
     }
@@ -156,7 +256,9 @@ class LandEditMapActivity : AppCompatActivity(), PopupMenuAdapter.OnMenuItemInte
         val pointAnnotationOptions: PointAnnotationOptions = PointAnnotationOptions()
             .withPoint(center)
             .withIconImage(icon)
-        addedAnnotations = addedAnnotations + annotationManager.create(pointAnnotationOptions)
+        val newAnnotation = annotationManager.create(pointAnnotationOptions)
+        addedAnnotations += newAnnotation
+        allObjectAnnotations = allObjectAnnotations + (p.id to newAnnotation)
         land!!.addPlant(p)
         addedObjects = addedObjects + p
         checkRemoveButtonVisibility()
@@ -169,13 +271,23 @@ class LandEditMapActivity : AppCompatActivity(), PopupMenuAdapter.OnMenuItemInte
     }
 
     private fun checkRemoveButtonVisibility() {
-        removeObject.isEnabled = addedObjects.isNotEmpty()
-        removeObject.backgroundTintList = ColorStateList.valueOf(if (addedObjects.isNotEmpty()) Color.RED else Color.GRAY)
+        val isEnabled = addedObjects.isNotEmpty() && !movingObject
+        removeObject.isEnabled = isEnabled
+        removeObject.backgroundTintList = ColorStateList.valueOf(if (isEnabled) Color.RED else Color.GRAY)
     }
 
     private fun checkDeleteButtonVisibility() {
-        deleteObject.isEnabled = selectedObject != null
-        deleteObject.backgroundTintList = ColorStateList.valueOf(if (selectedObject != null) Color.RED else Color.GRAY)
+        val isEnabled = selectedObject != null && !movingObject
+        deleteObject.isEnabled = isEnabled
+        deleteObject.backgroundTintList = ColorStateList.valueOf(if (isEnabled) Color.RED else Color.GRAY)
+    }
+
+    private fun checkAddButtonVisibility() {
+        val isEnabled = !movingObject
+        placeObject.isEnabled = isEnabled
+        resources.getColor(R.color.colorAccent, theme)
+        placeObject.backgroundTintList = ColorStateList.valueOf(if (isEnabled)
+            resources.getColor(R.color.colorAccent, theme) else Color.GRAY)
     }
 
     private fun getObjectIconPainted(type: PlantTypeObject, selected: Boolean = false): Bitmap {

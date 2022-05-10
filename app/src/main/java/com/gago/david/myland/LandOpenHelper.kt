@@ -982,6 +982,27 @@ Land VARCHAR NOT NULL,
             return newRowId > -1
         }
 
+        fun updatePlant(context: Context, p: PlantObject, land: String?): Boolean {
+            val mDbHelper = LandOpenHelper(context)
+
+            // Gets the data repository in write mode
+            val db = mDbHelper.writableDatabase
+            val prefs = context.getSharedPreferences(SettingsFragment.MY_PREFS_NAME, Context.MODE_PRIVATE)
+            val user = prefs.getString("user", "")
+
+            val values = ContentValues()
+            values.put("Land", land)
+            values.put("User", user)
+            values.put("PlantType", p.plantType)
+            values.put("Description", p.description)
+            values.put("lat", p.lat)
+            values.put("lon", p.lon)
+
+            val whereClause = "Id = ?"
+            val newRowId = db.update("Plants", values, whereClause, arrayOf(p.id.toString()))
+            return newRowId > -1
+        }
+
         fun addTask(context: Context, t: TaskObject): Boolean {
             val mDbHelper = LandOpenHelper(context)
 

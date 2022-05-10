@@ -22,7 +22,7 @@ class UserAdapter(private val items : ArrayList<String>?, val context: Context, 
 
     // Binds each animal in the ArrayList to a view
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(items!!.get(position), listener)
+        holder.bind(items!![position], listener)
         //holder.user?.text = items.get(position)
     }
 
