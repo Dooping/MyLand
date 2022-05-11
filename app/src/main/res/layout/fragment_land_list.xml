@@ -31,17 +31,6 @@
         android:tint="@color/white"
         app:elevation="10dp" />
 
-    <id.arieridwan.lib.PageLoader
-        android:id="@+id/pageloader"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:setErrorImage="@drawable/ic_not_found"
-        app:setErrorText="@string/something_happened"
-        app:setLoadingAnimationMode="flip"
-        app:setLoadingImage="@drawable/laucher_icon"
-        app:setLoadingText="@string/please_wait"
-        tools:visibility="gone" />
-
     <TextView
         android:id="@+id/land_list_empty"
         style="@android:style/Widget.DeviceDefault.Light.TextView"

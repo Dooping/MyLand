@@ -6,7 +6,6 @@ import android.content.Intent
 import android.os.Bundle
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import android.util.Log
@@ -18,7 +17,6 @@ import com.gago.david.myland.LandFragment.OnListFragmentInteractionListener
 import com.gago.david.myland.adapters.MyLandRecyclerViewAdapter
 import com.gago.david.myland.models.LandObject
 import com.gago.david.myland.models.PriorityObject
-import id.arieridwan.lib.PageLoader
 
 /**
  * A fragment representing a list of Items.
@@ -36,7 +34,6 @@ class LandFragment
     private var mColumnCount = 1
     private var mListener: OnListFragmentInteractionListener? = null
     private var adapter: MyLandRecyclerViewAdapter? = null
-    private var pageLoader: PageLoader? = null
     private lateinit var lands: MutableList<LandObject>
     private lateinit var priorities: List<PriorityObject>
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -64,11 +61,9 @@ class LandFragment
 
         // Set the adapter
         val btn = view.findViewById<View>(R.id.add_land_button) as FloatingActionButton
-        pageLoader = view.findViewById<View>(R.id.pageloader) as PageLoader
         btn.setOnClickListener {
             val intent = Intent(activity, AddLandActivity::class.java)
             startActivityForResult(intent, 1)
-            pageLoader!!.startProgress()
         }
         return view
     }
@@ -106,7 +101,6 @@ class LandFragment
 
     override fun onStop() {
         super.onStop()
-        pageLoader!!.stopProgress()
     }
 
     override fun onResume() {

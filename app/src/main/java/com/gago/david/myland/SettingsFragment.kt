@@ -29,7 +29,6 @@ import com.gago.david.myland.adapters.ItemTypeAdapter
 import com.gago.david.myland.adapters.TaskTypeAdapter
 import com.gago.david.myland.models.PlantTypeObject
 import com.gago.david.myland.models.TaskTypeObject
-import id.arieridwan.lib.PageLoader
 import lib.kingja.switchbutton.SwitchMultiButton
 import java.io.IOException
 import java.util.*
@@ -52,7 +51,6 @@ class SettingsFragment : Fragment() {
     lateinit var deleteUser: MagicButton
     private lateinit var unitSwitch: SwitchMultiButton
     lateinit var mapType: SwitchMultiButton
-    lateinit var pageLoader: PageLoader
     lateinit var startNewSeasonButton: Button
 
     private var mParam1: String? = null
@@ -99,7 +97,6 @@ class SettingsFragment : Fragment() {
             deleteUser = view.findViewById(R.id.delete_user)
             unitSwitch = view.findViewById(R.id.unit)
             mapType = view.findViewById(R.id.map_type)
-            pageLoader = view.findViewById(R.id.pageloader)
             startNewSeasonButton = view.findViewById(R.id.startNewSeasonButton)
 
             startNewSeasonButton.setOnClickListener { startNewSeason() }
@@ -319,7 +316,6 @@ class SettingsFragment : Fragment() {
 
     private inner class ExportDB(private val mContext: Context?) : AsyncTask<Uri?, Void?, Boolean>() {
         override fun onPreExecute() {
-            pageLoader.startProgress()
         }
 
         override fun doInBackground(vararg path: Uri?): Boolean {
@@ -335,14 +331,12 @@ class SettingsFragment : Fragment() {
 
         override fun onPostExecute(result: Boolean) {
             mContext!!.deleteDatabase(LandExporterHelper.LAND_TABLE_NAME)
-            pageLoader.stopProgress()
             if (result) Toast.makeText(mContext, R.string.export_success, Toast.LENGTH_SHORT).show() else Toast.makeText(mContext, R.string.export_error, Toast.LENGTH_SHORT).show()
         }
     }
 
     private inner class ImportDB(private val mContext: Context?) : AsyncTask<Uri?, Void?, Boolean>() {
         override fun onPreExecute() {
-            pageLoader.startProgress()
         }
 
         override fun doInBackground(vararg path: Uri?): Boolean {
@@ -359,7 +353,6 @@ class SettingsFragment : Fragment() {
 
         override fun onPostExecute(result: Boolean) {
             mContext!!.deleteDatabase(LandImporterHelper.LAND_TABLE_NAME)
-            pageLoader.stopProgress()
             if (result) Toast.makeText(mContext, R.string.import_success, Toast.LENGTH_SHORT).show() else Toast.makeText(mContext, R.string.import_error, Toast.LENGTH_SHORT).show()
         }
     }

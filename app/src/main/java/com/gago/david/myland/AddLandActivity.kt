@@ -25,7 +25,6 @@ import com.mapbox.maps.plugin.gestures.gestures
 import com.mapbox.maps.plugin.locationcomponent.OnIndicatorPositionChangedListener
 import com.mapbox.maps.plugin.locationcomponent.location
 import com.mapbox.turf.*
-import id.arieridwan.lib.PageLoader
 import java.lang.ref.WeakReference
 import java.util.*
 
@@ -33,7 +32,6 @@ class AddLandActivity : AppCompatActivity() {
     private var mapView: MapView? = null
     private lateinit var mapboxMap: MapboxMap
     private var polygon: MutableList<Point> = mutableListOf()
-    private var pageLoader: PageLoader? = null
     private var area: Double? = null
     private lateinit var locationPermissionHelper: LocationPermissionHelper
     private lateinit var polylineAnnotationManager: PolylineAnnotationManager
@@ -71,8 +69,6 @@ class AddLandActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_land)
         mapView = findViewById(R.id.mapView)
-        pageLoader = findViewById(R.id.pageloader)
-        pageLoader?.startProgress()
         polygon = LinkedList()
         locationPermissionHelper = LocationPermissionHelper(WeakReference(this))
         locationPermissionHelper.checkPermissions {
@@ -194,7 +190,6 @@ class AddLandActivity : AppCompatActivity() {
         )
         // After the style is loaded, initialize the Location component.
         {
-            pageLoader?.stopProgress()
             initLocationComponent()
             setupGesturesListener()
         }
