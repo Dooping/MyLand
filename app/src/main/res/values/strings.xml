@@ -207,4 +207,5 @@
     <string name="helper_edit_land_long_press">Hold the object button to change the type</string>
     <string name="no_object_selected">No object is selected!</string>
     <string name="edit_object_position">Press again to place the object.</string>
+    <string name="add_land_details_title">Land details</string>
 </resources>

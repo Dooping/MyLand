@@ -11,23 +11,21 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.DialogFragment
+import com.gago.david.myland.AddLandActivity
 import com.gago.david.myland.LandEditMapActivity
 import com.gago.david.myland.R
 import com.gago.david.myland.models.PlantTypeObject
 import com.mapbox.geojson.Point
 
-class AddItemDialogFragment(val item: PlantTypeObject, val center: Point) : DialogFragment() {
+class AddLandDetailsDialogFragment : DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val view: View = layoutInflater.inflate(R.layout.add_item_dialog, null)
-        val description = view.findViewById<EditText>(R.id.state)
+        val view: View = layoutInflater.inflate(R.layout.add_land_dialog, null)
+        val state = view.findViewById<EditText>(R.id.state)
+        val name = view.findViewById<EditText>(R.id.name)
 
         val builder: AlertDialog.Builder = AlertDialog.Builder(activity)
-            .setPositiveButton("Ok") { _, _ -> (activity as LandEditMapActivity).addItemDialogOkButton(description.text.toString(), item.name, center) }
+            .setPositiveButton("Ok") { _, _ -> (activity as AddLandActivity).addLandDetailsCallback(name.text.toString(), state.text.toString()) }
             .setNegativeButton(R.string.cancel) { _, _ ->  }
-        val icon = view.findViewById<ImageView>(R.id.icon)
-        icon.setImageResource(item.icon)
-        icon.colorFilter = PorterDuffColorFilter(Color.parseColor(item.color), PorterDuff.Mode.SRC_IN)
-        view.findViewById<TextView>(R.id.title).text = item.name
 
         builder.setView(view)
         return builder.create()

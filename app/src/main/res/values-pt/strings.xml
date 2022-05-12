@@ -107,10 +107,11 @@
     <string name="dialog_new_season_body">Tem a certeza que quer iniciar uma nova temporada?\nTodas as tarefas completas irão desaparecer.</string>
     <string name="toast_new_season_success">A nova temporada começou!</string>
     <string name="start_new_season_button">Começar nova temporada</string>
-    <string name="taking_snapshot_text">A criar imagem...</string>
+    <string name="taking_snapshot_text">A criar imagem…</string>
     <string name="color_picker_title">Escolha a cor</string>
-    <string name="add_item_dialog_state_hints">Em perigo de air, perto de estrada, etc...</string>
+    <string name="add_item_dialog_state_hints">Em perigo de cair, perto de estrada, etc…</string>
     <string name="helper_edit_land_long_press">Fique a pressionar o botão do objeto para mudar o tipo</string>
     <string name="no_object_selected">Nenhum objecto está selecionado!</string>
     <string name="edit_object_position">Pressione outra vez para largar o objeto.</string>
+    <string name="add_land_details_title">Detalhes do terreno</string>
 </resources>

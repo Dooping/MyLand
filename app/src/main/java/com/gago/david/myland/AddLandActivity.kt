@@ -7,6 +7,8 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import androidx.appcompat.app.AppCompatActivity
 import android.util.Log
 import android.widget.Toast
+import com.gago.david.myland.fragments.AddLandDetailsDialogFragment
+import com.gago.david.myland.models.LandObject
 import com.gago.david.myland.utils.LocationPermissionHelper
 import com.mapbox.android.gestures.MoveGestureDetector
 import com.mapbox.geojson.Point
@@ -89,7 +91,8 @@ class AddLandActivity : AppCompatActivity() {
             hasStartedSnapshotGeneration = true
             if (checkBoundary()) {
                 Toast.makeText(this, R.string.taking_snapshot_text, Toast.LENGTH_LONG).show()
-                startSnapShot()
+                //startSnapShot()
+                AddLandDetailsDialogFragment().show(supportFragmentManager, "add-land-details-dialog")
             }
             else {
                 hasStartedSnapshotGeneration = false
@@ -254,6 +257,44 @@ class AddLandActivity : AppCompatActivity() {
         addMarker(point)
         Log.v("MAPBOX", "marker added")
         return true;
+    }
+
+    fun addLandDetailsCallback(name: String, state: String) {
+        val latitude = mapboxMap.cameraState.center.latitude()
+        val longitude = mapboxMap.cameraState.center.longitude()
+        val zoom = mapboxMap.cameraState.zoom
+        val bearing = mapboxMap.cameraState.bearing
+
+
+        val polygonGeoJSON = Polygon.fromLngLats(listOf(polygon))
+        area = TurfMeasurement.area(polygonGeoJSON)
+
+        val success = LandOpenHelper.addLand(
+            this,
+            LandObject(
+                name,
+                "asd",
+                state,
+                area!!,
+                latitude,
+                longitude,
+                zoom,
+                bearing,
+                polygonGeoJSON.toJson()
+            )
+        )
+        if (!success) Toast.makeText(
+            this,
+            "Land already exists, choose a different name",
+            Toast.LENGTH_SHORT
+        ).show() else {
+            val intent = Intent(this, ScrollingActivity::class.java)
+            val b = Bundle()
+            b.putString("name", name)
+            intent.putExtras(b)
+            startActivity(intent)
+            finish()
+        }
     }
 
     /*override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {

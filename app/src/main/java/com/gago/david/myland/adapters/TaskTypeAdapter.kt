@@ -58,7 +58,7 @@ class TaskTypeAdapter(private val mValues: MutableList<TaskTypeObject>, private 
 
         init {
             task = mView.findViewById(R.id.task)
-            description = mView.findViewById(R.id.description)
+            description = mView.findViewById(R.id.state)
             remove = mView.findViewById(R.id.remove)
         }
     }

@@ -11,14 +11,13 @@
     android:paddingEnd="16dp"
     android:paddingStart="16dp">
 
-    <de.hdodenhof.circleimageview.CircleImageView xmlns:app="http://schemas.android.com/apk/res-auto"
+    <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/land_image"
         android:layout_width="@android:dimen/notification_large_icon_width"
         android:layout_height="@android:dimen/notification_large_icon_height"
-        android:layout_marginBottom="8dp"
         android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
         android:layout_weight="0"
-        android:src="@drawable/ic_cut"
         app:civ_border_color="@android:color/background_dark"
         app:civ_border_width="0dp" />
 

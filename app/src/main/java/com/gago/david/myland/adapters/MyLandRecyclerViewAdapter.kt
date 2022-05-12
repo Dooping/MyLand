@@ -37,7 +37,7 @@ class MyLandRecyclerViewAdapter(
         holder.mItem = mValues[position]
         holder.mIdView.text = holder.mItem!!.name
         holder.mContentView.text = holder.mItem!!.description
-        holder.landImage.setImageBitmap(LandOpenHelper.getImage(context, holder.mItem!!.imageUri))
+        //holder.landImage.setImageBitmap(LandOpenHelper.getImage(context, holder.mItem!!.imageUri))
         holder.number.text = String.format("%d", holder.mItem!!.notifications)
         var colorChanged = false
         for (p in priorities) if (p.p_order == holder.mItem!!.priority) {
