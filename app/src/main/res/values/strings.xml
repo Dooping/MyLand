@@ -208,4 +208,5 @@
     <string name="no_object_selected">No object is selected!</string>
     <string name="edit_object_position">Press again to place the object.</string>
     <string name="add_land_details_title">Land details</string>
+    <string name="land_border_size_error">Add more points to the border</string>
 </resources>

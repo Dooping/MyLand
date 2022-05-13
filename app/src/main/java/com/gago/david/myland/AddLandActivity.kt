@@ -89,15 +89,28 @@ class AddLandActivity : AppCompatActivity() {
     private fun save() {
         if (!hasStartedSnapshotGeneration) {
             hasStartedSnapshotGeneration = true
-            if (checkBoundary()) {
-                Toast.makeText(this, R.string.taking_snapshot_text, Toast.LENGTH_LONG).show()
-                //startSnapShot()
-                AddLandDetailsDialogFragment().show(supportFragmentManager, "add-land-details-dialog")
+            if (polygon.size > 3) {
+                if (checkBoundary()) {
+                    AddLandDetailsDialogFragment().show(
+                        supportFragmentManager,
+                        "add-land-details-dialog"
+                    )
+                } else {
+                    hasStartedSnapshotGeneration = false
+                    Toast.makeText(
+                        baseContext,
+                        R.string.markers_visibility_error,
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             }
-            else {
-                hasStartedSnapshotGeneration = false
-                Toast.makeText(baseContext, R.string.markers_visibility_error, Toast.LENGTH_SHORT).show()
-            }
+        } else {
+            hasStartedSnapshotGeneration = false
+            Toast.makeText(
+                baseContext,
+                R.string.land_border_size_error,
+                Toast.LENGTH_SHORT
+            ).show()
         }
     }
 
@@ -106,7 +119,7 @@ class AddLandActivity : AppCompatActivity() {
         return pixelsForCoordinates.all { it.x >= 0 && it.y >= 0 }
     }
 
-    private fun startSnapShot() {
+    private fun startSnapShot(name: String, state: String) {
         mapboxMap.getStyle { style ->
             val latitude = mapboxMap.cameraState.center.latitude()
             val longitude = mapboxMap.cameraState.center.longitude()
@@ -122,18 +135,32 @@ class AddLandActivity : AppCompatActivity() {
 
                 if (snapshot != null) {
                     val filename = addImage(snapshot)
-                    val data = Intent()
-                    //---set the data to pass back---
-                    data.putExtra("name", filename)
-                    data.putExtra("area", area)
-                    data.putExtra("lat", latitude)
-                    data.putExtra("lon", longitude)
-                    data.putExtra("zoom", zoom)
-                    data.putExtra("bearing", bearing)
-                    data.putExtra("polygon", polygonGeoJSON.toJson())
-                    setResult(RESULT_OK, data)
-                    //---close the activity---
-                    finish()
+                    val success = LandOpenHelper.addLand(
+                        this,
+                        LandObject(
+                            name,
+                            filename,
+                            state,
+                            area!!,
+                            latitude,
+                            longitude,
+                            zoom,
+                            bearing,
+                            polygonGeoJSON.toJson()
+                        )
+                    )
+                    if (!success) Toast.makeText(
+                        this,
+                        "Land already exists, choose a different name",
+                        Toast.LENGTH_SHORT
+                    ).show() else {
+                        val intent = Intent(this, ScrollingActivity::class.java)
+                        val b = Bundle()
+                        b.putString("name", name)
+                        intent.putExtras(b)
+                        startActivity(intent)
+                        finish()
+                    }
                 }
             }
         }
@@ -260,44 +287,6 @@ class AddLandActivity : AppCompatActivity() {
     }
 
     fun addLandDetailsCallback(name: String, state: String) {
-        val latitude = mapboxMap.cameraState.center.latitude()
-        val longitude = mapboxMap.cameraState.center.longitude()
-        val zoom = mapboxMap.cameraState.zoom
-        val bearing = mapboxMap.cameraState.bearing
-
-
-        val polygonGeoJSON = Polygon.fromLngLats(listOf(polygon))
-        area = TurfMeasurement.area(polygonGeoJSON)
-
-        val success = LandOpenHelper.addLand(
-            this,
-            LandObject(
-                name,
-                "asd",
-                state,
-                area!!,
-                latitude,
-                longitude,
-                zoom,
-                bearing,
-                polygonGeoJSON.toJson()
-            )
-        )
-        if (!success) Toast.makeText(
-            this,
-            "Land already exists, choose a different name",
-            Toast.LENGTH_SHORT
-        ).show() else {
-            val intent = Intent(this, ScrollingActivity::class.java)
-            val b = Bundle()
-            b.putString("name", name)
-            intent.putExtras(b)
-            startActivity(intent)
-            finish()
-        }
+        startSnapShot(name, state)
     }
-
-    /*override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
-        permissionsManager!!.onRequestPermissionsResult(requestCode, permissions, grantResults)
-    }*/
 }

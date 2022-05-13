@@ -114,4 +114,5 @@
     <string name="no_object_selected">Nenhum objecto está selecionado!</string>
     <string name="edit_object_position">Pressione outra vez para largar o objeto.</string>
     <string name="add_land_details_title">Detalhes do terreno</string>
+    <string name="land_border_size_error">Adicione mais pontos ao limite</string>
 </resources>
