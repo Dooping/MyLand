@@ -97,6 +97,8 @@ class LandEditMapActivity : AppCompatActivity(), PopupMenuAdapter.OnMenuItemInte
 
         removeObject.setOnClickListener {
             removeLastObject()
+            checkDeleteButtonVisibility()
+            checkRemoveButtonVisibility()
         }
 
         deleteObject.setOnClickListener {
@@ -144,14 +146,8 @@ class LandEditMapActivity : AppCompatActivity(), PopupMenuAdapter.OnMenuItemInte
         val newAnnotation = annotationManager.create(pointAnnotationOptions)
         plantObject.lat = center.latitude()
         plantObject.lon = center.longitude()
-        val oldAnnotation = allObjectAnnotations[plantObject.id]
         allObjectAnnotations = allObjectAnnotations + (plantObject.id to newAnnotation)
         LandOpenHelper.updatePlant(this, plantObject, land!!.name)
-        addedAnnotations += newAnnotation
-        if (addedObjects.contains(plantObject)) {
-            val index = addedAnnotations.indexOf(oldAnnotation)
-            addedAnnotations[index] = newAnnotation
-        }
         selectClosestObject(center)
         crosshair.setImageResource(R.drawable.red_marker)
     }
@@ -243,11 +239,12 @@ class LandEditMapActivity : AppCompatActivity(), PopupMenuAdapter.OnMenuItemInte
             addedObjects = addedObjects.dropLast(1)
             land!!.removePlant(last)
             LandOpenHelper.deletePlantObject(this, last)
-            annotationManager.delete(addedAnnotations.last())
-            addedAnnotations.dropLast(1)
+            annotationManager.delete(allObjectAnnotations[last.id]!!)
             allObjectAnnotations = allObjectAnnotations - last.id
+            if (last == selectedObject) {
+                selectedObject = null
+            }
         }
-        checkRemoveButtonVisibility()
     }
 
     private fun addObject(center: Point, p: PlantObject) {
@@ -257,7 +254,6 @@ class LandEditMapActivity : AppCompatActivity(), PopupMenuAdapter.OnMenuItemInte
             .withPoint(center)
             .withIconImage(icon)
         val newAnnotation = annotationManager.create(pointAnnotationOptions)
-        addedAnnotations += newAnnotation
         allObjectAnnotations = allObjectAnnotations + (p.id to newAnnotation)
         land!!.addPlant(p)
         addedObjects = addedObjects + p
@@ -292,7 +288,7 @@ class LandEditMapActivity : AppCompatActivity(), PopupMenuAdapter.OnMenuItemInte
 
     private fun getObjectIconPainted(type: PlantTypeObject, selected: Boolean = false): Bitmap {
         val myIcon = ContextCompat.getDrawable(this, type.icon)
-        val bitmap = (myIcon as BitmapDrawable).bitmap.copy(Bitmap.Config.ARGB_8888, true);
+        val bitmap = (myIcon as BitmapDrawable).bitmap.copy(Bitmap.Config.ARGB_8888, true)
         val paint = Paint()
         val filter: ColorFilter = PorterDuffColorFilter(
             Color.parseColor(type.color),
