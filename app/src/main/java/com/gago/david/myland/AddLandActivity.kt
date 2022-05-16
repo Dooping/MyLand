@@ -185,7 +185,11 @@ class AddLandActivity : AppCompatActivity() {
             }
         })
         snapshotter.setCamera(mapboxMap.cameraState.toCameraOptions())
-        snapshotter.setSize(mapboxMap.getSize())
+        val size = mapboxMap.getSize()
+        if (size.height > size.width)
+            snapshotter.setSize(Size(size.height, size.width))
+        else
+            snapshotter.setSize(mapboxMap.getSize())
         snapshotter.setTileMode(false)
         return snapshotter
     }
@@ -283,7 +287,7 @@ class AddLandActivity : AppCompatActivity() {
         updatePolygon()
         addMarker(point)
         Log.v("MAPBOX", "marker added")
-        return true;
+        return true
     }
 
     fun addLandDetailsCallback(name: String, state: String) {

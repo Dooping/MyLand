@@ -16,10 +16,6 @@ import com.gago.david.myland.models.PriorityObject
 import com.google.android.material.progressindicator.LinearProgressIndicator
 import de.hdodenhof.circleimageview.CircleImageView
 
-/**
- * [RecyclerView.Adapter] that can display a [LandObject] and makes a call to the
- * specified [OnListFragmentInteractionListener].
- */
 class MyLandRecyclerViewAdapter(
     private val mValues: List<LandObject>,
     private val mListener: LandFragment.OnListFragmentInteractionListener?,
@@ -37,7 +33,7 @@ class MyLandRecyclerViewAdapter(
         holder.mItem = mValues[position]
         holder.mIdView.text = holder.mItem!!.name
         holder.mContentView.text = holder.mItem!!.description
-        //holder.landImage.setImageBitmap(LandOpenHelper.getImage(context, holder.mItem!!.imageUri))
+        holder.landImage.setImageBitmap(LandOpenHelper.getImage(context, holder.mItem!!.imageUri))
         holder.number.text = String.format("%d", holder.mItem!!.notifications)
         var colorChanged = false
         for (p in priorities) if (p.p_order == holder.mItem!!.priority) {
