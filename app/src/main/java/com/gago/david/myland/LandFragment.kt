@@ -68,22 +68,6 @@ class LandFragment
         return view
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        Log.v("ACTIVITY_RESULT_FRAGMENT", requestCode.toString())
-        if (requestCode == 1) {
-            if (resultCode == Activity.RESULT_OK) {
-                val filename = data!!.getStringExtra("name")
-                val area = data.getDoubleExtra("area", 0.0)
-                val lat = data.getDoubleExtra("lat", 0.0)
-                val lon = data.getDoubleExtra("lon", 0.0)
-                val zoom = data.getDoubleExtra("zoom", 0.0)
-                val bearing = data.getDoubleExtra("bearing", 0.0)
-                val polygon = data.getStringExtra("polygon")
-                (activity as MainActivity?)!!.addLandDetails(filename, area, lat, lon, zoom, bearing, polygon)
-            }
-        }
-    }
-
     override fun onAttach(context: Context) {
         super.onAttach(context)
         mListener = if (context is OnListFragmentInteractionListener) {

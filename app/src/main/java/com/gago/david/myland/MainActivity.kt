@@ -1,6 +1,5 @@
 package com.gago.david.myland
 
-import android.app.Activity
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
@@ -31,7 +30,7 @@ import com.gago.david.myland.models.PlantTypeObject
 import com.gago.david.myland.models.TaskTypeObject
 import java.util.*
 
-class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, LandFragment.OnListFragmentInteractionListener, AddLandDetailsFragment.OnFragmentInteractionListener, SettingsFragment.OnListFragmentInteractionListener, OnTaskListFragmentInteractionListener, EditTaskTypeFragment.OnFragmentInteractionListener, EditItemTypeFragment.OnFragmentInteractionListener {
+class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, LandFragment.OnListFragmentInteractionListener, SettingsFragment.OnListFragmentInteractionListener, OnTaskListFragmentInteractionListener, EditTaskTypeFragment.OnFragmentInteractionListener, EditItemTypeFragment.OnFragmentInteractionListener {
     private var logout = false
     private var tasks: ArrayList<TaskTypeObject>? = null
     private var taskTypeAdapter: TaskTypeAdapter? = null
@@ -137,32 +136,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         setTitle(title)
     }
 
-    fun addLandDetails(filename: String?, area: Double, lat: Double, lon: Double, zoom: Double, bearing: Double, polygon: String?) {
-        setActionBarTitle("Land Details")
-        val fragment: Fragment = AddLandDetailsFragment()
-        val args = Bundle()
-        args.putString("filename", filename)
-        args.putDouble("area", area)
-        args.putDouble("lat", lat)
-        args.putDouble("lon", lon)
-        args.putDouble("zoom", zoom)
-        args.putDouble("bearing", bearing)
-        args.putString("polygon", polygon)
-        fragment.arguments = args
-        supportFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, fragment).addToBackStack("main").commit()
-    }
-
-    fun removeLandDetails() {
-        val fragment: Fragment = AddLandDetailsFragment()
-        val manager = supportFragmentManager
-        val trans = manager.beginTransaction()
-        trans.remove(fragment)
-        trans.commit()
-        manager.popBackStack()
-    }
-
-    override fun onFragmentInteraction(uri: Uri?) {}
     override fun onListFragmentInteraction(item: LandObject) {
         val intent = Intent(this, ScrollingActivity::class.java)
         val b = Bundle()
@@ -248,7 +221,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             Log.v("Add TaskType", "Failed to insert task type: " + item.toString())
         } else {
             if (taskTypeAdapter != null && tasks != null) {
-                tasks!!.add(item!!)
+                tasks!!.add(item)
                 taskTypeAdapter!!.notifyDataSetChanged()
             }
             Toast.makeText(this, R.string.task_type_add_success, Toast.LENGTH_SHORT).show()

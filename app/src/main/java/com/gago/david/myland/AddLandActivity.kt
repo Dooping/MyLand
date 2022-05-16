@@ -103,14 +103,14 @@ class AddLandActivity : AppCompatActivity() {
                         Toast.LENGTH_SHORT
                     ).show()
                 }
+            } else {
+                hasStartedSnapshotGeneration = false
+                Toast.makeText(
+                    baseContext,
+                    R.string.land_border_size_error,
+                    Toast.LENGTH_SHORT
+                ).show()
             }
-        } else {
-            hasStartedSnapshotGeneration = false
-            Toast.makeText(
-                baseContext,
-                R.string.land_border_size_error,
-                Toast.LENGTH_SHORT
-            ).show()
         }
     }
 
@@ -149,11 +149,14 @@ class AddLandActivity : AppCompatActivity() {
                             polygonGeoJSON.toJson()
                         )
                     )
-                    if (!success) Toast.makeText(
-                        this,
-                        "Land already exists, choose a different name",
-                        Toast.LENGTH_SHORT
-                    ).show() else {
+                    if (!success) {
+                        Toast.makeText(
+                            this,
+                            "Land already exists, choose a different name",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        hasStartedSnapshotGeneration = false
+                    } else {
                         val intent = Intent(this, ScrollingActivity::class.java)
                         val b = Bundle()
                         b.putString("name", name)
@@ -292,5 +295,9 @@ class AddLandActivity : AppCompatActivity() {
 
     fun addLandDetailsCallback(name: String, state: String) {
         startSnapShot(name, state)
+    }
+
+    fun addLandDetailsCancel() {
+        hasStartedSnapshotGeneration = false
     }
 }

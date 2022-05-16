@@ -25,7 +25,7 @@ class AddLandDetailsDialogFragment : DialogFragment() {
 
         val builder: AlertDialog.Builder = AlertDialog.Builder(activity)
             .setPositiveButton("Ok") { _, _ -> (activity as AddLandActivity).addLandDetailsCallback(name.text.toString(), state.text.toString()) }
-            .setNegativeButton(R.string.cancel) { _, _ ->  }
+            .setNegativeButton(R.string.cancel) { _, _ ->  (activity as AddLandActivity).addLandDetailsCancel()}
 
         builder.setView(view)
         return builder.create()
